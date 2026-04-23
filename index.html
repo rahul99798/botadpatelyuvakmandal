@@ -1,0 +1,5023 @@
+	<!doctype html>
+	<html lang="gu">
+	  <head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>શ્રી બોટાદ પટેલ યુવક મંડળ સુરત</title>
+		<link
+		  rel="stylesheet"
+		  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+		/>
+		<style>
+		  :root {
+  --bg-color: #020617;
+  --panel-bg: rgba(15, 23, 42, 0.7);
+  --border-color: rgba(255, 255, 255, 0.1);
+  --active-blue: #1d4ed8;
+  --text-main: #f8fafc;
+  --modal-bg: #111418;
+}
+
+/* ==================== BODY (Merged) ==================== */
+body {
+  margin: 0;
+  padding-top: 70px;
+  background: radial-gradient(circle at top right, #1e1b4b, #020617);
+  font-family: "Segoe UI", sans-serif;
+  display: flex;
+  height: calc(100vh - 70px);
+  color: var(--text-main);
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* ==================== TOP HEADER (Merged) ==================== */
+.top-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 68px;
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(15px);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 15px;
+  z-index: 1100;
+}
+
+
+
+.header-logo {
+  flex: 1;
+}
+
+.header-logo span {
+  font-size: 15.5px;
+  font-weight: 600;
+  color: white;
+  line-height: 1.3;
+}
+
+.header-actions {
+  position: absolute;
+  right: 30px;
+  font-size: 14px;
+  color: #94a3b8;
+}
+
+/* ==================== SIDEBAR (Merged — 3 rules combined) ==================== */
+.sidebar {
+  position: fixed;
+  top: 60px;
+  left: -280px;
+  width: 260px;
+  height: calc(100vh - 60px);
+  margin: 0;
+  padding: 20px;
+  background: var(--panel-bg);
+  backdrop-filter: blur(20px);
+  border-right: 1px solid var(--border-color);
+  border-radius: 0 20px 20px 0;
+  display: flex;
+  flex-direction: column;
+  z-index: 1500;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.5);
+  transition: left 0.4s ease;
+}
+
+.sidebar.active {
+  left: 0;
+}
+
+.menu-header {
+  display: none !important;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 25px;
+  padding-right: 10px;
+}
+
+.menu-header span {
+  display: none;
+}
+
+#toggleIcon {
+  font-size: 22px;
+  opacity: 0.8;
+  cursor: pointer;
+  padding: 8px;
+  color: #94a3b8;
+}
+
+.sidebar.collapsed #toggleIcon {
+  transform: rotate(180deg);
+}
+
+.menu-items {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  overflow-y: auto;
+}
+
+.menu-items::-webkit-scrollbar {
+  width: 5px;
+}
+
+.menu-items::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+  color: #94a3b8;
+}
+
+.nav-item i {
+  width: 35px;
+  height: 35px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  font-size: 16px;
+}
+
+.nav-item.active {
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid var(--active-blue);
+  color: white;
+}
+
+/* ==================== SIDEBAR COLLAPSED ==================== */
+.sidebar.collapsed {
+  width: 80px;
+  padding: 20px 10px;
+}
+
+.sidebar.collapsed .menu-header span,
+.sidebar.collapsed .nav-item span,
+.sidebar.collapsed .logout-btn span {
+  display: none;
+}
+
+.sidebar.collapsed .menu-header {
+  justify-content: center;
+}
+
+.sidebar.collapsed .nav-item,
+.sidebar.collapsed .logout-btn {
+  justify-content: center;
+  padding: 10px;
+}
+
+.sidebar.collapsed .nav-item i,
+.sidebar.collapsed .logout-btn i {
+  margin-right: 0;
+}
+
+/* ==================== CONTENT AREA (Merged) ==================== */
+.content-area {
+  flex: 1;
+  padding: 30px;
+  margin-left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+  transition: margin-left 0.4s ease;
+  width: 100%;
+}
+
+/* ==================== CARDS / HEADERS ==================== */
+.news-header-card {
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 15px 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.add-btn {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid var(--active-blue);
+  color: white;
+  padding: 8px 18px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* ==================== TABS ==================== */
+.tabs-container {
+  display: flex;
+  gap: 12px;
+  margin: 15px 0;
+}
+
+.tab-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  color: #94a3b8;
+  padding: 8px 18px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.3s;
+}
+
+.tab-btn.active {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: var(--active-blue);
+  color: white;
+}
+
+.empty-news-box {
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  padding: 15px 25px;
+  color: #94a3b8;
+  font-size: 14px;
+  width: fit-content;
+}
+
+/* ==================== MODAL ==================== */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  z-index: 2000;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-box {
+  background: var(--modal-bg);
+  width: 90%;
+  max-width: 650px;
+  padding: 30px;
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  max-height: 85vh;
+  overflow-y: auto;
+  margin-top: 40px;
+}
+
+.modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.btn-close {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  width: 35px;
+  height: 35px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+/* ==================== FORM ==================== */
+.form-row {
+  margin-bottom: 20px;
+}
+
+.form-row label {
+  display: block;
+  margin-bottom: 10px;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+input,
+textarea {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  padding: 12px 15px;
+  color: white;
+  outline: none;
+}
+
+/* ==================== SELECT (Dropdown) ==================== */
+select {
+  width: 100%;
+  padding: 12px 15px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+  font-size: 15px;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  backdrop-filter: blur(10px);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  background-size: 16px;
+  transition: 0.3s ease;
+}
+
+select option {
+  background-color: #0f172a;
+  color: #ffffff;
+  padding: 12px;
+}
+
+select:focus {
+  border-color: #4da3ff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.round-preview {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 10px 0 20px 0;
+  overflow: hidden;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.round-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ==================== FORM BUTTONS ==================== */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.btn-cancel {
+  background: #2d2d2d;
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 14px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  transition: 0.3s;
+}
+
+.btn-cancel:hover {
+  background: #3d3d3d;
+}
+
+.btn-save {
+  background: #1e3a5f;
+  color: white;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  padding: 12px 28px;
+  border-radius: 14px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  transition: 0.3s;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.btn-save:hover {
+  background: #254a7a;
+  border-color: #3b82f6;
+  transform: translateY(-1px);
+}
+
+/* ==================== LOGOUT ==================== */
+.logout-btn {
+  margin-top: auto;
+  background: rgba(220, 38, 38, 0.1);
+  border-radius: 16px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  color: #f87171;
+  cursor: pointer;
+  margin-bottom: 40px;
+  transition: 0.3s;
+}
+
+/* ==================== LOGIN SCREEN ==================== */
+#loginScreen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at top right, #1e1b4b, #020617);
+  z-index: 9999;
+}
+
+.login-card {
+  background: var(--panel-bg);
+  backdrop-filter: blur(20px);
+  padding: 40px;
+  border-radius: 28px;
+  border: 1px solid var(--border-color);
+  text-align: center;
+  width: 90%;
+  max-width: 400px;
+}
+
+.login-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  padding: 15px;
+  border-radius: 14px;
+  color: white;
+  margin-bottom: 15px;
+  outline: none;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+body.logged-out .sidebar,
+body.logged-out .top-header,
+body.logged-out .content-area {
+  display: none !important;
+}
+
+body.logged-in #loginScreen {
+  display: none;
+}
+
+/* ==================== INPUT CONTAINER (login form) ==================== */
+.input-container {
+  text-align: left;
+  margin-bottom: 15px;
+  width: 100%;
+}
+
+.input-container label {
+  display: block;
+  color: #cbd5e1;
+  font-size: 13px;
+  margin-bottom: 5px;
+  margin-left: 2px;
+}
+
+.login-input-small {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: white;
+  outline: none;
+  font-size: 14px;
+  box-sizing: border-box;
+  transition: 0.3s ease;
+}
+
+.login-input-small:focus {
+  border-color: var(--active-blue);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ==================== LOGIN BUTTON ==================== */
+.login-btn {
+  position: relative;
+  overflow: hidden;
+  width: 50%;
+  margin: 15px auto 0 auto;
+  padding: 14px;
+  background: transparent;
+  border: 2px solid #2563eb;
+  color: #2563eb;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  z-index: 1;
+}
+
+.login-btn::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(37, 99, 235, 0.2), transparent);
+  transition: 0.6s ease;
+  z-index: -1;
+}
+
+.login-btn:hover {
+  transform: translateY(-2px);
+  background: rgba(37, 99, 235, 0.1);
+  box-shadow: 0 6px 20px rgba(29, 78, 216, 0.2);
+}
+
+.login-btn:hover::after {
+  left: 100%;
+}
+
+/* ==================== ADMIN ONLY ==================== */
+.admin-only {
+  display: none !important;
+}
+
+body.is-admin .admin-only {
+  display: flex !important;
+}
+
+body.is-admin button.admin-only {
+  display: inline-block !important;
+}
+
+/* ==================== LOADER ==================== */
+#globalLoader {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.8);
+  backdrop-filter: blur(12px);
+  z-index: 10000;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.loader-container {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 3px solid transparent;
+}
+
+.ring:nth-child(1) {
+  width: 100px;
+  height: 100px;
+  border-top-color: #3b82f6;
+  animation: rotate-ring 1.5s linear infinite;
+}
+
+.ring:nth-child(2) {
+  width: 80px;
+  height: 80px;
+  border-right-color: #ef4444;
+  animation: rotate-ring 1.2s linear infinite reverse;
+}
+
+.ring:nth-child(3) {
+  width: 60px;
+  height: 60px;
+  border-bottom-color: #22c55e;
+  animation: rotate-ring 1s linear infinite;
+}
+
+.ring:nth-child(4) {
+  width: 40px;
+  height: 40px;
+  border-left-color: #eab308;
+  animation: rotate-ring 0.8s linear infinite reverse;
+}
+
+@keyframes rotate-ring {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.loader-text {
+  margin-top: 30px;
+  color: white;
+  font-size: 15px;
+  font-weight: 500;
+  font-family: "Segoe UI", sans-serif;
+  letter-spacing: 2px;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+  animation: pulse-text 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-text {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* ==================== SABHY CARD / PROFILE ==================== */
+.sabhy-card {
+  width: 92%;
+  max-width: 460px;
+  margin: 85px auto 40px auto;     /* ઉપરથી વધુ સ્પેસ */
+  padding: 35px 25px 30px 25px;
+  padding-top: 90px;               /* ફોટો માટે પુરતી જગ્યા */
+  border-radius: 24px;
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+  color: white;
+  position: relative;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.45);
+  box-sizing: border-box;
+}
+
+.profile-img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: #d1d5db;
+  position: absolute;
+  top: -60px;                      /* ફોટો કાર્ડની ઉપર બહાર નીકળે */
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: pointer;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 5px solid #1e293b;       /* કાર્ડના રંગ સાથે મેચિંગ બોર્ડર */
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5);
+  z-index: 10;
+}
+
+#memberProfileWrap.profile-img {
+  z-index: 1200;
+}
+
+.profile-img:hover {
+  border-color: rgba(96, 165, 250, 0.85);
+}
+
+.profile-img.is-busy {
+  pointer-events: none;
+  opacity: 0.65;
+}
+
+.profile-img img#memberPhotoImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.member-photo-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 2px;
+  color: #64748b;
+  font-size: 10px;
+  pointer-events: none;
+  background: rgba(15, 23, 42, 0.2);
+}
+
+.member-photo-placeholder .fa-plus {
+  font-size: 26px;
+  color: #94a3b8;
+}
+
+.profile-img.has-photo .member-photo-placeholder {
+  display: none;
+}
+
+#memberPhotoInput {
+  position: fixed;
+  left: -9999px;
+  width: 0;
+  height: 0;
+  opacity: 0;
+}
+
+.sabhy-details p {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin: 6px 0;
+}
+
+.sabhy-details b {
+  width: 140px;
+  display: inline-block;
+  color: #cbd5e1;
+}
+
+.sabhy-details span {
+  color: white;
+}
+
+#memberPhotoModal.modal {
+  align-items: center;
+  justify-content: center;
+  z-index: 10050;
+}
+
+#memberPhotoModal .modal-box {
+  margin-top: 0;
+  max-width: 480px;
+}
+
+.member-photo-modal-body .form-row input[type="file"] {
+  padding: 10px;
+  cursor: pointer;
+}
+
+/* ==================== MOBILE RESPONSIVE (≤ 768px) — MERGED ==================== */
+@media (max-width: 768px) {
+  body {
+    padding-top: 60px;
+  }
+
+  .top-header {
+    flex-direction: row !important;
+    height: 60px;
+    padding: 0 8px;
+    gap: 0;
+}
+
+.top-header > div:nth-child(2) span {
+    font-size: 13.5px !important;
+}
+
+.top-header > div:nth-child(3) span {
+    font-size: 13px !important;
+}
+
+  .header-logo span {
+    font-size: 15px;
+  }
+
+  .header-actions {
+    position: static;
+    width: auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  #memberDisplay {
+    font-size: 13px;
+    font-weight: 700;
+    color: #60a5fa;
+    order: 1;
+  }
+
+  #currentDate {
+    font-size: 13px;
+    color: #94a3b8;
+    order: 2;
+  }
+
+ .sidebar {
+    position: fixed;
+    top: 60px;
+    left: -300px;
+    width: 260px;
+    height: calc(100vh - 60px);
+    background: var(--panel-bg);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid var(--border-color);
+    border-radius: 0 20px 20px 0;
+    transition: left 0.4s ease;
+    z-index: 1500;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.5);
+}
+
+  .sidebar.active {
+    left: 0;
+  }
+
+  .sidebar.collapsed {
+    width: 260px;
+    left: -260px;
+  }
+
+  .content-area {
+    margin-left: 0 !important;
+    padding: 15px 12px;
+    width: 100%;
+  }
+
+  .nav-item {
+    padding: 14px 16px;
+    font-size: 15px;
+  }
+
+  .nav-item i {
+    width: 38px;
+    height: 38px;
+    font-size: 18px;
+  }
+
+  .sabhy-card,
+#resultListContainer > div,
+.news-header-card {
+    width: 100% !important;
+    margin: 0 auto;
+}
+
+/* 🔥 News & Event cards full width - Mobile */
+#listContainer > div {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+#listContainer {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 15px !important;
+    width: 100%;
+}
+
+  #listContainer {
+    grid-template-columns: 1fr !important;
+    gap: 15px;
+  }
+
+  .modal-box {
+    width: 95% !important;
+    margin: 20px auto !important;
+    padding: 20px;
+    max-height: 90vh;
+  }
+
+  .login-card {
+    width: 92% !important;
+    padding: 25px 20px !important;
+  }
+
+  .add-btn, .btn-save, .btn-cancel {
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+/* ==================== SMALL MOBILE (≤ 480px) ==================== */
+@media (max-width: 480px) {
+  body {
+    padding-top: 58px;
+  }
+
+  .top-header {
+    height: 58px;
+    padding: 0 10px;
+  }
+
+  .header-logo span {
+    font-size: 14.5px;
+  }
+
+  .content-area {
+    padding: 12px 10px;
+    margin-left: 0 !important;
+  }
+
+  .news-header-card {
+    padding: 10px 12px;
+    flex-direction: row;           /* Column માંથી row */
+    gap: 8px;
+    align-items: center;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+}
+
+.news-header-card .news-title {
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.news-header-card .add-btn {
+    padding: 7px 10px !important;
+    font-size: 12px !important;
+}
+
+  .sabhy-card,
+  #resultListContainer > div,
+  .empty-news-box {
+    width: 100% !important;
+    margin: 0 auto;
+  }
+
+  #listContainer {
+    grid-template-columns: 1fr !important;
+    gap: 14px;
+  }
+
+  .add-btn,
+  .btn-save,
+  .btn-cancel {
+    width: 100%;
+    padding: 13px;
+    font-size: 15px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .modal-box {
+    width: 96% !important;
+    margin: 15px auto !important;
+    padding: 20px 18px;
+    border-radius: 20px;
+  }
+
+  .sabhy-details p {
+    font-size: 14px;
+  }
+
+  .sabhy-details b {
+    width: 110px;
+  }
+
+  .login-card {
+    padding: 25px 20px !important;
+    max-width: 92% !important;
+  }
+
+  .login-btn {
+    width: 100% !important;
+    padding: 15px;
+    font-size: 15.5px;
+  }
+}
+
+/* ==================== DESKTOP (≥ 769px) ==================== */
+/* ==================== DESKTOP (≥ 769px) ==================== */
+@media (min-width: 769px) {
+  .content-area {
+    margin-left: 0 !important;
+    padding: 12px 10px !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+}
+
+.news-header-card {
+    width: 100% !important;
+    padding: 12px 15px !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+}
+
+#listContainer {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 15px !important;
+}
+
+#listContainer > div {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+}
+/* ==================== MOBILE RESPONSIVE (≤ 480px) ==================== */
+@media (max-width: 480px) {
+  .sabhy-card {
+    margin: 75px auto 30px auto;
+    padding-top: 80px;
+  }
+  
+  .profile-img {
+    width: 110px;
+    height: 110px;
+    top: -55px;
+  }
+}
+/* ==================== RESULT PAGE - DROPDOWN & ON/OFF BUTTON SMALLER ==================== */
+
+
+
+#toggleResultBtn {
+  font-size: 12.5px !important;
+  padding: 6px 12px !important;
+  height: 40px !important;
+  min-width: 110px !important;
+  border-radius: 10px !important;
+}
+
+/* બટન અને ડ્રોપડાઉન વચ્ચે સારી જગ્યા */
+.news-header-card > div[style*="display: flex"] {
+  gap: 8px !important;
+}
+
+/* મોબાઈલ પર વધુ કોમ્પેક્ટ */
+@media (max-width: 480px) {
+  #adminResultMemberDropdown {
+    font-size: 12.5px !important;
+    padding: 7px 9px !important;
+    height: 38px !important;
+    min-width: 100% !important;     /* મોબાઈલમાં પૂરી વીડ્થ */
+  }
+  
+  #toggleResultBtn {
+    font-size: 12px !important;
+    padding: 6px 10px !important;
+    height: 38px !important;
+    min-width: 105px !important;
+  }
+}
+/* ==================== RESULT DROPDOWN - VERY SMALL & COMPACT ==================== */
+
+
+
+/* મોબાઈલ પર વધુ નાનું અને સરસ */
+@media (max-width: 480px) {
+  #adminResultMemberDropdown {
+    font-size: 12.5px !important;
+    padding: 7px 10px !important;
+    height: 36px !important;
+    min-width: 100% !important;        /* મોબાઈલમાં પૂરી વીડ્થ લે */
+  }
+}
+
+#addResultBtn, #toggleResultBtn {
+    font-size: 13px !important;
+    padding: 7px 14px !important;
+    height: 38px !important;
+}
+
+@media (max-width: 480px) {
+    #adminResultMemberDropdown {
+        min-width: 100% !important;
+        font-size: 12.5px !important;
+    }
+    
+    #toggleResultBtn span {
+        font-size: 11.5px;
+    }
+}
+.login-photo {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin: 0 auto 15px auto;
+  border: 3px solid rgba(255,255,255,0.2);
+}
+
+.login-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+		</style>
+	  </head>
+
+	  <body class="logged-out">
+		<div id="loginScreen">
+		  <div class="login-card" style="padding: 30px; max-width: 350px">
+		  <div class="login-photo">
+  <img src="https://res.cloudinary.com/dtl9e3syy/image/upload/q_auto/f_auto/v1776925512/Botad-logo_kyowao.png">
+</div>
+			<h2 style="color: white; font-size: 20px; margin-bottom: 5px">
+			  શ્રી બોટાદ પટેલ યુવક મંડળ
+			</h2>
+
+			<div class="input-container">
+			  <label>મોબાઈલ નંબર</label>
+			  <input
+				type="text"
+				id="loginMobile"
+				class="login-input-small"
+				placeholder="નંબર લખો..."
+				maxlength="10"
+			  />
+			</div>
+
+			<div class="input-container">
+			  <label>પાસવર્ડ</label>
+			  <input
+				type="password"
+				id="loginPass"
+				class="login-input-small"
+				placeholder="પાસવર્ડ લખો..."
+			  />
+			</div>
+
+			<button class="login-btn" onclick="login()">
+			  <span>લોગિન કરો</span>
+			  <i class="fas fa-arrow-right"></i>
+			</button>
+		  </div>
+		</div>
+		<div id="globalLoader">
+		  <div class="loader-container">
+			<div class="ring"></div>
+			<div class="ring"></div>
+			<div class="ring"></div>
+			<div class="ring"></div>
+		  </div>
+		  <div class="loader-text">ડેટા લોડ થઈ રહ્યો છે...</div>
+		</div>
+		<!-- Top Header -->
+<div class="top-header" style="display: flex; align-items: center; justify-content: space-between;">
+  
+  <!-- ડાબી બાજુ: Hamburger -->
+  <div style="display: flex; align-items: center; flex: 1;">
+    <button onclick="toggleMobileSidebar()" 
+            style="background: none; border: none; color: white; font-size: 24px; cursor: pointer; padding: 8px;">
+      <i class="fas fa-bars"></i>
+    </button>
+  </div>
+
+  <!-- સેન્ટરમાં: Title -->
+  <div style="flex: 2; text-align: center;">
+    <span style="font-size: 16.5px; font-weight: 700; color: white;">
+      શ્રી બોટાદ પટેલ યુવક મંડળ સુરત
+    </span>
+  </div>
+
+  <!-- જમણી બાજુ: સભ્ય નંબર -->
+  <div style="flex: 1; text-align: right; padding-right: 15px;">
+    <span id="memberDisplay" style="color: #3b82f6; font-weight: bold; font-size: 14px;"></span>
+  </div>
+
+</div>
+		<div class="sidebar" id="sidebar">
+		  <div class="menu-header">
+			<span style="font-size: 18px; font-weight: bold">Menu</span>
+			<i
+			  class="fas fa-angle-double-left"
+			  id="toggleIcon"
+			  style="opacity: 0.5; cursor: pointer; padding: 5px"
+			  onclick="toggleSidebar()"
+			></i>
+		  </div>
+
+		  <div class="menu-items">
+			<div class="nav-item active" onclick="showContent('news')">
+			  <i><i class="fas fa-newspaper"></i></i><span>સમાચાર</span>
+			</div>
+			<div class="nav-item" onclick="showContent('events')">
+			  <i><i class="fas fa-calendar-alt"></i></i><span>ઇવેન્ટ્સ</span>
+			</div>
+			<div class="nav-item" onclick="showContent('gallery')">
+			  <i><i class="fas fa-images"></i></i><span>ગેલેરી</span>
+			</div>
+			<div class="nav-item" onclick="showContent('committee')">
+			  <i><i class="fas fa-users"></i></i><span>કમિટી</span>
+			</div>
+			<div class="nav-item" onclick="showContent('donors')">
+			  <i><i class="fas fa-hand-holding-heart"></i></i><span>દાતાશ્રીઓ</span>
+			</div>
+			<div class="nav-item" onclick="showContent('members')">
+			  <i><i class="fas fa-user-friends"></i></i><span>સભ્યો</span>
+			</div>
+			<div class="nav-item" onclick="showContent('business')">
+			  <i><i class="fas fa-briefcase"></i></i><span>વ્યવસાય</span>
+			</div>
+			<div class="nav-item" onclick="showContent('result')">
+			  <i><i class="fas fa-chart-line"></i></i><span>રિઝલ્ટ</span>
+			</div>
+			<div class="nav-item" onclick="showContent('achievements')">
+			  <i><i class="fas fa-award"></i></i><span>વિશિષ્ટ સિદ્ધિઓ</span>
+			</div>
+		  </div>
+
+		  <div class="logout-btn" onclick="logout()">
+			<i class="fas fa-sign-out-alt" style="margin-right: 15px"></i>
+			<span>લોગ આઉટ</span>
+		  </div>
+		</div>
+
+		<div class="content-area" id="mainContent">
+		  <div class="news-header-card">
+			<div class="news-title"><i class="fas fa-newspaper"></i> સમાચાર</div>
+		  </div>
+
+		  <div id="listContainer" class="empty-news-box">
+			મહેરબાની કરીને થોડી રાહ જુઓ...
+		  </div>
+
+		  <!-- 🔽 Sabhyo Panel અહીં મુક -->
+		  <div id="sabhyCard" class="sabhy-card">
+			<div
+			  class="profile-img"
+			  id="memberProfileWrap"
+			  title="ફોટો અપલોડ કરો"
+			  role="button"
+			  tabindex="0"
+			  onclick="
+				if (typeof openMemberPhotoModal === 'function')
+				  openMemberPhotoModal();
+			  "
+			>
+			  <img id="memberPhotoImg" alt="" style="display: none" />
+			  <div class="member-photo-placeholder" id="memberPhotoPlaceholder">
+				<i class="fas fa-plus" aria-hidden="true"></i>
+				<span>ફોટો</span>
+			  </div>
+			</div>
+			<div class="sabhy-details">
+			  <p><b>સભ્ય નંબર:</b> <span id="sabhyNo"></span></p>
+			  <p><b>નામ:</b> <span id="name"></span></p>
+			  <p><b>પિતાનું નામ:</b> <span id="father"></span></p>
+			  <p><b>દાદાનું નામ:</b> <span id="grand"></span></p>
+			  <p><b>અટક:</b> <span id="surname"></span></p>
+			</div>
+		  </div>
+
+		  <div id="secondaryDetailsContainer"></div>
+		</div>
+
+		<div id="commonModal" class="modal">
+		  <div class="modal-box">
+			<div class="modal-head">
+			  <strong id="modalTitle"></strong>
+			  <button class="btn-close" onclick="closeModal()">✕</button>
+			</div>
+			<div class="form-body"></div>
+			<div class="form-actions">
+			  <button class="btn-cancel" onclick="closeModal()">કેન્સલ</button>
+			  <button class="btn-save" onclick="handleSave()">સેવ કરો</button>
+			</div>
+		  </div>
+		</div>
+		<div
+		  id="imageModal"
+		  class="modal"
+		  onclick="closeImageModal()"
+		  style="
+			display: none;
+			cursor: zoom-out;
+			z-index: 3000;
+			background: rgba(0, 0, 0, 0.9);
+		  "
+		>
+		  <span
+			style="
+			  position: absolute;
+			  top: 20px;
+			  right: 30px;
+			  font-size: 40px;
+			  color: white;
+			  cursor: pointer;
+			  font-weight: bold;
+			"
+			>&times;</span
+		  >
+		  <img
+			id="fullImage"
+			style="
+			  max-width: 95%;
+			  max-height: 90%;
+			  border-radius: 10px;
+			  box-shadow: 0 0 50px rgba(0, 0, 0, 1);
+			"
+		  />
+		</div>
+		<div
+		  id="memberPhotoModal"
+		  class="modal"
+		  style="display: none"
+		  onclick="if (event.target === this) closeMemberPhotoModal();"
+		>
+		  <div class="modal-box" onclick="event.stopPropagation()">
+			<div class="modal-head">
+			  <strong>ફોટો અપલોડ કરો</strong>
+			  <button
+				type="button"
+				class="btn-close"
+				onclick="closeMemberPhotoModal()"
+			  >
+				✕
+			  </button>
+			</div>
+			<div class="form-body member-photo-modal-body">
+			  <p style="color: #94a3b8; font-size: 13px; margin: 0 0 16px 0">
+				સભ્ય નંબર:
+				<span
+				  id="memberPhotoModalSabhya"
+				  style="color: #fff; font-weight: 600"
+				></span>
+			  </p>
+			  <div
+				class="round-preview"
+				id="memberPhotoModalPreview"
+				style="margin: 12px auto 20px; width: 120px; height: 120px"
+			  >
+				<img
+				  id="memberPhotoModalPreviewImg"
+				  alt=""
+				  style="
+					display: none;
+					width: 100%;
+					height: 100%;
+					object-fit: cover;
+					border-radius: 50%;
+				  "
+				/>
+				<span
+				  id="memberPhotoModalPreviewHint"
+				  style="
+					font-size: 12px;
+					color: #94a3b8;
+					text-align: center;
+					padding: 8px;
+				  "
+				  >ફોટો પસંદ કરો</span
+				>
+			  </div>
+			  <div class="form-row">
+				<label
+				  style="
+					color: #cbd5e1;
+					font-size: 14px;
+					display: block;
+					margin-bottom: 8px;
+				  "
+				  >ફાઇલ</label
+				>
+				<input
+				  type="file"
+				  id="memberPhotoFileInModal"
+				  accept="image/jpeg,image/png,image/webp,image/gif"
+				/>
+			  </div>
+			</div>
+			<div class="form-actions">
+			  <button
+				type="button"
+				class="btn-cancel"
+				onclick="closeMemberPhotoModal()"
+			  >
+				કેન્સલ
+			  </button>
+			  <button
+				type="button"
+				class="btn-save"
+				onclick="submitMemberPhotoFromModal()"
+			  >
+				સેવ કરો
+			  </button>
+			</div>
+		  </div>
+		</div>
+
+		<script>
+		  const SCRIPT_URL =
+			"https://script.google.com/macros/s/AKfycbxomeTTLmqK-_xokN-H6vyZne1bn9u5X4eWrexDs1qv5LQUwlhuavAJe_nJFE5hv0qz/exec";
+			
+
+		  async function login() {
+			const mobileInput = document.getElementById("loginMobile");
+			const passInput = document.getElementById("loginPass");
+
+			const mobile = mobileInput.value.trim();
+			const pass = passInput.value.trim();
+
+			// ૧. વેલિડેશન: મોબાઈલ અને પાસવર્ડ ખાલી નથી ને તે ચેક કરો
+			if (mobile.length !== 10 || pass === "") {
+			  alert("મહેરબાની કરીને ૧૦ અંકનો મોબાઈલ નંબર અને પાસવર્ડ નાખો.");
+			  return;
+			}
+
+			// ૨. લોડર ચાલુ કરો (યુઝર બીજે ક્યાંય ટચ ન કરી શકે)
+			showLoader(true);
+
+			try {
+			  // ૩. સર્વરને વિનંતી મોકલો
+			  const response = await fetch(
+				`${SCRIPT_URL}?mobile=${mobile}&pass=${pass}`,
+			  );
+
+			  if (!response.ok) {
+				throw new Error("Network response was not ok");
+			  }
+
+			  const data = await response.json();
+
+			  // ૪. સર્વરના સ્ટેટસ મુજબ નિર્ણય લો
+			  if (data.status === "success") {
+				// સફળ લોગિન: ડેટા સેવ કરો
+				localStorage.setItem("userMobile", mobile);
+				localStorage.setItem("userMemberNo", data.MemberNo);
+				localStorage.setItem("userRole", data.Role || "public");
+
+				// UI બદલો (લોગિન સ્ક્રીન કાઢી કન્ટેન્ટ બતાવો)
+				document.body.classList.remove("logged-out");
+				document.body.classList.add("logged-in");
+				preloadAllImportantData();
+				// ડિફોલ્ટ સમાચાર પેજ બતાવો
+				showContent("news");
+
+				// લોડર બંધ કરો
+				showLoader(false);
+			  } else if (data.status === "wrong_pass") {
+				// પાસવર્ડ ખોટો હોય ત્યારે
+				showLoader(false);
+				alert("તમારો પાસવર્ડ ખોટો છે! ❌");
+			  } else if (data.status === "not_registered") {
+				// મોબાઈલ નંબર રજીસ્ટર ન હોય ત્યારે
+				showLoader(false);
+				alert("આ મોબાઈલ નંબર રજીસ્ટર નથી! ❌");
+			  } else {
+				// અન્ય કોઈ એરર માટે
+				showLoader(false);
+				alert("મોબાઈલ નંબર અથવા પાસવર્ડમાં ભૂલ છે ❌");
+			  }
+			} catch (err) {
+			  // ૫. સર્વર કનેક્શન એરર વખતે લોડર બંધ કરો
+			  showLoader(false);
+			  console.error("Error:", err);
+			  alert(
+				"સર્વર સાથે સંપર્ક થઈ શક્યો નથી. તમારી ઈન્ટરનેટ કનેક્શન અને Script URL ચેક કરો.",
+			  );
+			}
+		  }
+		  // --- ૨. લોગઆઉટ ફંક્શન ---
+		  function logout() {
+			localStorage.clear();
+			location.reload();
+		  }
+
+		  // --- ૩. પેજ લોડ ચેક ---
+		  window.addEventListener("load", () => {
+			const savedMobile = localStorage.getItem("userMobile");
+			const savedRole = localStorage.getItem("userRole");
+			const savedMemberNo = localStorage.getItem("userMemberNo"); // નંબર મેળવો
+
+			if (savedMobile) {
+			  document.body.classList.remove("logged-out");
+			  document.body.classList.add("logged-in");
+
+			  // જો સભ્ય નંબર હોય તો હેડરમાં બતાવો
+			  if (savedMemberNo) {
+    document.getElementById("memberDisplay").innerText = savedMemberNo;
+}
+
+			  if (savedRole === "admin") {
+				document.body.classList.add("is-admin");
+			  }
+			  // પેજ લોડ થાય ત્યારે સીધા ન્યૂઝ બતાવો
+			  showContent("news");
+			} else {
+			  document.body.classList.add("logged-out");
+			  document.body.classList.remove("logged-in");
+			  document.body.classList.remove("is-admin");
+			}
+
+			
+		  });
+		  const contentData = {
+			news: {
+			  title: "સમાચાર",
+			  icon: "fa-newspaper",
+			  btn: "સમાચાર ઉમેરો",
+			  empty: "No news yet.",
+			},
+			events: {
+			  title: "ઇવેન્ટ્સ",
+			  icon: "fa-calendar-alt",
+			  btn: "ઇવેન્ટ ઉમેરો",
+			},
+			gallery: {
+			  title: "ગેલેરી",
+			  icon: "fa-images",
+			  btn: "ગેલેરી ઉમેરો",
+			  empty: "No photos yet.",
+			},
+			committee: { title: "કમિટી", icon: "fa-users", btn: "કમિટી ઉમેરો" },
+			donors: {
+			  title: "દાતાશ્રીઓ",
+			  icon: "fa-hand-holding-heart",
+			  btn: "દાતા ઉમેરો",
+			  empty: "No donors yet.",
+			},
+			members: {
+			  title: "સભ્યો",
+			  icon: "fa-user-friends",
+			  btn: "સભ્ય ઉમેરો",
+			  empty: "No members yet.",
+			},
+			business: {
+			  title: "વ્યવસાય",
+			  icon: "fa-briefcase",
+			  btn: "વ્યવસાય ઉમેરો",
+			  empty: "No business yet.",
+			},
+			result: {
+			  title: "રિઝલ્ટ",
+			  icon: "fa-chart-line",
+			  btn: "રિઝલ્ટ ઉમેરો",
+			  empty: "No results yet.",
+			},
+			achievements: {
+			  title: "વિશિષ્ટ સિદ્ધિઓ",
+			  icon: "fa-award",
+			  btn: "સિદ્ધિ ઉમેરો",
+			  empty: "No achievements yet.",
+			},
+		  };
+
+		  // 1. મેનુ પર ક્લિક કરવાથી પેજ દેખાડવાનું ફંક્શન
+		  async function showContent(type) {
+  if (type === "result") {
+  const userRole = localStorage.getItem("userRole") || "public";
+  
+  // Public user માટે server થી live status check કરો
+  if (userRole !== "admin") {
+    const contentArea = document.getElementById("mainContent");
+    contentArea.innerHTML = `<div style="text-align:center; padding:40px; color:#94a3b8;">લોડ થઈ રહ્યું છે...</div>`;
+    
+    try {
+      const res = await fetch(`${SCRIPT_URL}?action=getResultStatus`);
+      const data = await res.json();
+      const isEnabled = data.status === "success" ? (data.enabled !== false) : true;
+      localStorage.setItem("resultEnabled", isEnabled ? "true" : "false");
+      
+      if (!isEnabled) {
+        contentArea.innerHTML = `
+  <div style="padding:40px 20px 40px 0; max-width:420px;">
+    <div style="text-align:center; padding:35px 25px; background:rgba(15,23,42,0.5); border:1px solid rgba(239,68,68,0.2); border-radius:20px;">
+      <div style="width:75px; height:75px; margin:0 auto 18px; background:rgba(239,68,68,0.1); border:2px solid rgba(239,68,68,0.3); border-radius:50%; display:flex; align-items:center; justify-content:center;">
+        <i class="fa-solid fa-lock" style="font-size:32px; color:#ef4444;"></i>
+      </div>
+      <h2 style="color:#f8fafc; margin:0 0 8px 0; font-size:17px; font-weight:bold;">
+        રિઝલ્ટ હાલમાં ઉપલબ્ધ નથી
+      </h2>
+      <p style="color:#94a3b8; font-size:12px; line-height:1.5; margin:0;">
+        એડમિન દ્વારા આ વિભાગ હાલ પૂરતો બંધ કરવામાં આવ્યો છે.<br>
+        કૃપા કરીને થોડા સમય પછી ફરી પ્રયાસ કરો.
+      </p>
+    </div>
+  </div>
+`;
+        return;
+      }
+    } catch(err) {
+      console.error("Result status check error:", err);
+      // Error પર fallback: localStorage માંથી check કરો
+      if (localStorage.getItem("resultEnabled") === "false") {
+        contentArea.innerHTML = `
+          <div style="text-align:center; padding:80px 30px;">
+            <i class="fa-solid fa-lock" style="font-size:60px; color:#ef4444; opacity:0.6; margin-bottom:20px;"></i>
+            <h2 style="color:#f8fafc;">રિઝલ્ટ હાલમાં ઉપલબ્ધ નથી</h2>
+          </div>
+        `;
+        return;
+      }
+    }
+  }
+}
+  
+  // ⬇️⬇️⬇️ અહીંયા નવો code પેસ્ટ કરો ⬇️⬇️⬇️
+  
+  // 🔒 ACHIEVEMENT LOCK CHECK (Public user માટે)
+  if (type === "achievements") {
+    const userRole = localStorage.getItem("userRole") || "public";
+    
+    if (userRole !== "admin") {
+      const contentArea = document.getElementById("mainContent");
+      contentArea.innerHTML = `<div style="text-align:center; padding:40px; color:#94a3b8;">લોડ થઈ રહ્યું છે...</div>`;
+      
+      try {
+        const res = await fetch(`${SCRIPT_URL}?action=getAchievementStatus`);
+        const data = await res.json();
+        const isEnabled = data.status === "success" ? (data.enabled !== false) : true;
+        localStorage.setItem("achievementEnabled", isEnabled ? "true" : "false");
+        
+        if (!isEnabled) {
+          contentArea.innerHTML = `
+            <div style="padding:40px 20px 40px 0; max-width:420px;">
+              <div style="text-align:center; padding:35px 25px; background:rgba(15,23,42,0.5); border:1px solid rgba(239,68,68,0.2); border-radius:20px;">
+                <div style="width:75px; height:75px; margin:0 auto 18px; background:rgba(239,68,68,0.1); border:2px solid rgba(239,68,68,0.3); border-radius:50%; display:flex; align-items:center; justify-content:center;">
+                  <i class="fa-solid fa-lock" style="font-size:32px; color:#ef4444;"></i>
+                </div>
+                <h2 style="color:#f8fafc; margin:0 0 8px 0; font-size:17px; font-weight:bold;">
+                  વિશિષ્ટ સિદ્ધિઓ હાલમાં ઉપલબ્ધ નથી
+                </h2>
+                <p style="color:#94a3b8; font-size:12px; line-height:1.5; margin:0;">
+                  એડમિન દ્વારા આ વિભાગ હાલ પૂરતો બંધ કરવામાં આવ્યો છે.<br>
+                  કૃપા કરીને થોડા સમય પછી ફરી પ્રયાસ કરો.
+                </p>
+              </div>
+            </div>
+          `;
+          return;
+        }
+      } catch(err) {
+        console.error("Achievement status check error:", err);
+        if (localStorage.getItem("achievementEnabled") === "false") {
+          contentArea.innerHTML = `
+            <div style="padding:40px 20px 40px 0; max-width:420px;">
+              <div style="text-align:center; padding:35px 25px; background:rgba(15,23,42,0.5); border:1px solid rgba(239,68,68,0.2); border-radius:20px;">
+                <div style="width:75px; height:75px; margin:0 auto 18px; background:rgba(239,68,68,0.1); border:2px solid rgba(239,68,68,0.3); border-radius:50%; display:flex; align-items:center; justify-content:center;">
+                  <i class="fa-solid fa-lock" style="font-size:32px; color:#ef4444;"></i>
+                </div>
+                <h2 style="color:#f8fafc; margin:0 0 8px 0; font-size:17px; font-weight:bold;">
+                  વિશિષ્ટ સિદ્ધિઓ હાલમાં ઉપલબ્ધ નથી
+                </h2>
+              </div>
+            </div>
+          `;
+          return;
+        }
+      }
+    }
+  }
+			const contentArea = document.getElementById("mainContent");
+			const data = contentData[type];
+			// LocalStorage માંથી રોલ મેળવો જે Apps Script એ મોકલ્યો હતો
+			const userRole = localStorage.getItem("userRole");
+
+			// મેનુ એક્ટિવ ક્લાસ સેટ કરવો
+			document.querySelectorAll(".nav-item").forEach((item) => {
+			  item.classList.remove("active");
+			  if (item.querySelector("span").innerText === data.title) {
+				item.classList.add("active");
+			  }
+			});
+
+				if (type === "news") {
+		contentArea.innerHTML = `
+			<div class="news-header-card">
+				<div class="news-title"><i class="fas fa-newspaper"></i> સમાચાર</div>
+			</div>
+			<div id="listContainer" class="empty-news-box">લોડ થઈ રહ્યું છે...</div>
+		`;
+		
+		// જો પહેલેથી લોડ થયેલું હોય તો loader વગર જ બતાવો
+		const container = document.getElementById("listContainer");
+		if (container.innerHTML.includes("કોઈ સમાચાર") || 
+			container.querySelectorAll("div[id^='news-card']").length > 0) {
+			// પહેલેથી લોડ થયેલું છે → loader ના બતાવો
+		} else {
+			loadNews();
+		}
+	}
+			else if (type === "events") {
+			  contentArea.innerHTML = `
+				<div class="news-header-card">
+					<div class="news-title"><i class="fas fa-calendar-alt"></i> ઇવેન્ટ્સ</div>
+				</div>
+				<div class="tabs-container">
+					<button class="tab-btn active" onclick="switchTab('events', 'snehmilan')">સ્નેહમિલન</button>
+					<button class="tab-btn" onclick="switchTab('events', 'bgpl')">બીજીપીએલ</button>
+				</div>
+				<div id="listContainer" class="empty-news-box">લોડ થઈ રહ્યું છે...</div>
+			`;
+			  loadEvents("snehmilan");
+			}
+			// --- showContent ફંક્શનમાં આ ભાગ શોધો અને return ઉમેરો ---
+			else if (type === "gallery") {
+		contentArea.innerHTML = `
+			<div class="news-header-card">
+				<div class="news-title"><i class="fas fa-images"></i> ગેલેરી</div>
+			</div>
+			<div id="listContainer" class="empty-news-box">લોડ થઈ રહ્યું છે...</div>
+		`;
+
+		const container = document.getElementById("listContainer");
+		
+		// જો પહેલેથી ગેલેરી લોડ થઈ ગઈ હોય તો loader વગર જ બતાવો
+		if (container.innerHTML.includes("વર્ષ -") || 
+			container.querySelectorAll(".year-group").length > 0) {
+			// પહેલેથી લોડ થયેલું છે
+		} else {
+			loadGallery();
+		}
+		return;
+	}
+	else if (type === "donors") {
+			  contentArea.innerHTML = `
+			<div class="news-header-card">
+				<div class="news-title"><i class="fas fa-hand-holding-heart"></i> દાતાશ્રીઓ</div>
+			</div>
+			<div id="listContainer" class="empty-news-box" style="background:transparent; border:none;">લોડ થઈ રહ્યું છે...</div>
+		`;
+			  loadDonors();
+			  return;
+			} else if (type === "members") {
+  const userRole = localStorage.getItem("userRole");
+  contentArea.innerHTML = `
+<div class="news-header-card" style="flex-wrap: nowrap; gap: 8px;">
+  <div class="news-title" style="white-space: nowrap;">
+    <i class="fa-solid fa-users"></i> સભ્યો
+  </div>
+
+  <!-- જમણી બાજુના બંને buttons — Compact -->
+  <div style="margin-left: auto; display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+    
+    <!-- Update/Add button — Compact -->
+    <button id="updateBtn" onclick="openAddForm('members')" style="
+      display: none;
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid var(--active-blue);
+      color: white;
+      padding: 7px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 12.5px;
+      white-space: nowrap;
+      align-items: center;
+      gap: 5px;
+    ">
+      <i class="fa-solid fa-plus" style="font-size: 11px;"></i> 
+      <span>વિગત ઉમેરો</span>
+    </button>
+
+    <!-- Refresh Button — Round icon only -->
+    <button id="refreshMemberBtn" title="રિફ્રેશ" style="
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid var(--active-blue);
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      flex-shrink: 0;
+      padding: 0;
+    ">
+      <i class="fas fa-sync-alt"></i>
+    </button>
+
+  </div>
+</div>
+
+<div id="sabhyCard" class="sabhy-card">
+  <div class="profile-img" id="memberProfileWrap" title="ફોટો અપલોડ કરો" role="button" tabindex="0"
+       onclick="if (typeof openMemberPhotoModal === 'function') openMemberPhotoModal();">
+    <img id="memberPhotoImg" alt="" style="display:none;">
+    <div class="member-photo-placeholder" id="memberPhotoPlaceholder">
+      <i class="fas fa-plus" aria-hidden="true"></i>
+      <span>ફોટો</span>
+    </div>
+  </div>
+  <div class="sabhy-details">
+    <p><b>સભ્ય નંબર:</b> <span id="sabhyNo">લોડ થઈ રહ્યું છે...</span></p>
+    <p><b>મોબાઇલ:</b> <span id="mobile">-</span></p>
+    <p><b>નામ:</b> <span id="name">-</span></p>
+    <p><b>પિતાનું નામ:</b> <span id="father">-</span></p>
+    <p><b>દાદાનું નામ:</b> <span id="grand">-</span></p>
+    <p><b>અટક:</b> <span id="surname">-</span></p>
+  </div>
+</div>
+<div id="secondaryDetailsContainer"></div>
+`;
+
+  // Refresh Button Event
+  // Refresh Button Event — Round icon only
+setTimeout(() => {
+    const refreshBtn = document.getElementById("refreshMemberBtn");
+    if (refreshBtn) {
+      refreshBtn.onclick = function() {
+        const btn = this;
+        const icon = btn.querySelector("i");
+        
+        // Icon ને spin કરો
+        icon.classList.remove("fa-sync-alt");
+        icon.classList.add("fa-spinner", "fa-spin");
+        btn.disabled = true;
+        btn.style.opacity = "0.6";
+
+        loadMemberData().finally(() => {
+          // Original icon પાછું લાવો
+          icon.classList.remove("fa-spinner", "fa-spin");
+          icon.classList.add("fa-sync-alt");
+          btn.disabled = false;
+          btn.style.opacity = "1";
+        });
+      };
+    }
+  }, 100);
+
+  loadMemberData();
+  return;
+}
+	else if (type === "result") {
+    const userRole = localStorage.getItem("userRole") || "public";
+    const resultEnabled = localStorage.getItem("resultEnabled") !== "false";
+
+    const contentArea = document.getElementById("mainContent");
+
+    contentArea.innerHTML = `
+        <div class="news-header-card" style="padding: 12px 15px; gap: 12px; align-items: center;">
+            
+            <!-- ડાબી બાજુ: માત્ર Title -->
+            <div class="news-title" style="font-size: 17px; white-space: nowrap;">
+                <i class="fa-solid fa-chart-simple"></i> રિઝલ્ટ
+            </div>
+
+            <!-- જમણી બાજુ: બધા બટન અને ડ્રોપડાઉન -->
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-left: auto;">
+                
+                <!-- રિઝલ્ટ ઉમેરો બટન -->
+                <button type="button" class="add-btn" id="addResultBtn" style="
+                    padding: 7px 14px; 
+                    font-size: 13px; 
+                    height: 38px; 
+                    display: flex; 
+                    align-items: center; 
+                    gap: 5px;
+                ">
+                    <i class="fa-solid fa-plus"></i> 
+                    રિઝલ્ટ ઉમેરો
+                </button>
+
+                <!-- સભ્ય પસંદ કરો Dropdown -->
+                ${userRole === "admin" ? `
+                    <select id="adminResultMemberDropdown" style="
+                        font-size: 13px; 
+                        padding: 7px 10px; 
+                        height: 38px; 
+                        min-width: 190px; 
+                        border-radius: 10px; 
+                        background: rgba(255,255,255,0.05); 
+                        border: 1px solid rgba(255,255,255,0.25); 
+                        color: white;
+                    ">
+                        <option value="">-- સભ્ય પસંદ કરો --</option>
+                    </select>
+                ` : ""}
+
+                <!-- On/Off બટન -->
+                ${userRole === "admin" ? `
+                    <button type="button" id="toggleResultBtn" style="
+                        background: ${resultEnabled ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)'};
+                        border: 1px solid ${resultEnabled ? 'rgba(239, 68, 68, 0.4)' : 'rgba(34, 197, 94, 0.4)'};
+                        color: white;
+                        padding: 7px 12px;
+                        border-radius: 10px;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        gap: 6px;
+                        font-size: 12.5px;
+                        height: 38px;
+                    ">
+                        <i class="fa-solid ${resultEnabled ? 'fa-xmark' : 'fa-check'}" 
+                           style="color: ${resultEnabled ? '#ef4444' : '#22c55e'};"></i>
+                        <span>રિઝલ્ટ ${resultEnabled ? 'ઑફ' : 'ઑન'}</span>
+                    </button>
+                ` : ""}
+            </div>
+        </div>
+       
+        <!-- લોડર -->
+        <div id="resultListContainer" style="width: 100%; margin-top: 20px;">
+            <div style="text-align: center; color: #94a3b8; padding: 60px 20px;">
+                <div class="loader-container" style="margin: 0 auto;">
+                    <div class="ring"></div>
+                    <div class="ring"></div>
+                    <div class="ring"></div>
+                    <div class="ring"></div>
+                </div>
+                <div class="loader-text" style="margin-top: 25px;">રિઝલ્ટ લોડ થઈ રહ્યું છે...</div>
+            </div>
+        </div>
+    `;
+
+    // ફંક્શન જોડવા
+    setTimeout(() => {
+        const addBtn = document.getElementById("addResultBtn");
+        if (addBtn) addBtn.onclick = openResultForm;
+
+        const toggleBtn = document.getElementById("toggleResultBtn");
+        if (toggleBtn) {
+            toggleBtn.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleResultForAll();
+            };
+        }
+
+        if (userRole === "admin") {
+            const dropdown = document.getElementById("adminResultMemberDropdown");
+            if (dropdown) {
+                loadMembersWithResultsDropdown(dropdown);
+                dropdown.onchange = function() {
+                    const memberNo = this.value;
+                    if (!memberNo) {
+                        loadResults();
+                    } else {
+                        loadSpecificMemberResults(memberNo);
+                    }
+                };
+            }
+        }
+
+        loadResults().finally(() => {
+        showLoader(false);   // ← આ લાઇન ઉમેરો
+    });
+}, 100);
+
+    return;
+}
+			// ----- BUSINESS PAGE LOGIC -----
+			// ----- BUSINESS PAGE LOGIC -----
+			// ----- BUSINESS PAGE LOGIC -----
+			// ----- BUSINESS PAGE LOGIC -----
+			if (type === "business") {
+			  const userRole = localStorage.getItem("userRole"); // લોગિન વખતે સેવ થયેલો રોલ મેળવો
+
+			  contentArea.innerHTML = `
+			<div class="news-header-card">
+				<div class="news-title">
+					<i class="fa-solid fa-briefcase"></i> વ્યવસાય
+				</div>
+
+				<div style="display: flex; gap: 12px; align-items: center;">
+					
+					${
+					  userRole === "admin"
+						? `
+						<button class="add-btn" onclick="viewRequests()" style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.4); color: #93c5fd;">
+							રિકવેસ્ટ જોવો
+						</button>
+					`
+						: ""
+					}
+
+					<button class="add-btn" onclick="openAddForm('business')">
+						<span>+</span> વ્યવસાય ઉમેરો
+					</button>
+					
+				</div>
+			</div>
+
+			<div class="search-container" style="margin-top: 15px;">
+				<input type="text" class="search-input" placeholder="વ્યવસાયનું નામ અથવા વિગત સર્ચ કરો..." style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); padding: 12px 15px; border-radius: 15px; color: white; outline: none; box-sizing: border-box;">
+			</div>
+
+			<div id="listContainer" class="empty-news-box" style="margin-top: 15px; width: 100%; box-sizing: border-box;">
+				${data.empty}
+			</div>
+		`;
+			  return;
+			} 
+			  else if (type === "achievements") {
+  const userRole = localStorage.getItem("userRole") || "public";
+  
+  // 🔥 Result ની સ્થિતિ પણ ચેક કરો (કારણ કે હવે Result Master છે)
+  let achievementEnabled = localStorage.getItem("achievementEnabled") !== "false";
+  
+  // જો Result બંધ હોય તો Achievements પણ બંધ રાખવા
+  const resultEnabled = localStorage.getItem("resultEnabled") !== "false";
+  if (!resultEnabled) {
+    achievementEnabled = false;
+  }
+
+  contentArea.innerHTML = `
+    <div class="news-header-card" style="flex-wrap:wrap; gap:15px; padding:12px 20px;">
+      <div class="news-title" style="display:flex; align-items:center; gap:10px;">
+        <i class="fa-solid fa-award"></i> વિશિષ્ટ સિદ્ધિઓ
+      </div>
+      <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+        
+        ${userRole === "admin" ? `
+          <button type="button" id="toggleAchievementBtn" style="
+            background: ${achievementEnabled ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)'};
+            border: 1px solid ${achievementEnabled ? 'rgba(239, 68, 68, 0.4)' : 'rgba(34, 197, 94, 0.4)'};
+            color: white;
+            padding: 8px 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items:center;
+            gap: 8px;
+            font-size: 13px;
+          ">
+            <i class="fa-solid ${achievementEnabled ? 'fa-xmark' : 'fa-check'}" 
+               style="color: ${achievementEnabled ? '#ef4444' : '#22c55e'}; font-size: 16px;"></i>
+            <span style="text-align: left; line-height: 1.2;">
+              સિદ્ધિઓ<br>${achievementEnabled ? 'ઑફ કરો' : 'ઑન કરો'}
+            </span>
+          </button>
+        ` : ""}
+
+        <button class="add-btn" onclick="openAddForm('achievements')" style="padding:8px 18px; border-radius:12px; display:flex; align-items:center; gap:8px;">
+          <i class="fa-solid fa-plus"></i> વિશિષ્ટ સિદ્ધિઓ ઉમેરો
+        </button>
+      </div>
+    </div>
+    <div id="achievementsContainer" style="width:100%; margin-top:20px; display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:20px;">
+      <div style="text-align:center; padding:40px; color:#94a3b8;">લોડ થઈ રહ્યું છે...</div>
+    </div>
+  `;
+
+  // જો Achievements બંધ હોય તો Lock Screen બતાવો
+  if (!achievementEnabled && userRole !== "admin") {
+    document.getElementById("achievementsContainer").innerHTML = `
+      <div style="padding:40px 20px 40px 0; max-width:420px;">
+        <div style="text-align:center; padding:35px 25px; background:rgba(15,23,42,0.5); border:1px solid rgba(239,68,68,0.2); border-radius:20px;">
+          <div style="width:75px; height:75px; margin:0 auto 18px; background:rgba(239,68,68,0.1); border:2px solid rgba(239,68,68,0.3); border-radius:50%; display:flex; align-items:center; justify-content:center;">
+            <i class="fa-solid fa-lock" style="font-size:32px; color:#ef4444;"></i>
+          </div>
+          <h2 style="color:#f8fafc; margin:0 0 8px 0; font-size:17px; font-weight:bold;">
+            વિશિષ્ટ સિદ્ધિઓ હાલમાં ઉપલબ્ધ નથી
+          </h2>
+          <p style="color:#94a3b8; font-size:12px; line-height:1.5; margin:0;">
+            એડમિન દ્વારા આ વિભાગ હાલ પૂરતો બંધ કરવામાં આવ્યો છે.<br>
+            કૃપા કરીને થોડા સમય પછી ફરી પ્રયાસ કરો.
+          </p>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  // Toggle button event
+  setTimeout(() => {
+    const toggleBtn = document.getElementById("toggleAchievementBtn");
+    if (toggleBtn) {
+      toggleBtn.onclick = function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleAchievementForAll();
+      };
+    }
+  }, 100);
+
+  loadAchievements().finally(() => {
+    showLoader(false);
+});
+return;
+}
+
+			// ----- OTHER PAGES DEFAULT LOGIC -----
+			// ----- OTHER PAGES DEFAULT LOGIC -----
+			let tabsHTML = "";
+			if (type === "events") {
+			  tabsHTML = `<div class="tabs-container"><button class="tab-btn active" onclick="switchTab('events', 'snehmilan')">સ્નેહમિલન</button><button class="tab-btn" onclick="switchTab('events', 'bgpl')">બીજીપીએલ</button></div>`;
+			} else if (type === "committee") {
+			  tabsHTML = `<div class="tabs-container"><button class="tab-btn active" onclick="switchTab('committee', 'karobari')">કારોબારી કમિટી</button><button class="tab-btn" onclick="switchTab('committee', 'yuva')">યુવા સંગઠન</button></div>`;
+			}
+
+			// અહીં ફેરફાર: એડમિન હોય તો જ બટનનું HTML બનશે
+			const addBtnHTML = "";
+
+			contentArea.innerHTML = `
+		<div class="news-header-card">
+			<div class="news-title"><i class="fas ${data.icon}"></i> ${data.title}</div>
+			${addBtnHTML} 
+		</div>
+		${tabsHTML}
+		<div id="listContainer" class="empty-news-box">
+			${
+			  type === "events"
+				? "હજુ સુધી કોઈ SNEHMILAN ઇવેન્ટ નથી."
+				: type === "committee"
+				  ? "No members in Karobari Samiti."
+				  : data.empty
+			}
+		</div>
+	`;
+		  }
+
+		  // 2. ટેબ સ્વિચ કરવાનું ફંક્શન
+		  function switchTab(type, tab) {
+			document
+			  .querySelectorAll(".tab-btn")
+			  .forEach((btn) => btn.classList.remove("active"));
+			event.currentTarget.classList.add("active");
+			const container = document.getElementById("listContainer");
+			if (type === "events")
+			  container.innerHTML = `હજુ સુધી કોઈ ${tab.toUpperCase()} ઇવેન્ટ નથી.`;
+			else
+			  container.innerHTML = `No members in ${tab === "karobari" ? "Karobari Samiti" : "Yuva Sangathan"}.`;
+		  }
+
+		  // 3. મોડલ ફોર્મ ઓપન કરવાનું ફંક્શન
+		  function openAddForm(type) {
+			const data = contentData[type];
+			document.getElementById("modalTitle").innerHTML =
+			  `<i class="fas ${data.icon}"></i> ${data.btn}`;
+			const formBody = document.querySelector(".form-body");
+
+			if (type === "members") {
+			  formBody.innerHTML = `
+					
+					<div class="form-row" style="margin-bottom: 20px;">
+						<label style="color: #cbd5e1; font-size: 14px; margin-bottom: 8px; display: block; font-weight: 500;">ઈમેઈલ આઈડી (Email)</label>
+						<input type="email" id="sEmail" placeholder="તમારું ઈમેઈલ આઈડી લખો" style="width: 100%; background: #1e2329; border: 1px solid #334155; color: white; padding: 12px 15px; border-radius: 10px; font-size: 14px; outline: none; box-sizing: border-box;" required>
+					</div>
+
+					<div class="form-row" style="margin-bottom: 20px;">
+						<label style="color: #cbd5e1; font-size: 14px; margin-bottom: 8px; display: block; font-weight: 500;">શૈક્ષણિક લાયકાત (Education)</label>
+						<input type="text" id="sEducation" placeholder="તમારો અભ્યાસ લખો (દા.ત. Graduate, MBA)" style="width: 100%; background: #1e2329; border: 1px solid #334155; color: white; padding: 12px 15px; border-radius: 10px; font-size: 14px; outline: none; box-sizing: border-box;" required>
+					</div>
+
+					<div class="form-row" style="margin-bottom: 20px;">
+						<label style="color: #cbd5e1; font-size: 14px; margin-bottom: 8px; display: block; font-weight: 500;">વ્યવસાય (Occupation)</label>
+						<input type="text" id="sBusiness" placeholder="તમે શું કામ કરો છો? (દા.ત. હીરા ઉદ્યોગ, નોકરી)" style="width: 100%; background: #1e2329; border: 1px solid #334155; color: white; padding: 12px 15px; border-radius: 10px; font-size: 14px; outline: none; box-sizing: border-box;" required>
+					</div>
+
+					<div class="form-row" style="margin-bottom: 20px;">
+						<label style="color: #cbd5e1; font-size: 14px; margin-bottom: 8px; display: block; font-weight: 500;">જન્મ તારીખ (Birth Date)</label>
+						<input type="date" id="sBirth" style="width: 100%; background: #1e2329; border: 1px solid #334155; color: white; padding: 12px 15px; border-radius: 10px; font-size: 14px; outline: none; box-sizing: border-box; cursor: pointer;" required>
+					</div>
+
+					<div class="form-row" style="margin-bottom: 20px;">
+						<label style="color: #cbd5e1; font-size: 14px; margin-bottom: 8px; display: block; font-weight: 500;">જાતિ (Gender)</label>
+						<div style="position: relative;">
+							<select id="sGender" style="width: 100%; background: #1e2329; border: 1px solid #334155; color: white; padding: 12px 15px; border-radius: 10px; appearance: none; cursor: pointer; font-size: 14px; outline: none;" required>
+								<option value="">પસંદ કરો</option>
+								<option value="Male">પુરુષ</option>
+								<option value="Female">સ્ત્રી</option>
+							</select>
+							<i class="fa-solid fa-chevron-down" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none; font-size: 12px;"></i>
+						</div>
+					</div>
+
+					<div class="form-row" style="margin-bottom: 20px;">
+						<label style="color: #cbd5e1; font-size: 14px; margin-bottom: 8px; display: block; font-weight: 500;">બ્લડ ગ્રુપ (Blood Group)</label>
+						<div style="position: relative;">
+							<select id="sBlood" style="width: 100%; background: #1e2329; border: 1px solid #334155; color: white; padding: 12px 15px; border-radius: 10px; appearance: none; cursor: pointer; font-size: 14px; outline: none;" required>
+								<option value="">પસંદ કરો</option>
+								<option value="A+">A+</option><option value="A-">A-</option>
+								<option value="B+">B+</option><option value="B-">B-</option>
+								<option value="O+">O+</option><option value="O-">O-</option>
+								<option value="AB+">AB+</option><option value="AB-">AB-</option>
+								<option value="Unknown">ખબર નથી</option>
+							</select>
+							<i class="fa-solid fa-chevron-down" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none; font-size: 12px;"></i>
+						</div>
+					</div>
+
+					<div class="form-row" style="margin-bottom: 20px;">
+						<label style="color: #cbd5e1; font-size: 14px; margin-bottom: 8px; display: block; font-weight: 500;">રહેઠાણનો પ્રકાર (Resident Type)</label>
+						<div style="position: relative;">
+							<select id="sHouse" style="width: 100%; background: #1e2329; border: 1px solid #334155; color: white; padding: 12px 15px; border-radius: 10px; appearance: none; cursor: pointer; font-size: 14px; outline: none;" required>
+								<option value="">પસંદ કરો</option>
+								<option value="Owned">પોતાનું મકાન</option>
+								<option value="Rent">ભાડેથી</option>
+							</select>
+							<i class="fa-solid fa-chevron-down" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none; font-size: 12px;"></i>
+						</div>
+					</div>
+
+					<div class="form-row" style="margin-bottom: 25px;">
+						<label style="color: #cbd5e1; font-size: 14px; margin-bottom: 8px; display: block; font-weight: 500;">વર્તમાન સરનામું (Current Address)</label>
+						<textarea id="sAddress" placeholder="તમારું પૂરું સરનામું લખો" style="width: 100%; background: #15191e; border: 1px solid #334155; color: white; padding: 15px; border-radius: 10px; height: 100px; resize: vertical; font-size: 14px; outline: none; box-sizing: border-box;" required></textarea>
+					</div>
+				`;
+			} else if (type === "business") {
+			  formBody.innerHTML = `
+					<div class="form-row"><label>સભ્ય નંબર (Member ID) *</label><input type="text" placeholder="સભ્ય નંબર લખો" required></div>
+					<div class="form-row"><label>વ્યવસાયનું વિઝિટિંગ કાર્ડ / ફોટો *</label><input type="file" accept="image/*" required></div>
+					<div class="form-row"><label>વ્યવસાયનું નામ *</label><input type="text" placeholder="વ્યવસાય કે પેઢીનું નામ લખો" required></div>
+					<div class="form-row">
+						<label>માલિકનું નામ *</label>
+						<select required><option value="">Select Owner</option><option value="owner1">માલિક ૧</option></select>
+					</div>
+					<div class="form-row"><label>વ્યવસાયનો પ્રકાર *</label><input type="text" placeholder="દા.ત. દુકાન, ફેક્ટરી, ઓફિસ" required></div>
+					<div class="form-row"><label>મોબાઈલ નંબર *</label><input type="text" placeholder="મોબાઈલ નંબર લખો" maxlength="10" required></div>
+					<div class="form-row" style="margin-bottom: 20px;">
+				<label style="color: #cbd5e1; font-size: 14px; margin-bottom: 8px; display: block;">ઈમેઈલ આઈડી</label>
+				<input type="email" id="bEmail" placeholder="ઈમેઈલ આઈડી લખો" style="width: 100%; background: #1e2329; border: 1px solid #334155; color: white; padding: 12px 15px; border-radius: 10px; font-size: 14px; outline: none; box-sizing: border-box;">
+			</div>
+
+			<div class="form-row" style="margin-bottom: 20px;">
+				<label style="color: #cbd5e1; font-size: 14px; margin-bottom: 8px; display: block;">વ્યવસાયની વિગત</label>
+				<textarea id="bDesc" placeholder="તમારા વ્યવસાય વિશે ટૂંકમાં લખો" style="width: 100%; background: #15191e; border: 1px solid #334155; color: white; padding: 15px; border-radius: 10px; height: 100px; resize: vertical; font-size: 14px; outline: none; box-sizing: border-box;"></textarea>
+			</div>
+
+			<div class="form-row" style="margin-bottom: 25px;">
+				<label style="color: #cbd5e1; font-size: 14px; margin-bottom: 8px; display: block;">સ્થળ / એરિયા</label>
+				<input type="text" id="bArea" placeholder="દા.ત. સુરત, વરાછા, કતારગામ" style="width: 100%; background: #1e2329; border: 1px solid #334155; color: white; padding: 12px 15px; border-radius: 10px; font-size: 14px; outline: none; box-sizing: border-box;">
+			</div>
+				`;
+			} 
+			else if (type === "achievements") {
+			  const userMobile = localStorage.getItem("userMobile") || "";
+			  const userMemberNo = localStorage.getItem("userMemberNo") || "";
+
+			  formBody.innerHTML = `
+				<div class="form-row" style="margin-bottom:18px;">
+				  <label style="color:#cbd5e1;font-size:14px;margin-bottom:8px;display:block;font-weight:500;">સભ્ય નંબર</label>
+				  <input type="text" id="aMemberNo" value="${userMemberNo}" readonly
+					style="width:100%;background:#1a2232;border:1px solid #334155;color:#94a3b8;padding:12px 15px;border-radius:10px;font-size:14px;outline:none;box-sizing:border-box;cursor:not-allowed;">
+				</div>
+
+				<div class="form-row" style="margin-bottom:18px;">
+				  <label style="color:#cbd5e1;font-size:14px;margin-bottom:8px;display:block;font-weight:500;">સભ્યનું નામ</label>
+				  <input type="text" id="aMemberName" placeholder="લોડ થઈ રહ્યું છે..." readonly
+					style="width:100%;background:#1a2232;border:1px solid #334155;color:#94a3b8;padding:12px 15px;border-radius:10px;font-size:14px;outline:none;box-sizing:border-box;cursor:not-allowed;">
+				</div>
+				
+				<div class="form-row" style="margin-bottom:18px;">
+				  <label style="color:#cbd5e1;font-size:14px;margin-bottom:8px;display:block;font-weight:500;">મોબાઈલ નંબર</label>
+				  <input type="tel" id="aMobile" value="${userMobile}" readonly maxlength="10"
+					oninput="this.value=this.value.replace(/[^0-9]/g,'')"
+					style="width:100%;background:#1a2232;border:1px solid #334155;color:#94a3b8;padding:12px 15px;border-radius:10px;font-size:14px;outline:none;box-sizing:border-box;cursor:not-allowed;">
+				</div>
+
+				<div class="form-row" style="margin-bottom:18px;">
+				  <label style="color:#cbd5e1;font-size:14px;margin-bottom:8px;display:block;font-weight:500;">વ્યક્તિ / સભ્ય</label>
+				  <div style="position:relative;">
+					<select id="aStudentName"
+					  style="width:100%;background:#1e2329;border:1px solid #334155;color:white;padding:12px 15px;border-radius:10px;appearance:none;cursor:pointer;font-size:14px;outline:none;">
+					  <option value="">⏳ લોડ થઈ રહ્યું છે...</option>
+					</select>
+					<i class="fa-solid fa-chevron-down" style="position:absolute;right:15px;top:50%;transform:translateY(-50%);color:#94a3b8;pointer-events:none;font-size:12px;"></i>
+				  </div>
+				</div>
+				<div class="form-row" style="margin-bottom:18px;">
+		  <label style="color:#cbd5e1;font-size:14px;margin-bottom:8px;display:block;font-weight:500;">
+			મોબાઈલ નંબર *
+		  </label>
+		  <input 
+			type="tel" 
+			id="aMobile" 
+			maxlength="10"
+			oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+			placeholder="10 અંકનો મોબાઈલ નંબર લખો"
+			style="width:100%;background:#1a2232;border:1px solid #334155;color:white;padding:12px 15px;border-radius:10px;font-size:14px;outline:none;box-sizing:border-box;"
+		  >
+		</div>
+		<div class="form-row" style="margin-bottom:18px;">
+				  <label style="color:#cbd5e1;font-size:14px;margin-bottom:8px;display:block;font-weight:500;">વર્ષ</label>
+				  <div style="position:relative;">
+					<select id="aYear"
+					  style="width:100%;background:#1e2329;border:1px solid #334155;color:white;padding:12px 15px;border-radius:10px;appearance:none;cursor:pointer;font-size:14px;outline:none;">
+					  <option value="">વર્ષ પસંદ કરો</option>
+					  <option value="2026" selected>2026</option>
+					  <option value="2025">2025</option>
+					  <option value="2024">2024</option>
+					  <option value="2023">2023</option>
+					  <option value="2022">2022</option>
+					  <option value="2021">2021</option>
+					  <option value="2020">2020</option>
+					  <option value="2019">2019</option>
+					  <option value="2018">2018</option>
+					  <option value="2017">2017</option>
+					  <option value="2016">2016</option>
+					  <option value="2015">2015</option>
+					</select>
+					<i class="fa-solid fa-chevron-down" style="position:absolute;right:15px;top:50%;transform:translateY(-50%);color:#94a3b8;pointer-events:none;font-size:12px;"></i>
+				  </div>
+				</div>
+				<div class="form-row" style="margin-bottom:18px;">
+				  <label style="color:#cbd5e1;font-size:14px;margin-bottom:8px;display:block;font-weight:500;">સિદ્ધિ / ઇનામ / વર્ણન</label>
+				  <textarea id="aDescription" placeholder="સિદ્ધિ વિશે વિગતવાર લખો (દા.ત. ગોલ્ડ મેડલ, ૧લો ક્રમ...)"
+					style="width:100%;background:#15191e;border:1px solid #334155;color:white;padding:15px;border-radius:10px;height:90px;resize:vertical;font-size:14px;outline:none;box-sizing:border-box;"></textarea>
+				</div>
+
+				
+
+				<div class="form-row" style="margin-bottom:10px;">
+				  <label style="color:#cbd5e1;font-size:14px;margin-bottom:8px;display:block;font-weight:500;">
+					ફોટો / PDF
+				   
+				  </label>
+				  <div style="background:#1e2329;border:1px dashed #334155;border-radius:10px;padding:12px 15px;">
+					<input type="file" id="aPhoto" accept="image/*,application/pdf" multiple
+					  style="background:transparent;border:none;padding:0;color:#94a3b8;font-size:14px;width:100%;outline:none;cursor:pointer;">
+				  </div>
+				  <div id="aFilePreview" style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px;"></div>
+				</div>
+			  `;
+
+			  setTimeout(() => {
+				const photoInput = document.getElementById("aPhoto");
+				if (photoInput) {
+				  photoInput.addEventListener("change", function() {
+					const preview = document.getElementById("aFilePreview");
+					if (!preview) return;
+					preview.innerHTML = "";
+					Array.from(this.files).forEach((file) => {
+					  const isPdf = file.type === "application/pdf";
+					  const chip = document.createElement("div");
+					  chip.style.cssText = "background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);border-radius:8px;padding:6px 10px;display:flex;align-items:center;gap:6px;font-size:12px;color:#93c5fd;max-width:160px;overflow:hidden;";
+					  const nm = file.name.length > 18 ? file.name.substring(0,16)+"..." : file.name;
+					  chip.innerHTML = `<i class="fa-solid ${isPdf ? "fa-file-pdf" : "fa-image"}" style="color:${isPdf ? "#ef4444" : "#60a5fa"};flex-shrink:0;"></i><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${nm}</span>`;
+					  preview.appendChild(chip);
+					});
+				  });
+				}
+			  }, 100);
+
+			  document.querySelector(".btn-save").onclick = handleAchievementSave;
+
+			  showLoader(true);
+			  Promise.all([
+				loadAchievementMemberDetails(),
+				loadAchievementAllMembers()
+			  ]).finally(() => showLoader(false));
+			} else {
+			  formBody.innerHTML = `<div class="form-row"><label>ફોટો અપલોડ કરો</label><input type="file"></div><div class="form-row"><label>વર્ણન</label><textarea placeholder="વિગત લખો..."></textarea></div>`;
+			}
+
+			document.getElementById("commonModal").style.display = "flex";
+		  }
+
+		  function addMoreDonorName() {
+			const container = document.getElementById("donorNamesContainer");
+			const newField = document.createElement("div");
+			newField.className = "form-row";
+			newField.style.marginTop = "10px";
+			newField.innerHTML = `<hr style="opacity:.1; margin-bottom:15px; border:0; border-top:1px solid white;"><label>બીજું નામ</label><input type="text" class="dsName" placeholder="બીજું નામ લખો">`;
+			container.appendChild(newField);
+		  }
+
+		  function previewImg(input) {
+			const preview = document.getElementById("photoPreview");
+			if (preview && input.files[0]) {
+			  const reader = new FileReader();
+			  reader.onload = (e) =>
+				(preview.innerHTML = `<img src="${e.target.result}">`);
+			  reader.readAsDataURL(input.files[0]);
+			}
+		  }
+
+		  function closeModal() {
+			document.getElementById("commonModal").style.display = "none";
+		  }
+
+		  // સાઇડબારને નાની-મોટી કરવા માટેનું ફંક્શન
+		  function toggleSidebar() {
+			const sidebar = document.getElementById("sidebar");
+			const toggleIcon = document.getElementById("toggleIcon");
+
+			// સાઇડબારમાં 'collapsed' ક્લાસ ઉમેરશે કે હટાવશે
+			sidebar.classList.toggle("collapsed");
+
+			// જો સાઇડબાર નાની થાય તો એરોની દિશા બદલવી
+			if (sidebar.classList.contains("collapsed")) {
+			  toggleIcon.classList.remove("fa-angle-double-left");
+			  toggleIcon.classList.add("fa-angle-double-right");
+			} else {
+			  // જો સાઇડબાર મોટી થાય તો એરો પાછો જૂની દિશામાં
+			  toggleIcon.classList.remove("fa-angle-double-right");
+			  toggleIcon.classList.add("fa-angle-double-left");
+			}
+		  }
+		  
+		  // લોડર બતાવવા કે છુપાવવા માટેનું ફંક્શન
+		  function showLoader(status) {
+			const loader = document.getElementById("globalLoader");
+			if (status) {
+			  loader.style.display = "flex";
+			} else {
+			  loader.style.display = "none";
+			}
+		  }
+		  function showLoader(show) {
+  const loader = document.getElementById("globalLoader");
+  if (show) {
+    loader.style.display = "flex";
+    loader.classList.add("active");
+    document.body.style.pointerEvents = "none";   // optional
+  } else {
+    loader.style.display = "none";
+    loader.classList.remove("active");
+    document.body.style.pointerEvents = "auto";
+  }
+}
+		  // તમારા લોગિન ફંક્શનમાં આ રીતે સેટ કરો
+		  async function login() {
+			const mobile = document.getElementById("loginMobile").value.trim();
+			const pass = document.getElementById("loginPass").value.trim();
+
+			if (mobile.length !== 10 || pass === "") {
+			  alert("વિગત અધૂરી છે.");
+			  return;
+			}
+
+			// લોડર ચાલુ કરો
+			showLoader(true);
+
+			try {
+			  const response = await fetch(
+				`${SCRIPT_URL}?mobile=${mobile}&pass=${pass}`,
+			  );
+			  const data = await response.json();
+
+			  if (data && data.Mobile) {
+				localStorage.setItem("userMobile", data.Mobile);
+				localStorage.setItem("userRole", data.Role || "public");
+				localStorage.setItem("userMemberNo", data.MemberNo || "");
+
+				location.reload();
+			  } else {
+				alert("ખોટી વિગત! ❌");
+			  }
+			} catch (err) {
+			  alert("સર્વર ભૂલ!");
+			} finally {
+			  // પ્રોસેસ પૂરી થાય એટલે લોડર બંધ કરો
+			  showLoader(false);
+			}
+		  }
+
+		  async function loadNews() {
+			showLoader(true);
+			try {
+			  const res = await fetch(`${SCRIPT_URL}?type=news`);
+			  const responseData = await res.json();
+
+			  const container = document.getElementById("listContainer");
+
+			  if (
+				responseData.status !== "success" ||
+				!responseData.data ||
+				responseData.data.length === 0
+			  ) {
+				container.innerHTML = "કોઈ સમાચાર ઉપલબ્ધ નથી";
+				container.style.display = "block";
+				return;
+			  }
+
+			  container.innerHTML = "";
+			  // Grid setup જેથી કાર્ડ વ્યવસ્થિત ગોઠવાય અને સાઈઝ પણ મેન્ટેન થાય
+			  container.style.display = "grid";
+			  container.style.gridTemplateColumns =
+				"repeat(auto-fit, minmax(280px, 1fr))";
+			  container.style.gap = "20px";
+			  container.style.background = "transparent";
+			  container.style.border = "none";
+
+			  responseData.data.reverse().forEach((item, index) => {
+				let img = item.image || "";
+				let fullDesc = item.desc || "";
+				const urlRegex = /(https?:\/\/[^\s]+)/g;
+				fullDesc = fullDesc.replace(urlRegex, function (url) {
+				  return `<a href="${url}" target="_blank" style="color: #60a5fa; text-decoration: underline; font-weight: bold;" onclick="event.stopPropagation();">${url}</a>`;
+				});
+				let dateStr = item.date || "";
+				let uniqueId = "news-card-" + index;
+
+				// --- 📸 Google Drive Image Link Conversion ---
+				if (img.includes("drive.google.com")) {
+				  let id = "";
+				  const parts = img.match(/\/d\/(.+?)\/(view|edit)?/);
+				  const queryParts = img.match(/id=(.+?)(&|$)/);
+				  if (parts && parts[1]) id = parts[1];
+				  else if (queryParts && queryParts[1]) id = queryParts[1];
+
+				  if (id) {
+					// અહીં સુધારો: ${id} વાપરવું પડે
+					img = `https://lh3.googleusercontent.com/d/${id}`;
+				  }
+				}
+
+				// Card HTML structure
+				// --- 🎨 કાર્ડની ડિઝાઇન જે લખાણ મુજબ એડજસ્ટ થશે ---
+				container.innerHTML += `
+		<div id="${uniqueId}" style="
+			background: rgba(255, 255, 255, 0.03); 
+			border: 1px solid rgba(255, 255, 255, 0.1); 
+			border-radius: 12px; 
+			padding: 12px; 
+			width: 100%; 
+			height: fit-content; /* આ ફેરફારથી સ્પેસ દૂર થશે */
+			min-height: 220px; /* ઈમેજ અને તારીખ માટે મિનીમમ હાઈટ */
+			display: flex;
+			flex-direction: column;
+			box-sizing: border-box;
+			overflow: hidden;
+			transition: all 0.3s ease;
+		">
+			<div style="width: 100%; height: 140px; min-height: 140px; background: rgba(255, 255, 255, 0.05); border-radius: 8px; margin-bottom: 8px; overflow: hidden; cursor: zoom-in;">
+				<img src="${img}" 
+					onclick="openImage('${img}')"
+					style="width: 100%; height: 100%; object-fit: cover;" 
+					onerror="this.parentElement.style.display='none';">
+			</div>
+			
+			<div style="color: #94a3b8; font-size: 10px; margin-bottom: 4px;">
+				<i class="far fa-clock"></i> <span>${dateStr}</span>
+			</div>
+			
+			<div id="${uniqueId}-text" style="
+							color: #f8fafc; 
+							font-size: 13px; 
+							line-height: 1.4; 
+							display: -webkit-box;
+							-webkit-line-clamp: 2; 
+							-webkit-box-orient: vertical;
+							overflow: hidden;
+							text-overflow: ellipsis;
+							white-space: pre-line; /* અહી ફેરફાર કર્યો છે */
+						">
+				${fullDesc} 
+			</div>
+
+			<div id="${uniqueId}-btn-box" style="margin-top: 5px; display: none; text-align: right;">
+				<span id="${uniqueId}-btn" style="color: #60a5fa; font-size: 11px; cursor: pointer; font-weight: bold;" 
+					onclick="toggleCard('${uniqueId}')">
+					વધુ વાંચો...
+				</span>
+			</div>
+		</div>
+	`;
+
+				// અક્ષરો ચેક કરી બટન બતાવવું કે નહીં તે નક્કી કરવું
+				setTimeout(() => {
+				  const textElem = document.getElementById(`${uniqueId}-text`);
+				  if (textElem && textElem.scrollHeight > textElem.clientHeight) {
+					document.getElementById(`${uniqueId}-btn-box`).style.display =
+					  "block";
+				  }
+				}, 100);
+			  });
+			} catch (err) {
+			  console.error("News Load Error:", err);
+			  document.getElementById("listContainer").innerHTML =
+				"સમાચાર લોડ કરવામાં ભૂલ આવી છે.";
+			} finally {
+			  showLoader(false);
+			}
+		  }
+
+		  // ⚡ કાર્ડને તે જ જગ્યાએ મોટું/નાનું કરવા માટેનું ફંક્શન
+		  function toggleCard(cardId) {
+			const card = document.getElementById(cardId);
+			const text = document.getElementById(cardId + "-text");
+			const btn = document.getElementById(cardId + "-btn");
+
+			// Computed style મેળવો જેથી ચોક્કસ ખબર પડે કે અત્યારે લાઈન ક્લેમ્પ છે કે નહીં
+			const currentClamp = window.getComputedStyle(text).webkitLineClamp;
+
+			// જો અત્યારે ૨ લાઈન દેખાતી હોય (Collapsed state)
+			// '2' અથવા 'unset' ન હોય ત્યારે ખુલે
+			if (currentClamp === "2") {
+			  text.style.display = "block";
+			  text.style.webkitLineClamp = "unset";
+			  btn.innerText = "ઓછું વાંચો";
+			  btn.style.color = "#f87171";
+			  card.style.height = "auto"; // કાર્ડ કન્ટેન્ટ મુજબ મોટું થશે
+			} else {
+			  // કાર્ડ પાછું નાનું કરો
+			  text.style.display = "-webkit-box";
+			  text.style.webkitLineClamp = "2";
+			  btn.innerText = "વધુ વાંચો...";
+			  btn.style.color = "#60a5fa";
+			  card.style.height = "fit-content";
+			}
+		  }
+		  // ઈમેજ મોટી કરીને બતાવવા માટે
+		  function openImage(src) {
+			const modal = document.getElementById("imageModal");
+			const fullImg = document.getElementById("fullImage");
+			fullImg.src = src;
+			modal.style.display = "flex";
+		  }
+
+		  // મોટી ઈમેજ બંધ કરવા માટે
+		  function closeImageModal() {
+			document.getElementById("imageModal").style.display = "none";
+		  }
+		  // ઈવેન્ટ્સ લોડ કરવા માટેનું નવું ફંક્શન
+		  async function loadEvents(tabType) {
+			showLoader(true);
+			const container = document.getElementById("listContainer");
+
+			try {
+			  const res = await fetch(`${SCRIPT_URL}?type=events`);
+			  const responseData = await res.json();
+
+			  if (
+				responseData.status !== "success" ||
+				!responseData.data ||
+				responseData.data.length === 0
+			  ) {
+				container.innerHTML = "કોઈ માહિતી ઉપલબ્ધ નથી";
+				container.style.display = "block"; // Grid માંથી બ્લોક કરો જેથી મેસેજ સેન્ટરમાં આવે
+				return;
+			  }
+
+			  container.innerHTML = "";
+			  container.style.display = "grid";
+			  container.style.gridTemplateColumns =
+				"repeat(auto-fit, minmax(280px, 1fr))";
+			  container.style.gap = "20px";
+			  container.style.background = "transparent";
+			  container.style.border = "none";
+
+			  responseData.data.reverse().forEach((item, index) => {
+				// Tab મુજબ ફોટો અને ડિસ્ક્રિપ્શન નક્કી કરો
+				let img =
+				  tabType === "snehmilan" ? item.s_photo || "" : item.b_photo || "";
+				let desc =
+				  tabType === "snehmilan" ? item.s_desc || "" : item.b_desc || "";
+				let dateStr = item.date || "";
+				let uniqueId = "event-card-" + index;
+
+				// જો લખાણ અને ઈમેજ બંને ખાલી હોય તો તે કાર્ડ ન બતાવવું
+				if (desc.trim() === "" && img.trim() === "") return;
+
+				// --- 📸 Google Drive Image Link Conversion ---
+				if (img.includes("drive.google.com")) {
+				  let id = "";
+				  const parts = img.match(/\/d\/(.+?)\/(view|edit)?/);
+				  const queryParts = img.match(/id=(.+?)(&|$)/);
+				  if (parts && parts[1]) id = parts[1];
+				  else if (queryParts && queryParts[1]) id = queryParts[1];
+
+				  if (id) {
+					img = `https://lh3.googleusercontent.com/d/${id}`; // સાચી લિંક ફોર્મેટ
+				  }
+				}
+
+				container.innerHTML += `
+    <div id="${uniqueId}" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 12px; width: 100%; height: fit-content; min-height: 220px; display: flex; flex-direction: column; box-sizing: border-box; overflow: hidden; transition: all 0.3s ease;">
+					
+					<div style="width: 100%; height: 140px; background: rgba(255, 255, 255, 0.05); border-radius: 8px; margin-bottom: 8px; overflow: hidden; cursor: zoom-in;">
+							<img src="${img}" onclick="openImage('${img}')" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.parentElement.style.display='none';">
+						</div>
+						<div style="color: #94a3b8; font-size: 10px; margin-bottom: 4px;"><i class="far fa-clock"></i> <span>${dateStr}</span></div>
+						<div id="${uniqueId}-text" style="color: #f8fafc; font-size: 13px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+							${desc}
+						</div>
+						<div id="${uniqueId}-btn-box" style="margin-top: 5px; display: none; text-align: right;">
+							<span id="${uniqueId}-btn" style="color: #60a5fa; font-size: 11px; cursor: pointer; font-weight: bold;" onclick="toggleCard('${uniqueId}')">વધુ વાંચો...</span>
+						</div>
+					</div>`;
+
+				setTimeout(() => {
+				  const textElem = document.getElementById(`${uniqueId}-text`);
+				  if (textElem && textElem.scrollHeight > textElem.clientHeight) {
+					document.getElementById(`${uniqueId}-btn-box`).style.display =
+					  "block";
+				  }
+				}, 100);
+			  });
+			} catch (err) {
+			  console.error(err);
+			  container.innerHTML = "ડેટા લોડ કરવામાં ભૂલ આવી.";
+			} finally {
+			  showLoader(false);
+			}
+		  }
+
+		  // switchTab ફંક્શનમાં ફેરફાર
+		  function switchTab(type, tab) {
+			document
+			  .querySelectorAll(".tab-btn")
+			  .forEach((btn) => btn.classList.remove("active"));
+			event.currentTarget.classList.add("active");
+
+			if (type === "events") {
+			  loadEvents(tab);
+			}
+			else if (type === "committee") {
+  const contentArea = document.getElementById("mainContent");
+  
+  contentArea.innerHTML = `
+    <div class="news-header-card">
+      <div class="news-title"><i class="fas fa-users"></i> કમિટી</div>
+    </div>
+    
+    <div class="tabs-container" style="margin: 15px 0 20px 0;">
+      <button class="tab-btn active" id="tab-karobari" onclick="switchCommitteeTab('karobari')">
+        કારોબારી કમિટી
+      </button>
+      <button class="tab-btn" id="tab-yuva" onclick="switchCommitteeTab('yuva')">
+        યુવા સંગઠન
+      </button>
+    </div>
+    
+    <div id="listContainer" style="background:transparent; border:none; padding:10px 0;">
+      લોડ થઈ રહ્યું છે...
+    </div>
+  `;
+
+  loadCommittee("karobari");   // Default: કારોબારી લોડ થાય
+  return;
+}
+		  }
+
+		  async function loadGallery() {
+			showLoader(true);
+			const container = document.getElementById("listContainer");
+
+			try {
+			  const res = await fetch(`${SCRIPT_URL}?type=gallery`);
+			  const responseData = await res.json();
+
+			  if (
+				responseData.status !== "success" ||
+				!responseData.data ||
+				responseData.data.length === 0
+			  ) {
+				container.innerHTML = `<div class="empty-news-box" style="width:100%">કોઈ ગેલેરી માહિતી મળી નથી.</div>`;
+				return;
+			  }
+
+			  // વર્ષ મુજબ ગ્રુપિંગ
+			  const groupedData = responseData.data.reduce((acc, item) => {
+				let y = item.year;
+				if (!acc[y]) acc[y] = [];
+				acc[y].push(item);
+				return acc;
+			  }, {});
+
+			  container.innerHTML = "";
+			  container.style.display = "block";
+			  container.style.background = "transparent";
+			  container.style.border = "none";
+
+			  const sortedYears = Object.keys(groupedData).sort((a, b) => b - a);
+
+			  sortedYears.forEach((year, idx) => {
+				const yearId = `year-group-${idx}`;
+
+				let yearHtml = `
+					<div style="margin-bottom: 12px; width: 340px;">
+						<div onclick="toggleGalleryGroup('${yearId}')" style="
+							background: rgba(30, 41, 59, 0.5); 
+							padding: 14px 20px; 
+							border-radius: 14px; 
+							display: flex; 
+							justify-content: space-between; 
+							align-items: center; 
+							cursor: pointer; 
+							border: 1px solid rgba(255, 255, 255, 0.1);
+							color: white;
+							width: 100%;
+							box-sizing: border-box;
+							transition: 0.3s ease;
+						">
+							<div style="display: flex; align-items: center; gap: 12px;">
+								<i class="far fa-images" style="font-size: 16px; color: #f8fafc;"></i>
+								<span style="font-size: 15px; font-weight: bold;">વર્ષ - ${year}</span>
+							</div>
+							<i class="fas fa-chevron-down" id="icon-${yearId}" style="font-size: 12px; transition: 0.3s ease;"></i>
+						</div>
+						
+						<div id="${yearId}" style="display: none; padding: 10px 0; flex-direction: column; gap: 10px; width: 100%;">
+				`;
+
+				groupedData[year].forEach((item) => {
+				  // હેડિંગમાં જે લખ્યું હોય તે જ સીધું બતાવશે (દા.ત. Video, Photos)
+				  // જો હેડિંગમાં જ Video લખેલું છે, તો આપણે વધારાનું "Video/Photos" લખવાની જરૂર નથી
+				  let displayType = item.heading || "Link";
+
+				  // આઇકોન સેટ કરવા માટે થોડું લોજિક (વૈકલ્પિક છે, પણ સારું લાગશે)
+				  let iconClass = "fas fa-external-link-square-alt";
+				  if (displayType.toLowerCase().includes("video"))
+					iconClass = "fas fa-play-circle";
+				  else if (
+					displayType.toLowerCase().includes("photo") ||
+					displayType.toLowerCase().includes("image")
+				  )
+					iconClass = "fas fa-image";
+
+				  yearHtml += `
+						<div onclick="window.open('${item.link}', '_blank')" style="
+							background: rgba(15, 23, 42, 0.6); 
+							border: 1px solid rgba(255, 255, 255, 0.08); 
+							border-radius: 16px; 
+							padding: 15px; 
+							cursor: pointer;
+							box-sizing: border-box;
+							transition: transform 0.2s, background 0.2s;
+						" onmouseover="this.style.transform='scale(1.01)'; this.style.background='rgba(15, 23, 42, 0.8)';" onmouseout="this.style.transform='scale(1)'; this.style.background='rgba(15, 23, 42, 0.6)';">
+							
+							<div style="color: #60a5fa; font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 8px;">
+								<i class="${iconClass}"></i> ${displayType}
+							</div>
+
+						</div>
+					`;
+				});
+
+				yearHtml += `</div></div>`;
+				container.innerHTML += yearHtml;
+			  });
+			} catch (err) {
+			  console.error("Gallery Error:", err);
+			} finally {
+			  showLoader(false);
+			}
+		  }
+
+		  // ગ્રુપ ખોલવા કે બંધ કરવા માટેનું ફંક્શન
+		  function toggleGalleryGroup(id) {
+			const elem = document.getElementById(id);
+			const icon = document.getElementById("icon-" + id);
+
+			if (elem.style.display === "none" || elem.style.display === "") {
+			  elem.style.display = "flex";
+			  icon.style.transform = "rotate(180deg)"; // એરો ઉપર જશે
+			} else {
+			  elem.style.display = "none";
+			  icon.style.transform = "rotate(0deg)"; // એરો નીચે જશે
+			}
+		  }
+	async function loadCommittee(tab = "karobari") {
+  showLoader(true);
+  const container = document.getElementById("listContainer");
+  
+  if (!container) return;
+
+  let headingText = tab === "karobari" ? "કારોબારી કમિટી" : "યુવા સંગઠન";
+
+  try {
+    const res = await fetch(`${SCRIPT_URL}?type=committee`);
+    const responseData = await res.json();
+
+    if (responseData.status !== "success" || !responseData.data || responseData.data.length === 0) {
+      container.innerHTML = `
+        <div style="padding:60px; text-align:center; color:#94a3b8;">
+          હજુ સુધી ${headingText}ની માહિતી ઉમેરાઈ નથી.
+        </div>`;
+      return;
+    }
+
+    let cardsHTML = '';
+
+    responseData.data.forEach(item => {
+      if (tab === "karobari" && item.k_name && item.k_name.trim() !== "") {
+        let photo = item.k_photo || "";
+        if (photo.includes("drive.google.com")) {
+          let idMatch = photo.match(/\/d\/(.+?)\/|id=([^&]+)/);
+          if (idMatch) photo = `https://lh3.googleusercontent.com/d/${idMatch[1] || idMatch[2]}`;
+        }
+        cardsHTML += createSquareCommitteeCard(item.k_name, item.k_hodo || "કારોબારી", photo);
+      } 
+      else if (tab === "yuva" && item.y_name && item.y_name.trim() !== "") {
+        let photo = item.y_photo || "";
+        if (photo.includes("drive.google.com")) {
+          let idMatch = photo.match(/\/d\/(.+?)\/|id=([^&]+)/);
+          if (idMatch) photo = `https://lh3.googleusercontent.com/d/${idMatch[1] || idMatch[2]}`;
+        }
+        cardsHTML += createSquareCommitteeCard(item.y_name, item.y_hodo || "યુવા સંગઠન", photo);
+      }
+    });
+
+    if (cardsHTML === '') {
+      cardsHTML = `
+        <div style="padding:80px; text-align:center; color:#94a3b8;">
+          ${headingText}માં હજુ કોઈ સભ્ય ઉમેરાયા નથી.
+        </div>`;
+    }
+
+    container.innerHTML = cardsHTML;
+
+  } catch (err) {
+    console.error("Committee Load Error:", err);
+    container.innerHTML = `<div style="color:#ef4444; padding:60px; text-align:center;">લોડ કરવામાં ભૂલ આવી.</div>`;
+  } finally {
+    showLoader(false);
+  }
+}
+
+	
+		  async function loadDonors() {
+			showLoader(true);
+			const container = document.getElementById("listContainer");
+
+			try {
+			  const res = await fetch(`${SCRIPT_URL}?type=donors`);
+			  const responseData = await res.json();
+
+			  if (
+				responseData.status !== "success" ||
+				!responseData.data ||
+				responseData.data.length === 0
+			  ) {
+				container.innerHTML = "કોઈ દાતાશ્રીઓની માહિતી ઉપલબ્ધ નથી";
+				container.style.display = "block";
+				return;
+			  }
+
+			  const groupedDonors = responseData.data.reduce((acc, item) => {
+				let y = item.year;
+				if (!acc[y]) acc[y] = [];
+				acc[y].push(item);
+				return acc;
+			  }, {});
+
+			  container.innerHTML = "";
+			  container.style.display = "block";
+			  container.style.background = "transparent";
+			  container.style.border = "none";
+
+			  const sortedYears = Object.keys(groupedDonors).sort((a, b) => b - a);
+
+			  // --- loadDonors ફંક્શનમાં આ લાઇન ખાસ ચેક કરો ---
+
+			  sortedYears.forEach((year, idx) => {
+				const yearId = `donor-year-${idx}`;
+				let yearHtml = `
+			<div style="margin-bottom: 20px; width: 340px;"> 
+				
+				<div onclick="toggleGalleryGroup('${yearId}')" style="
+					background: rgba(30, 41, 59, 0.5); 
+					padding: 14px 20px; 
+					border-radius: 14px; 
+					display: flex; 
+					justify-content: space-between; 
+					align-items: center; 
+					cursor: pointer; 
+					border: 1px solid rgba(255, 255, 255, 0.1); 
+					color: white; 
+					width: 100%; 
+					box-sizing: border-box; 
+					margin-bottom: 12px;
+				">
+					<div style="display: flex; align-items: center; gap: 12px;">
+						<i class="fas fa-calendar-alt" style="font-size: 18px; color: #f8fafc;"></i>
+						<span style="font-size: 16px; font-weight: bold;">${year}</span>
+					</div>
+					<i class="fas fa-chevron-down" id="icon-${yearId}" style="font-size: 14px; transition: 0.3s ease;"></i>
+				</div>
+				
+				<div id="${yearId}" style="
+					display: none; 
+					grid-template-columns: repeat(2, 1fr); 
+					gap: 12px; 
+					width: 100%;
+				">
+		`;
+
+				// ... કાર્ડ્સ વાળો ભાગ સેમ રહેશે ...
+
+				groupedDonors[year].forEach((donor) => {
+				  let imgUrl = donor.photo || "";
+				  if (imgUrl.includes("drive.google.com")) {
+					let fileId = imgUrl.match(/[-\w]{25,}/);
+					if (fileId)
+					  imgUrl = `https://lh3.googleusercontent.com/u/0/d/${fileId[0]}`;
+				  }
+
+				  yearHtml += `
+						<div style="
+							background: rgba(15, 23, 42, 0.7); 
+							border: 1px solid rgba(255, 255, 255, 0.1); 
+							border-radius: 18px; 
+							padding: 12px; 
+							text-align: center; 
+							display: flex; 
+							flex-direction: column; 
+							align-items: center;
+							box-sizing: border-box;
+						">
+							<div style="color: #60a5fa; font-weight: bold; font-size: 11px; margin-bottom: 8px; height: 28px; overflow: hidden; line-height: 1.2;">
+								${donor.donate_type}
+							</div>
+							
+							<div style="width: 80px; height: 80px; background: white; border-radius: 50%; margin-bottom: 10px; overflow: hidden; border: 2px solid rgba(255,255,255,0.1);">
+								<img src="${imgUrl}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2910/2910791.png'; this.style.width='30px'; opacity:0.3;" style="width: 100%; height: 100%; object-fit: cover;">
+							</div>
+
+							<div style="color: white; font-size: 12px; font-weight: 600; width: 100%; white-space: pre-wrap; word-wrap: break-word; line-height: 1.4; margin-bottom: 5px; text-align: center;">${donor.name.trim()}</div>
+							<div style="color: #94a3b8; font-size: 10px; margin-bottom: 8px;">
+								${donor.mobile}
+							</div>
+							
+							<div style="color: #3b82f6; font-size: 15px; font-weight: bold; margin-top: auto;">
+								₹ ${donor.money}
+							</div>
+						</div>
+					`;
+				});
+
+				yearHtml += `</div></div>`;
+				container.innerHTML += yearHtml;
+			  });
+
+			  // Toggle logic માં display flex/grid હેન્ડલ કરવા માટે
+			} catch (err) {
+			  console.error(err);
+			} finally {
+			  showLoader(false);
+			}
+		  }
+
+		  // toggleGalleryGroup માં નાનો ફેરફાર grid બતાવવા માટે
+		  function toggleGalleryGroup(id) {
+			const elem = document.getElementById(id);
+			const icon = document.getElementById("icon-" + id);
+
+			if (elem.style.display === "none" || elem.style.display === "") {
+			  // જો તે દાતાશ્રીઓનું ગ્રીડ હોય તો 'grid' બતાવવું, નહીતર 'flex'
+			  elem.style.display = id.includes("donor") ? "grid" : "flex";
+			  icon.style.transform = "rotate(180deg)";
+			} else {
+			  elem.style.display = "none";
+			  icon.style.transform = "rotate(0deg)";
+			}
+		  }
+		  async function loadMemberData() {
+			const mobile = localStorage.getItem("userMobile");
+			if (!mobile) return;
+
+			showLoader(true);
+			try {
+			  const res = await fetch(
+				`${SCRIPT_URL}?type=memberData&mobile=${mobile}`,
+			  );
+			  const data = await res.json();
+
+			  if (data.status === "success") {
+				const updateBtn = document.getElementById("updateBtn");
+
+				// ૧. પ્રોફાઇલ અપડેટ બટન (ઉમેરો/બદલો)
+				if (updateBtn) {
+				  const isEmpty =
+					!data.email ||
+					data.email === "-" ||
+					!data.address ||
+					data.address === "-";
+				  updateBtn.style.display = "inline-flex";   // flex થી icon-text properly align થશે
+updateBtn.innerHTML = isEmpty
+    ? `<i class="fa-solid fa-plus" style="font-size:11px;"></i> <span>વિગત ઉમેરો</span>`
+    : `<i class="fa-solid fa-pen-to-square" style="font-size:11px;"></i> <span>વિગત બદલો</span>`;
+				}
+
+				// ૨. મેઈન કાર્ડમાં બેઝિક ડેટા સેટ કરો
+				document.getElementById("sabhyNo").innerText = data.sabhyNo || "-";
+				document.getElementById("mobile").innerText = data.mobile || "-";
+				document.getElementById("name").innerText = data.name || "-";
+				document.getElementById("father").innerText = data.father || "-";
+				document.getElementById("grand").innerText = data.grand || "-";
+				document.getElementById("surname").innerText = data.surname || "-";
+				if (typeof setMemberPhotoDisplay === "function") {
+				  setMemberPhotoDisplay(data.photo || "");
+				}
+
+				// ૩. વધારાની વિગતો ચેક કરો
+				const fields = [
+				  { label: "ઈમેઈલ", value: data.email },
+				  { label: "અભ્યાસ", value: data.education },
+				  { label: "વ્યવસાય", value: data.business },
+				  { label: "જન્મ તારીખ", value: data.birthdate },
+				  { label: "જાતિ", value: data.gender },
+				  { label: "બ્લડ ગ્રુપ", value: data.blood },
+				  { label: "રહેઠાણ", value: data.house },
+				  { label: "સરનામું", value: data.address },
+				];
+
+				let detailsHtml = "";
+				fields.forEach((f) => {
+				  if (f.value && f.value !== "-" && f.value !== "") {
+					detailsHtml += `<p style="margin: 6px 0; display: flex;"><b style="width: 140px; color: #cbd5e1;">${f.label}:</b> <span style="color: white;">${f.value}</span></p>`;
+				  }
+				});
+
+				const secCon = document.getElementById("secondaryDetailsContainer");
+				if (secCon) {
+				  if (detailsHtml !== "") {
+					secCon.innerHTML = `
+							<div style="margin: 15px 0; border-top: 1px solid rgba(255, 255, 255, 0.1); width: 100%;"></div>
+							<div class="sabhy-details">
+								${detailsHtml}
+							</div>
+						`;
+				  } else {
+					secCon.innerHTML = "";
+				  }
+
+				  const mainCard = document.getElementById("sabhyCard");
+				  if (mainCard) {
+					mainCard.appendChild(secCon);
+					mainCard.style.paddingBottom = "15px";
+
+					// બટન રેન્ડર કરો
+					let btnWrapper = document.getElementById("familyBtnWrapper");
+					if (!btnWrapper) {
+					  btnWrapper = document.createElement("div");
+					  btnWrapper.id = "familyBtnWrapper";
+					  btnWrapper.style.textAlign = "left";
+					  btnWrapper.style.marginTop = "15px";
+					  btnWrapper.style.width = "90%";
+					  btnWrapper.style.marginLeft = "auto";
+					  btnWrapper.style.marginRight = "auto";
+
+					  mainCard.insertAdjacentElement("afterend", btnWrapper);
+					}
+
+					if (detailsHtml !== "") {
+					  btnWrapper.innerHTML = `
+								<button onclick="openFamilyForm()" style="
+									background: rgba(59, 130, 246, 0.1);
+									border: 1px solid #3b82f6;
+									color: white;
+									padding: 10px 20px;
+									border-radius: 12px;
+									cursor: pointer;
+									font-size: 14px;
+									display: inline-flex;
+									align-items: center;
+									gap: 8px;
+									transition: 0.3s;
+								" onmouseover="this.style.background='rgba(59, 130, 246, 0.2)'" onmouseout="this.style.background='rgba(59, 130, 246, 0.1)'">
+									<i class="fa-solid fa-users"></i> પરિવારના સભ્યો ઉમેરો
+								</button>
+							`;
+					} else {
+					  btnWrapper.innerHTML = "";
+					}
+
+					// 🎯 ૪. અહીથી પરિવારના સભ્યોનું લિસ્ટ રેન્ડર કરવાનું શરુ થાય છે
+					let familyCon = document.getElementById("familyListContainer");
+					if (!familyCon) {
+					  familyCon = document.createElement("div");
+					  familyCon.id = "familyListContainer";
+					  familyCon.style.width = "90%";
+					  familyCon.style.marginLeft = "auto";
+					  familyCon.style.marginRight = "auto";
+					  familyCon.style.marginTop = "20px";
+					  familyCon.style.marginBottom = "40px"; // નીચે જગ્યા રાખવા
+
+					  btnWrapper.insertAdjacentElement("afterend", familyCon);
+					}
+
+					// 🚀 જો પરિવારના સભ્યોનું લિસ્ટ (Array) હોય તો લૂપ ચલાવો
+					if (data.familyMembers && data.familyMembers.length > 0) {
+					  let allCardsHtml = "";
+
+					  data.familyMembers.forEach((member) => {
+						// વ્યવસાય મુજબ નામ અને વિગત બદલવા
+						let occLabel = "વ્યવસાય";
+						let occValue = member.fBusiness;
+
+						if (member.fBusiness === "અભ્યાસ") {
+						  occLabel = "અભ્યાસ";
+						  occValue = member.fBusinessDetail
+							? `ધોરણ ${member.fBusinessDetail}`
+							: member.fBusiness;
+						} else if (member.fBusiness === "નોકરી") {
+						  occLabel = "નોકરી";
+						  occValue = member.fBusinessDetail
+							? member.fBusinessDetail
+							: member.fBusiness;
+						} else if (member.fBusiness === "વ્યવસાય") {
+						  occLabel = "વ્યવસાય";
+						  occValue = member.fBusinessDetail
+							? member.fBusinessDetail
+							: member.fBusiness;
+						} else {
+						  occLabel = "વ્યવસાય";
+						  occValue =
+							member.fBusiness +
+							(member.fBusinessDetail
+							  ? ` (${member.fBusinessDetail})`
+							  : "");
+						}
+
+						allCardsHtml += `
+									<div style="background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 18px; padding: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); margin-bottom: 20px;">
+										<div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 12px; margin-bottom: 15px;">
+											<h3 style="color: #60a5fa; margin: 0; font-size: 16px; font-weight: bold; display: flex; align-items: center; gap: 8px;">
+												<i class="fa-solid fa-user-check"></i> ${member.fName} ${member.fSecondName} ${member.fSurname}
+											</h3>
+										</div>
+										
+										<div style="display: flex; flex-direction: column; gap: 12px; font-size: 13px; color: #cbd5e1;">
+											<p style="margin: 0; display: flex; align-items: center; gap: 10px;"><b style="color:#94a3b8; width: 18px; text-align: center;"><i class="fa-solid fa-phone"></i></b> મોબાઈલ: <span style="color: #fff;">${member.fMobile}</span></p>
+											
+											<p style="margin: 0; display: flex; align-items: center; gap: 10px;"><b style="color:#94a3b8; width: 18px; text-align: center;"><i class="fa-solid fa-briefcase"></i></b> ${occLabel}: <span style="color: #fff;">${occValue}</span></p>
+											
+											<p style="margin: 0; display: flex; align-items: center; gap: 10px;"><b style="color:#94a3b8; width: 18px; text-align: center;"><i class="fa-solid fa-cake-candles"></i></b> જન્મ તારીખ: <span style="color: #fff;">${member.fBirth && member.fBirth.includes("NaN") ? "-" : member.fBirth}</span></p>
+											<p style="margin: 0; display: flex; align-items: center; gap: 10px;"><b style="color:#94a3b8; width: 18px; text-align: center;"><i class="fa-solid fa-venus-mars"></i></b> જાતિ: <span style="color: #fff;">${member.fGender}</span></p>
+											<p style="margin: 0; display: flex; align-items: center; gap: 10px;"><b style="color:#ef4444; width: 18px; text-align: center;"><i class="fa-solid fa-droplet"></i></b> બ્લડ ગ્રુપ: <span style="color: #fff;">${member.fBlood}</span></p>
+											<p style="margin: 0; display: flex; align-items: center; gap: 10px;"><b style="color:#94a3b8; width: 18px; text-align: center;"><i class="fa-solid fa-users"></i></b> સંબંધ: <span style="color: #fff;">${member.fRelation}</span></p>
+										</div>
+									</div>
+								`;
+					  });
+
+					  // બધા કાર્ડ તૈયાર થઈ જાય એટલે કન્ટેનરમાં મૂકી દો
+					  familyCon.innerHTML = allCardsHtml;
+					} else {
+					  familyCon.innerHTML = "";
+					}
+				  }
+				}
+			  }
+			} catch (err) {
+			  console.error("Error:", err);
+			} finally {
+			  showLoader(false);
+			}
+		  }
+		  async function handleSave() {
+				   const mobile = localStorage.getItem("userMobile");
+
+			if (!mobile) {
+			  alert("તમે લોગિન નથી.");
+			  return;
+			}
+
+			// 📦 બધા જ ઈનપુટ એલિમેન્ટ્સ મેળવો
+			const emailField = document.getElementById("sEmail");
+			const educationField = document.getElementById("sEducation");
+			const businessField = document.getElementById("sBusiness");
+			const birthField = document.getElementById("sBirth");
+			const genderField = document.getElementById("sGender");
+			const bloodField = document.getElementById("sBlood");
+			const houseField = document.getElementById("sHouse");
+			const addressField = document.getElementById("sAddress");
+
+			// 🛑 VALIDATION: જો એક પણ વસ્તુ ખાલી હોય તો અહીં જ અટકાવી દો
+			if (
+			  !emailField.value.trim() ||
+			  !educationField.value.trim() ||
+			  !businessField.value.trim() ||
+			  !birthField.value.trim() ||
+			  !genderField.value.trim() ||
+			  !bloodField.value.trim() ||
+			  !houseField.value.trim() ||
+			  !addressField.value.trim()
+			) {
+			  alert(
+				"મહેરબાની કરીને બધી જ વિગતો ભરો. કોઈ પણ ખાનું ખાલી રાખશો નહીં. ❌",
+			  );
+			  return;
+			}
+
+			// 📧 Email Format Validation (વધારાનું ચેક)
+			const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+			if (!emailPattern.test(emailField.value.trim())) {
+			  alert("મહેરબાની કરીને સાચું ઈમેઈલ આઈડી લખો. 📧");
+			  return;
+			}
+
+			// 📦 બધો ડેટા ઓબ્જેક્ટમાં ભેગો કરો
+			const data = {
+			  mobile: mobile,
+			  email: emailField.value.trim(),
+			  education: educationField.value.trim(),
+			  business: businessField.value.trim(),
+			  birthdate: birthField.value.trim(),
+			  gender: genderField.value.trim(),
+			  blood: bloodField.value.trim(),
+			  house: houseField.value.trim(),
+			  address: addressField.value.trim(),
+			};
+
+			try {
+			  showLoader(true);
+
+			  const res = await fetch(SCRIPT_URL, {
+				method: "POST",
+				body: JSON.stringify(data),
+			  });
+
+			  const result = await res.json();
+			  showLoader(false);
+
+		  if (result.status === "success") {
+		  alert(result.message || "રિઝલ્ટ સેવ થયું ✅");
+		  closeModal();
+		  
+		  // 🔥 List આપોઆપ refresh થશે
+		  if (document.getElementById("resultListContainer")) {
+			loadResults();
+		  }
+		} else {
+		  alert("ભૂલ: " + (result.message || "સેવ થઈ શક્યું નથી"));
+		}
+			} catch (err) {
+			  showLoader(false);
+			  console.error(err);
+			  alert("Server error ❌ ડેટા સેવ થઈ શક્યો નથી.");
+			}
+		  }
+		  async function handleResultSave() {
+	  const mobile = localStorage.getItem("userMobile");
+	  const memberNo = localStorage.getItem("userMemberNo") || "";
+	  if (!mobile) {
+		alert("તમે લોગિન નથી.");
+		return;
+	  }
+
+	  const studentDropdown = document.getElementById("rStudentName");
+	  const standard = document.getElementById("rStandard").value.trim();
+	  const percentage = document.getElementById("rPercentage").value.trim();
+	  const year = document.getElementById("rExamYear").value.trim();
+	  const photoInput = document.getElementById("rPhoto");
+
+	  const studentName = studentDropdown.options[studentDropdown.selectedIndex]?.text || "";
+	  const studentValue = studentDropdown.value;
+
+	  // Validation
+	  if (!studentValue || studentName === "વિદ્યાર્થી પસંદ કરો") {
+		alert("વિદ્યાર્થી પસંદ કરો. ❌");
+		return;
+	  }
+	  if (!standard) { alert("ધોરણ / અભ્યાસ ભરો. ❌"); return; }
+	  if (!percentage) { alert("ટકાવારી ભરો. ❌"); return; }
+	  if (!year) { alert("પરીક્ષાનું વર્ષ ભરો. ❌"); return; }
+
+	  // 🔥 Multiple files handle કરો
+	  const filesArray = [];
+	  const selectedFiles = photoInput?.files || [];
+
+	  if (selectedFiles.length > 10) {
+		alert("વધુમાં વધુ 10 ફાઇલ જ અપલોડ કરી શકો છો. ❌");
+		return;
+	  }
+
+	  // Size check (દરેક file 5MB થી ઓછી હોવી જોઈએ)
+	  for (let i = 0; i < selectedFiles.length; i++) {
+		if (selectedFiles[i].size > 5 * 1024 * 1024) {
+		  alert(`ફાઇલ "${selectedFiles[i].name}" 5 MB કરતાં મોટી છે. ❌`);
+		  return;
+		}
+	  }
+
+	  // બધી files ને base64 માં convert કરો
+	  showLoader(true);
+	  try {
+		for (let i = 0; i < selectedFiles.length; i++) {
+		  const file = selectedFiles[i];
+		  const base64 = await new Promise((resolve, reject) => {
+			const reader = new FileReader();
+			reader.onload = () => {
+			  const s = reader.result;
+			  const commaIdx = s.indexOf(",");
+			  resolve(commaIdx >= 0 ? s.substring(commaIdx + 1) : s);
+			};
+			reader.onerror = reject;
+			reader.readAsDataURL(file);
+		  });
+
+		  filesArray.push({
+			base64: base64,
+			mime: file.type || "image/jpeg",
+			fileName: file.name || ("file_" + (i + 1)),
+		  });
+		}
+
+	   
+
+		const res = await fetch(SCRIPT_URL, {
+		  method: "POST",
+		  body: JSON.stringify(payload),
+		});
+		const result = await res.json();
+		showLoader(false);
+
+		if (result.status === "success") {
+		  alert(result.message || "રિઝલ્ટ સેવ થયું ✅");
+		  closeModal();
+		  if (document.getElementById("resultListContainer")) {
+			loadResults();
+		  }
+		} else {
+		  alert("ભૂલ: " + (result.message || "સેવ થઈ શક્યું નથી"));
+		}
+	  } catch (err) {
+		showLoader(false);
+		console.error(err);
+		alert("સર્વર સાથે સંપર્ક થઈ શક્યો નથી. ❌");
+	  }
+	}
+		  async function saveData() {
+			const data = {
+			  mobile: localStorage.getItem("userMobile"),
+			  email: document.getElementById("email").value,
+			  education: document.getElementById("education").value,
+			  business: document.getElementById("business").value,
+			  birthdate: document.getElementById("birthdate").value,
+			  gender: document.getElementById("gender").value,
+			  blood: document.getElementById("blood").value,
+			  house: document.getElementById("house").value,
+			  address: document.getElementById("address").value,
+			};
+
+			await fetch(SCRIPT_URL, {
+			  method: "POST",
+			  body: JSON.stringify(data),
+			});
+
+			alert("Data Updated Successfully");
+		  }
+		  function openFamilyForm() {
+			document.getElementById("modalTitle").innerHTML =
+			  `<i class="fa-solid fa-users"></i> નવો સભ્ય ઉમેરો`;
+			const formBody = document.querySelector(".form-body");
+
+			// લોગિન થયેલા મુખ્ય સભ્યની અટક મેળવો
+			const userSurname = document.getElementById("surname")
+			  ? document.getElementById("surname").innerText
+			  : "";
+
+			formBody.innerHTML = `
+			<div class="form-row">
+				<input type="text" id="fName" placeholder="નામ">
+			</div>
+			<div class="form-row">
+				<input type="text" id="fSecondName" placeholder="બીજું નામ">
+			</div>
+			
+			<div class="form-row">
+				<label style="color: #94a3b8; font-size: 13px; margin-left: 5px;">અટક:</label>
+				<input type="text" id="fSurname" value="${userSurname}" readonly style="background: rgba(255,255,255,0.05) !important; color: #94a3b8 !important; cursor: not-allowed;">
+			</div>
+
+			<div class="form-row">
+				<input type="text" id="fMobile" placeholder="મોબાઇલ નંબર" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+				
+			</div>
+
+			<div class="form-row">
+				<label style="color: #94a3b8; font-size: 14px; margin-bottom: 5px;">વ્યવસાય:</label>
+				<select id="fBusiness" onchange="handleOccupationChange(this.value)">
+					<option value="">પસંદ કરો</option>
+					<option value="અભ્યાસ">અભ્યાસ</option>
+					<option value="નોકરી">નોકરી</option>
+					<option value="વ્યવસાય">વ્યવસાય</option>
+					<option value="ગૃહિણી">ગૃહિણી</option>
+					<option value="બાળક ">બાળક </option>
+					<option value="અન્ય">અન્ય</option>
+				</select>
+			</div>
+
+			<div id="dynamicOccupationField"></div>
+
+			<div class="form-row">
+				<label style="color: #94a3b8; font-size: 14px; margin-bottom: 5px;">જન્મ તારીખ:</label>
+				<input type="date" id="fBirth" style="color-scheme: dark;">
+			</div>
+
+			<div class="form-row">
+				<label style="color: #94a3b8; font-size: 14px; margin-bottom: 5px;">જાતિ:</label>
+				<select id="fGender">
+					<option value="">પસંદ કરો</option>
+					<option value="Male">પુરૂષ</option>
+					<option value="Female">સ્ત્રી</option>
+				</select>
+			</div>
+
+			<div class="form-row">
+				<label style="color: #94a3b8; font-size: 14px; margin-bottom: 5px;">બ્લડ ગ્રુપ:</label>
+				<select id="fBlood">
+					<option value="">પસંદ કરો</option>
+					<option value="A+">A+</option><option value="A-">A-</option>
+					<option value="B+">B+</option><option value="B-">B-</option>
+					<option value="O+">O+</option><option value="O-">O-</option>
+					<option value="AB+">AB+</option><option value="AB-">AB-</option>
+					<option value="Unknown">ખબર નથી</option>
+				</select>
+			</div>
+
+			<div class="form-row">
+				<label style="color: #94a3b8; font-size: 14px; margin-bottom: 5px;">મુખ્ય સભ્ય સાથેનો સંબંધ:</label>
+				<select id="fRelation">
+					<option value="">સંબંધ પસંદ કરો</option>
+					<option value="દાદા">દાદા</option>
+					<option value="દાદી">દાદી</option>
+					<option value="પિતા">પિતા</option>
+					<option value="માતા">માતા</option>
+					<option value="મોટા પપ્પા">મોટા પપ્પા</option>
+					<option value="મોટા મમ્મી">મોટા મમ્મી</option>
+					<option value="પત્ની">પત્ની</option>
+					<option value="કાકા">કાકા</option>
+					<option value="કાકી">કાકી</option>
+					<option value="ભાઈ">ભાઈ</option>
+					<option value="બહેન">બહેન</option>
+					<option value="દીકરો">દીકરો</option>
+					<option value="દીકરી">દીકરી</option>
+					<option value="પુત્ર વધુ ">પુત્ર વધુ </option>
+					<option value="પૌત્ર">પૌત્ર</option>
+					<option value="પૌત્રી">પૌત્રી</option>
+				</select>
+			</div>
+		`;
+
+			// થીમ મુજબ સ્ટાઇલ આપવી
+			const inputs = formBody.querySelectorAll("input, select");
+			inputs.forEach((el) => {
+			  el.style.width = "100%";
+			  el.style.background = "#111827";
+			  el.style.border = "1px solid #1f2937";
+			  el.style.color = "white";
+			  el.style.padding = "12px";
+			  el.style.borderRadius = "8px";
+			  el.style.marginBottom = "10px";
+			  el.style.boxSizing = "border-box";
+			  el.style.outline = "none";
+			  el.style.fontSize = "14px";
+			});
+
+			const saveBtn = document.querySelector(".btn-save");
+			saveBtn.innerText = "સેવ કરો"; // "સાચવો" ને બદલે "સેવ કરો"
+			saveBtn.style.background = "#1e3a5f"; // બ્લુ બેકગ્રાઉન્ડ
+			saveBtn.style.color = "white";
+			saveBtn.style.border = "1px solid rgba(59, 130, 246, 0.4)";
+			saveBtn.style.color = "#3b82f6";
+			saveBtn.style.fontWeight = "bold";
+			saveBtn.onclick = handleFamilySave;
+	// Real-time Full Uppercase for Name Fields
+	setTimeout(() => {
+	  const nameInput = document.getElementById("fName");
+	  const secondNameInput = document.getElementById("fSecondName");
+
+	  function makeUpper(e) {
+		const cursorPos = e.target.selectionStart;
+		e.target.value = e.target.value.toUpperCase();
+		e.target.setSelectionRange(cursorPos, cursorPos);
+	  }
+
+	  if (nameInput) {
+		nameInput.addEventListener("input", makeUpper);
+		nameInput.addEventListener("blur", () => {
+		  nameInput.value = nameInput.value.toUpperCase();
+		});
+	  }
+	  if (secondNameInput) {
+		secondNameInput.addEventListener("input", makeUpper);
+		secondNameInput.addEventListener("blur", () => {
+		  secondNameInput.value = secondNameInput.value.toUpperCase();
+		});
+	  }
+	}, 300);
+			document.getElementById("commonModal").style.display = "flex";
+		  }
+
+		  // ૨. વ્યવસાય મુજબ ફીલ્ડ્સ બદલવાનું ફંક્શન
+		  function handleOccupationChange(val) {
+			const container = document.getElementById("dynamicOccupationField");
+			container.innerHTML = "";
+
+			if (val === "અભ્યાસ") {
+			  container.innerHTML = `
+				<div class="form-row">
+					<label style="color: #94a3b8; font-size: 14px; margin-bottom: 5px;">ધોરણ / અભ્યાસ પસંદ કરો:</label>
+					<select id="fEducationDetail">
+						<option value="">પસંદ કરો</option>
+						<option value="Nur , Sr. KG , Jr. KG, Balvatika">Nur , Sr. KG , Jr. KG, Balvatika</option>
+						${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => `<option value="${n}">${n}</option>`).join("")}
+						<option value="11 Science">11 Science</option>
+						<option value="11 Commerce">11 Commerce</option>
+						<option value="11 Arts">11 Arts</option>
+						<option value="12 Science">12 Science</option>
+						<option value="12 Commerce">12 Commerce</option>
+						<option value="12 Arts">12 Arts</option>
+						<option value="College/Higher Education">કોલેજ / ઉચ્ચ અભ્યાસ</option>
+					</select>
+				</div>
+			`;
+			} else if (val === "વ્યવસાય" || val === "નોકરી") {
+			  container.innerHTML = `
+				<div class="form-row">
+					<label style="color: #94a3b8; font-size: 14px; margin-bottom: 5px;">${val}ની વિગત:</label>
+					<input type="text" id="fOccupationDetail" placeholder="${val}નું નામ અથવા પ્રકાર લખો">
+				</div>
+			`;
+			}
+
+			// નવા એલિમેન્ટ્સને થીમ સ્ટાઇલ આપવી
+			const newFields = container.querySelectorAll("input, select");
+			newFields.forEach((el) => {
+			  el.style.width = "100%";
+			  el.style.background = "#111827";
+			  el.style.border = "1px solid #3b82f6"; // હાઇલાઇટ બોર્ડર
+			  el.style.color = "white";
+			  el.style.padding = "12px";
+			  el.style.borderRadius = "8px";
+			  el.style.marginBottom = "10px";
+			  el.style.outline = "none";
+			});
+		  }
+
+		  // પરિવારનો ડેટા સેવ કરવા માટેનું ફંક્શન
+		  // પરિવારનો ડેટા સેવ કરવા માટેનું ફંક્શન (બધી વિગતો ફરજિયાત સાથે)
+		  // પરિવારનો ડેટા સેવ કરવા માટેનું ફંક્શન
+		  async function handleFamilySave() {
+			const mobile = localStorage.getItem("userMobile");
+
+			// ૧. બધા ઇનપુટ એલિમેન્ટ્સ મેળવો
+			const fName = document.getElementById("fName").value.trim();
+			const fSecondName = document.getElementById("fSecondName").value.trim();
+			const fSurname = document.getElementById("fSurname").value.trim();
+			const fMobile = document.getElementById("fMobile").value.trim();
+			const fBusiness = document.getElementById("fBusiness").value;
+			const fBirth = document.getElementById("fBirth").value;
+			const fGender = document.getElementById("fGender").value;
+			const fBlood = document.getElementById("fBlood").value;
+			const fRelation = document.getElementById("fRelation").value;
+
+			// ૨. બેઝિક વેલિડેશન
+			if (
+			  !fName ||
+			  !fSecondName ||
+			  !fSurname ||
+			  !fMobile ||
+			  !fBusiness ||
+			  !fBirth ||
+			  !fGender ||
+			  !fRelation
+			) {
+			  alert("મહેરબાની કરીને પરિવારના સભ્યની બધી જ વિગતો ભરો. ❌");
+			  return;
+			}
+
+			// ૩. ડાયનેમિક ફીલ્ડ્સ વેલિડેશન
+			let fExtraDetail = "";
+			if (fBusiness === "અભ્યાસ") {
+			  fExtraDetail = document.getElementById("fEducationDetail").value;
+			  if (!fExtraDetail) {
+				alert("મહેરબાની કરીને ધોરણ / અભ્યાસ પસંદ કરો. ❌");
+				return;
+			  }
+			} else if (fBusiness === "વ્યવસાય" || fBusiness === "નોકરી") {
+			  fExtraDetail = document
+				.getElementById("fOccupationDetail")
+				.value.trim();
+			  if (!fExtraDetail) {
+				alert(`મહેરબાની કરીને ${fBusiness}ની વિગત લખો. ❌`);
+				return;
+			  }
+			}
+
+			const familyData = {
+			  mainMemberMobile: mobile,
+			  name: fName,
+			  secondName: fSecondName,
+			  surname: fSurname,
+			  mobile: fMobile,
+			  occupation: fBusiness,
+			  occupationDetail: fExtraDetail,
+			  birthdate: fBirth,
+			  gender: fGender,
+			  blood: fBlood,
+			  relation: fRelation,
+			  type: "addFamilyMember", // Apps Script માં ઓળખવા માટે આ જરૂરી છે
+			};
+
+			try {
+			  showLoader(true); // 🛑 લોડર ચાલુ (યુઝર બીજું કઈ નહિ કરી શકે)
+
+			  // 🛑 અહીયાં ડેટા સેવ થવા જશે અને જ્યાં સુધી શીટમાંથી રિસ્પોન્સ નહિ આવે ત્યાં સુધી કોડ અહી જ ઉભો રહેશે
+			  const res = await fetch(SCRIPT_URL, {
+				method: "POST",
+				body: JSON.stringify(familyData),
+			  });
+
+			  const result = await res.json();
+
+			  showLoader(false); // 🛑 રિસ્પોન્સ આવી ગયો, હવે લોડર બંધ કરો
+
+			  if (result.status === "success") {
+				alert("પરિવારના સભ્યની વિગત સફળતાપૂર્વક સેવ થઈ ગઈ! ✅");
+				closeModal();
+			  } else {
+				alert("સેવ કરવામાં ભૂલ આવી. ફરી પ્રયત્ન કરો.");
+			  }
+			} catch (err) {
+			  showLoader(false);
+			  alert("સર્વર એરર! ઇન્ટરનેટ કનેક્શન ચેક કરો.");
+			}
+		  }
+		  (function () {
+			var MAX_BYTES = 4 * 1024 * 1024;
+
+			function normalizePhotoUrl(img) {
+			  if (!img || String(img).trim() === "" || String(img) === "-")
+				return "";
+			  img = String(img).trim();
+			  if (!img.includes("drive.google.com")) return img;
+			  var id = "";
+			  var parts = img.match(/\/d\/(.+?)\/(view|edit)?/);
+			  var queryParts = img.match(/id=([^&]+)/);
+			  if (parts && parts[1]) id = parts[1];
+			  else if (queryParts && queryParts[1]) id = queryParts[1];
+			  return id ? "https://lh3.googleusercontent.com/d/" + id : img;
+			}
+
+			window.setMemberPhotoDisplay = function (url) {
+			  var img = document.getElementById("memberPhotoImg");
+			  var wrap = document.getElementById("memberProfileWrap");
+			  if (!img || !wrap) return;
+			  var u = normalizePhotoUrl(url);
+			  if (u) {
+				img.onload = function () {
+				  wrap.classList.add("has-photo");
+				};
+				img.onerror = function () {
+				  img.style.display = "none";
+				  wrap.classList.remove("has-photo");
+				};
+				img.src = u;
+				img.style.display = "block";
+			  } else {
+				img.removeAttribute("src");
+				img.style.display = "none";
+				wrap.classList.remove("has-photo");
+			  }
+			};
+
+			function fileToBase64(file) {
+			  return new Promise(function (resolve, reject) {
+				var reader = new FileReader();
+				reader.onload = function () {
+				  var s = reader.result;
+				  var i = s.indexOf(",");
+				  resolve(i >= 0 ? s.substring(i + 1) : s);
+				};
+				reader.onerror = reject;
+				reader.readAsDataURL(file);
+			  });
+			}
+
+			function getSabhyaNoForPhoto() {
+			  var fromStorage = localStorage.getItem("userMemberNo");
+			  var el = document.getElementById("sabhyNo");
+			  var fromDom = el ? el.innerText.trim() : "";
+			  return (fromStorage || fromDom || "").trim();
+			}
+
+			function resetModalPreview() {
+			  var prevImg = document.getElementById("memberPhotoModalPreviewImg");
+			  var hint = document.getElementById("memberPhotoModalPreviewHint");
+			  var fileIn = document.getElementById("memberPhotoFileInModal");
+			  if (fileIn) fileIn.value = "";
+			  if (prevImg) {
+				prevImg.style.display = "none";
+				prevImg.removeAttribute("src");
+			  }
+			  if (hint) hint.style.display = "block";
+
+			  var mainImg = document.getElementById("memberPhotoImg");
+			  if (mainImg && mainImg.getAttribute("src")) {
+				if (prevImg) {
+				  prevImg.src = mainImg.src;
+				  prevImg.style.display = "block";
+				}
+				if (hint) hint.style.display = "none";
+			  }
+			}
+
+			window.openMemberPhotoModal = function () {
+			  var wrapBusy = document.getElementById("memberProfileWrap");
+			  if (wrapBusy && wrapBusy.classList.contains("is-busy")) return;
+			  var m = document.getElementById("memberPhotoModal");
+			  if (!m) {
+				alert("ફોટો મોડલ મળ્યું નથી. HTML ચેક કરો.");
+				return;
+			  }
+			  var sn = getSabhyaNoForPhoto();
+			  var label = document.getElementById("memberPhotoModalSabhya");
+			  if (label) label.innerText = sn || "-";
+			  if (!sn || sn === "-" || sn === "લોડ થઈ રહ્યું છે...") {
+				alert("સભ્ય નંબર મળ્યો નથી. ફરી લોગિન કરો.");
+				return;
+			  }
+			  resetModalPreview();
+			  m.style.display = "flex";
+			  const currentImg = document.getElementById("memberPhotoImg");
+		if (currentImg && currentImg.src) {
+			const previewImg = document.getElementById("memberPhotoModalPreviewImg");
+			const hint = document.getElementById("memberPhotoModalPreviewHint");
+			if (previewImg) {
+				previewImg.src = currentImg.src;
+				previewImg.style.display = "block";
+			}
+			if (hint) hint.style.display = "none";
+		}
+			};
+
+			window.closeMemberPhotoModal = function () {
+		const modal = document.getElementById("memberPhotoModal");
+		if (modal) {
+			modal.style.display = "none";
+		}
+		
+		// ફાઈલ ઈનપુટ ક્લિયર કરો
+		const fileIn = document.getElementById("memberPhotoFileInModal");
+		if (fileIn) fileIn.value = "";
+	};
+
+			document.addEventListener("change", function (ev) {
+			  if (!ev.target || ev.target.id !== "memberPhotoFileInModal") return;
+			  var file = ev.target.files && ev.target.files[0];
+			  var prevImg = document.getElementById("memberPhotoModalPreviewImg");
+			  var hint = document.getElementById("memberPhotoModalPreviewHint");
+			  if (!file || !file.type || file.type.indexOf("image/") !== 0) {
+				if (prevImg) {
+				  prevImg.style.display = "none";
+				  prevImg.removeAttribute("src");
+				}
+				if (hint) hint.style.display = "block";
+				return;
+			  }
+			  var reader = new FileReader();
+			  reader.onload = function (e) {
+				if (prevImg) {
+				  prevImg.src = e.target.result;
+				  prevImg.style.display = "block";
+				}
+				if (hint) hint.style.display = "none";
+			  };
+			  reader.readAsDataURL(file);
+			});
+
+			// ==================== PHOTO UPLOAD FUNCTION (UPDATED) ====================
+	// ==================== PHOTO UPLOAD WITH PROPER HIDE ====================
+	window.submitMemberPhotoFromModal = async function () {
+		const mobile = localStorage.getItem("userMobile");
+		const sabhyaNo = getSabhyaNoForPhoto();
+		const fileIn = document.getElementById("memberPhotoFileInModal");
+		const file = fileIn && fileIn.files && fileIn.files[0];
+
+		// Validation Checks
+		if (!mobile) {
+			alert("તમે લોગિન નથી.");
+			return;
+		}
+		if (!sabhyaNo || sabhyaNo === "-" || sabhyaNo === "લોડ થઈ રહ્યું છે...") {
+			alert("સભ્ય નંબર મળ્યો નથી.");
+			return;
+		}
+		if (!file) {
+			alert("મહેરબાની કરીને ફોટો પસંદ કરો.");
+			return;
+		}
+		if (!file.type.startsWith("image/")) {
+			alert("માત્ર ઈમેજ ફાઈલ જ પસંદ કરી શકો છો.");
+			return;
+		}
+		if (file.size > MAX_BYTES) {
+			alert("ફોટો 4 MB કરતાં નાનો હોવો જોઈએ.");
+			return;
+		}
+
+		// ===== 1. તરત જ મોડલ છુપાવી દો =====
+		closeMemberPhotoModal();
+
+		// ===== 2. લોડર ચાલુ કરો =====
+		const wrap = document.getElementById("memberProfileWrap");
+		if (wrap) wrap.classList.add("is-busy");
+		
+		showLoader(true);
+
+		try {
+			const base64 = await fileToBase64(file);
+
+			const payload = {
+				action: "memberPhoto",
+				mobile: mobile,
+				sabhyaNo: String(sabhyaNo).trim(),
+				mimeType: file.type || "image/jpeg",
+				fileName: file.name || "photo.jpg",
+				imageBase64: base64,
+			};
+
+			const res = await fetch(SCRIPT_URL, {
+				method: "POST",
+				body: JSON.stringify(payload),
+			});
+
+			const result = await res.json();
+
+			if (result.status === "success" && result.photoUrl) {
+				setMemberPhotoDisplay(result.photoUrl);
+				alert("✅ ફોટો સફળતાપૂર્વક અપલોડ થયો!");
+			} else {
+				alert(result.message || "ફોટો અપલોડ થઈ શક્યો નથી.");
+			}
+		} catch (err) {
+			console.error(err);
+			alert("સર્વર સાથે સંપર્ક થઈ શક્યો નથી. કૃપા કરીને ફરી પ્રયાસ કરો.");
+		} finally {
+			// ===== 3. લોડર બંધ કરો =====
+			if (wrap) wrap.classList.remove("is-busy");
+			showLoader(false);
+		}
+	};
+		  })();
+		  function loadMemberDetails() {
+	  const memberNo = localStorage.getItem("userMemberNo");
+	  if (!memberNo) return Promise.resolve();
+
+	  return fetch(`${SCRIPT_URL}?action=getMember&memberNo=${memberNo}`)
+		.then(res => res.json())
+		.then(data => {
+		  const noField = document.getElementById("rMemberNo");
+		  const nameField = document.getElementById("rMemberName");
+		  if (noField) noField.value = data.memberNo || "";
+		  if (nameField) nameField.value = data.fullName || "";
+		})
+		.catch(err => console.error("Member load error:", err));
+	}
+
+	function loadStudents() {
+  const memberNo = localStorage.getItem("userMemberNo");
+  if (!memberNo) return Promise.resolve();
+
+  return fetch(`${SCRIPT_URL}?action=getStudents&memberNo=${memberNo}`)
+    .then(res => res.json())
+    .then(data => {
+      const dropdown = document.getElementById("rStudentName");
+      if (!dropdown) return;
+
+      window._studentData = data;
+      dropdown.innerHTML = `<option value="">વિદ્યાર્થી પસંદ કરો</option>`;
+
+      if (!Array.isArray(data) || data.length === 0) {
+        const opt = document.createElement("option");
+        opt.disabled = true;
+        opt.textContent = "કોઈ અભ્યાસ કરતો સભ્ય મળ્યો નથી";
+        dropdown.appendChild(opt);
+        return;
+      }
+
+      data.forEach((student, index) => {
+        const opt = document.createElement("option");
+        opt.value = index;
+        opt.textContent = student.name;
+        dropdown.appendChild(opt);
+      });
+
+      // 🎯 Student select થાય ત્યારે Standard dropdown ભરાશે
+      dropdown.onchange = function() {
+        const idx = this.value;
+        const standardField = document.getElementById("rStandard");
+        if (!standardField) return;
+
+        if (idx === "" || !window._studentData) {
+          standardField.innerHTML = `<option value="">પહેલા વિદ્યાર્થી પસંદ કરો</option>`;
+          return;
+        }
+
+        const selected = window._studentData[parseInt(idx)];
+        const currentDhoran = selected && selected.dhoran ? String(selected.dhoran).trim() : "";
+        populateStandardDropdown(currentDhoran);
+      };
+    })
+    .catch(err => console.error("Students load error:", err));
+}
+function populateStandardDropdown(currentDhoran) {
+  const dropdown = document.getElementById("rStandard");
+  const yearField = document.getElementById("rExamYear");
+  if (!dropdown || !yearField) return;
+
+  dropdown.innerHTML = "";
+
+  const match = currentDhoran.match(/^(\d+)/);
+  const currentNum = match ? parseInt(match[1]) : 0;
+  const currentYear = new Date().getFullYear(); // 2026
+
+  // 🎯 Check — College/Higher છે કે નહીં
+  const isCollege = currentDhoran.toLowerCase().includes("college") || 
+                    currentDhoran.toLowerCase().includes("higher");
+
+  // 🎯 Year dropdown update function
+  function updateYearOptions(selectedStdNum) {
+    yearField.innerHTML = "";
+    const currentRefNum = isCollege ? 13 : currentNum;
+    const diff = currentRefNum - selectedStdNum;
+    const examYear = currentYear - diff;
+
+    const opt = document.createElement("option");
+    opt.value = examYear;
+    opt.textContent = examYear;
+    opt.selected = true;
+    yearField.appendChild(opt);
+  }
+
+  // ========================================
+  // 🎯 CASE 1: College/Higher Education વાળા
+  // ========================================
+  if (isCollege) {
+    // ફક્ત 12 ના ત્રણ stream — "ચાલુ વર્ષ" નહીં
+    ["12 Science", "12 Commerce", "12 Arts"].forEach((stream, i) => {
+      const opt = document.createElement("option");
+      opt.value = stream;
+      opt.textContent = stream;
+      opt.dataset.standardNum = 12;
+      if (i === 0) opt.selected = true; // પહેલું default selected
+      dropdown.appendChild(opt);
+    });
+
+    // Year ને 2025 (પાછલું વર્ષ) fix કરી દો
+    updateYearOptions(12);
+  } 
+  // ========================================
+  // 🎯 CASE 2: બીજા બધા ધોરણ વાળા
+  // ========================================
+  else {
+    // Current ધોરણ (default selected)
+    if (currentDhoran) {
+      const curOpt = document.createElement("option");
+      curOpt.value = currentDhoran;
+      curOpt.textContent = currentDhoran + "  (ચાલુ વર્ષ)";
+      curOpt.selected = true;
+      curOpt.dataset.standardNum = currentNum;
+      dropdown.appendChild(curOpt);
+    }
+
+    // 11 વાળા ને → ધોરણ 10 નું extra option
+    if (currentNum === 11) {
+      const opt = document.createElement("option");
+      opt.value = "ધોરણ 10";
+      opt.textContent = "ધોરણ 10";
+      opt.dataset.standardNum = 10;
+      dropdown.appendChild(opt);
+    }
+
+    // શરૂઆતમાં current ધોરણ માટેનું year set કરો
+    if (currentNum) {
+      updateYearOptions(currentNum);
+    }
+  }
+
+  // 🎯 Standard બદલાય ત્યારે Year આપોઆપ બદલાય
+  dropdown.onchange = function() {
+    const selOpt = this.options[this.selectedIndex];
+    const selStdNum = parseInt(selOpt?.dataset?.standardNum || 0);
+    if (!selStdNum) return;
+    updateYearOptions(selStdNum);
+  };
+}
+	async function loadResults() {
+	  const mobile = localStorage.getItem("userMobile") || "";
+	  const memberNo = localStorage.getItem("userMemberNo") || "";
+	  const container = document.getElementById("resultListContainer");
+	  
+	  if (!container) return;
+	  if (!mobile) {
+		container.innerHTML = `<div style="text-align:center; color:#94a3b8; padding:30px;">લોગિન કરો.</div>`;
+		return;
+	  }
+
+	  showLoader(true);
+	  try {
+		const res = await fetch(`${SCRIPT_URL}?action=getResults&mobile=${mobile}&memberNo=${memberNo}`);
+		const response = await res.json();
+
+		if (!response.data || response.data.length === 0) {
+		  container.innerHTML = `
+			<div style="text-align:center; color:#94a3b8; padding:40px; background: rgba(15,23,42,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px;">
+			  <i class="fa-solid fa-chart-simple" style="font-size: 40px; opacity: 0.3; margin-bottom: 15px; display: block;"></i>
+			  હજી સુધી કોઈ રિઝલ્ટ ઉમેર્યું નથી.
+			</div>
+		  `;
+		  return;
+		}
+
+		// 🔥 Vertical stack layout — cards એકની નીચે એક
+		container.innerHTML = "";
+		container.style.display = "flex";
+		container.style.flexDirection = "column";
+		container.style.gap = "20px";
+		container.style.maxWidth = "380px";   // Card ની width ફિક્સ
+		container.style.margin = "15px 0";    // ડાબી બાજુ align
+
+		response.data.forEach((item, idx) => {
+		  const photo = item.photo || "";
+		  const showPhoto = photo && photo.trim() !== "";
+
+		  container.innerHTML += `
+			<div style="
+			  background: rgba(15, 23, 42, 0.6);
+			  border: 1px solid rgba(255, 255, 255, 0.1);
+			  border-radius: 20px;
+			  padding: 15px;
+			  display: flex;
+			  flex-direction: column;
+			  align-items: center;
+			  gap: 12px;
+			  width: 100%;
+			  box-sizing: border-box;
+			  transition: transform 0.2s, border-color 0.2s;
+			" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='rgba(59,130,246,0.4)';" 
+			   onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='rgba(255,255,255,0.1)';">
+			  
+			 <!-- Multiple Photos / PDFs -->
+	${renderResultFiles(item.photo)}
+
+			  <!-- નામ (બ્લુ patti) -->
+			  <div style="
+				width: 100%;
+				background: linear-gradient(90deg, #1e3a8a, #2563eb);
+				border: 1px solid rgba(59, 130, 246, 0.5);
+				color: white;
+				padding: 10px 12px;
+				border-radius: 10px;
+				text-align: center;
+				font-weight: bold;
+				font-size: 14px;
+				letter-spacing: 0.5px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				gap: 8px;
+			  ">
+				<i class="fa-solid fa-graduation-cap"></i> ${item.studentName}
+			  </div>
+
+			  <!-- ધોરણ + ટકાવારી (બે બોક્સ side-by-side) -->
+			  <div style="display: flex; gap: 10px; width: 100%;">
+				<div style="
+				  flex: 1;
+				  background: rgba(30, 41, 59, 0.7);
+				  border: 1px solid rgba(255,255,255,0.08);
+				  border-radius: 10px;
+				  padding: 10px;
+				  text-align: center;
+				">
+				  <div style="color: #94a3b8; font-size: 11px; margin-bottom: 4px;">ધોરણ/અભ્યાસ</div>
+				  <div style="color: white; font-size: 16px; font-weight: bold;">${item.standard || '-'}</div>
+				</div>
+				<div style="
+				  flex: 1;
+				  background: rgba(30, 41, 59, 0.7);
+				  border: 1px solid rgba(255,255,255,0.08);
+				  border-radius: 10px;
+				  padding: 10px;
+				  text-align: center;
+				">
+				  <div style="color: #94a3b8; font-size: 11px; margin-bottom: 4px;">ટકાવારી</div>
+				  <div style="color: #22c55e; font-size: 16px; font-weight: bold;">${item.percentage ? item.percentage + '%' : '-'}</div>
+				</div>
+			  </div>
+
+			  <!-- વર્ષ (નીચે footer) -->
+			  <div style="
+				width: 100%;
+				text-align: center;
+				color: #94a3b8;
+				font-size: 12px;
+				padding-top: 5px;
+				border-top: 1px solid rgba(255,255,255,0.05);
+			  ">
+				પાસ કર્યાનું વર્ષ: <span style="color: #60a5fa; font-weight: 600;">${item.year || '-'}</span>
+			  </div>
+			</div>
+		  `;
+		});
+
+	  } catch (err) {
+		console.error("Load results error:", err);
+		container.innerHTML = `<div style="text-align:center; color:#ef4444; padding:30px;">રિઝલ્ટ લોડ કરવામાં ભૂલ આવી.</div>`;
+	  } finally {
+		showLoader(false);
+	  }
+	}
+	function renderResultFiles(urlString) {
+	  if (!urlString || urlString.trim() === "") {
+		return `
+		  <div style="
+			width: 100%;
+			height: 180px;
+			background: #000;
+			border-radius: 12px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: #64748b;
+			font-size: 13px;
+		  ">
+			ફાઇલ નથી
+		  </div>
+		`;
+	  }
+
+	  // Pipe-separated URLs split કરો
+	  const urls = urlString.split("|").filter(u => u.trim() !== "");
+	  
+	  if (urls.length === 0) {
+		return `<div style="width: 100%; height: 180px; background: #000; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #64748b;">ફાઇલ નથી</div>`;
+	  }
+
+	  // Single file - full display
+	  if (urls.length === 1) {
+		return renderSingleFile(urls[0], true);
+	  }
+
+	  // Multiple files - grid layout
+	  return `
+		<div style="
+		  display: grid;
+		  grid-template-columns: repeat(${urls.length === 2 ? 2 : 2}, 1fr);
+		  gap: 8px;
+		  width: 100%;
+		">
+		  ${urls.map(u => renderSingleFile(u, false)).join("")}
+		</div>
+		${urls.length > 1 ? `<div style="color: #60a5fa; font-size: 11px; text-align: center; width: 100%;">
+		  <i class="fa-solid fa-images"></i> કુલ ${urls.length} ફાઇલ
+		</div>` : ""}
+	  `;
+	}
+
+	function renderSingleFile(url, isLarge) {
+	  const isPdf = url.toLowerCase().includes(".pdf") || url.includes("/file/d/") && url.includes("/view");
+	  const height = isLarge ? "200px" : "100px";
+
+	  if (isPdf) {
+		// PDF → icon + open button
+		return `
+		  <div onclick="window.open('${url}', '_blank')" style="
+			width: 100%;
+			height: ${height};
+			background: linear-gradient(135deg, #7f1d1d, #dc2626);
+			border-radius: 10px;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			cursor: pointer;
+			color: white;
+			gap: 6px;
+			transition: transform 0.2s;
+		  " onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+			<i class="fa-solid fa-file-pdf" style="font-size: ${isLarge ? '40px' : '24px'};"></i>
+			<span style="font-size: ${isLarge ? '13px' : '10px'}; font-weight: 600;">PDF ખોલો</span>
+		  </div>
+		`;
+	  }
+
+	  // Image
+	  return `
+		<div onclick="openImage('${url}')" style="
+		  width: 100%;
+		  height: ${height};
+		  background: #000;
+		  border-radius: 10px;
+		  overflow: hidden;
+		  cursor: zoom-in;
+		">
+		  <img src="${url}" style="width: 100%; height: 100%; object-fit: cover;" 
+			   onerror="this.parentElement.innerHTML='<div style=\\'display:flex;align-items:center;justify-content:center;height:100%;color:#64748b;font-size:11px;\\'>લોડ નથી થતી</div>';">
+		</div>
+	  `;
+	}
+
+
+		  // ==================== ACHIEVEMENT FORM LOAD ====================
+	async function loadAchievementMemberDetails() {
+	  const memberNo = localStorage.getItem("userMemberNo") || "";
+	  const mobile = localStorage.getItem("userMobile") || "";
+	  
+	  if (!memberNo || !mobile) return;
+
+	  try {
+		// મુખ્ય સભ્યની વિગતો
+		const res = await fetch(`${SCRIPT_URL}?action=getMember&memberNo=${memberNo}`);
+		const data = await res.json();
+
+		document.getElementById("aMemberNo").value = memberNo;
+		document.getElementById("aMobile").value = mobile;           // ← Mobile આપોઆપ ભરાશે
+		if (document.getElementById("aMemberName")) {
+		  document.getElementById("aMemberName").value = data.fullName || "";
+		}
+	  } catch(e) {
+		console.error("Member details load error:", e);
+	  }
+	}
+
+	async function loadAchievementAllMembers() {
+	  const mobile = localStorage.getItem("userMobile");
+	  if (!mobile) return;
+
+	  try {
+		const res = await fetch(`${SCRIPT_URL}?type=memberData&mobile=${mobile}`);
+		const data = await res.json();
+		const dropdown = document.getElementById("aStudentName");
+		const mobileField = document.getElementById("aMobile");
+
+		if (!dropdown) return;
+
+		dropdown.innerHTML = `<option value="">વ્યક્તિ પસંદ કરો</option>`;
+
+		// મુખ્ય સભ્ય
+		if (data.name && data.name !== "-") {
+		  const mainName = [data.name, data.father || "", data.surname || ""]
+			.filter(v => v && v !== "-").join(" ").trim();
+
+		  const opt = document.createElement("option");
+		  opt.value = mainName;
+		  opt.dataset.memberNo = localStorage.getItem("userMemberNo") || "";
+		  opt.dataset.mobile = data.mobile || "";           // મુખ્ય સભ્યનો મોબાઈલ
+		  opt.textContent = mainName + " (મુખ્ય સભ્ય)";
+		  dropdown.appendChild(opt);
+		}
+
+		// પરિવારના સભ્યો
+		if (data.familyMembers && data.familyMembers.length > 0) {
+		  data.familyMembers.forEach(m => {
+			const fullName = [m.fName, m.fSecondName, m.fSurname]
+			  .filter(v => v && String(v).trim() !== "").join(" ").trim();
+
+			if (!fullName) return;
+
+			const opt = document.createElement("option");
+			opt.value = fullName;
+			opt.dataset.memberNo = localStorage.getItem("userMemberNo") || "";
+			opt.dataset.mobile = m.fMobile || "";           // પરિવારનો મોબાઈલ (F માટે)
+			opt.textContent = fullName + (m.fRelation ? ` (${m.fRelation})` : "");
+			dropdown.appendChild(opt);
+		  });
+		}
+
+		// Dropdown પસંદ કરતા → માત્ર નામ અને F માટે મોબાઈલ બદલાય, ઉપરનો મુખ્ય મોબાઈલ ન બદલાય
+		dropdown.onchange = function() {
+		  const selectedOpt = this.options[this.selectedIndex];
+		  if (!selectedOpt || !selectedOpt.dataset) return;
+
+		  // ઉપરના મોબાઈલ બોક્સમાં મુખ્ય સભ્યનો નંબર જ રાખો (બદલાય નહીં)
+		  // mobileField.value = selectedOpt.dataset.mobile;   ← આ લાઈન **કમેન્ટ** કરી દીધી છે
+
+		  // જો તું F કોલમ માટે પરિવારનો મોબાઈલ મોકલવા માંગે છે તો અલગ વેરિયેબલમાં સેવ કરી શકાય
+		  window.selectedPersonMobile = selectedOpt.dataset.mobile || "";
+		};
+
+	  } catch(e) {
+		console.error("Load members error:", e);
+	  }
+	}
+
+	async function handleAchievementSave() {
+	  const memberNo = document.getElementById("aMemberNo").value.trim();
+	  const aMobile = document.getElementById("aMobile").value.trim();   // આ હવે dropdown માંથી આવશે
+	  const studentName = document.getElementById("aStudentName").value.trim();
+	  const year = document.getElementById("aYear").value;
+	  const description = document.getElementById("aDescription").value.trim();
+
+	  if (!memberNo || !aMobile || !studentName || !year || !description) {
+		alert("મહેરબાની કરીને બધી વિગતો ભરો.");
+		return;
+	  }
+
+	  showLoader(true);
+
+	  try {
+		const filesArray = [];
+		const selectedFiles = document.getElementById("aPhoto").files || [];
+
+		for (let file of selectedFiles) {
+		  const base64 = await new Promise(r => {
+			const reader = new FileReader();
+			reader.onload = () => r(reader.result.split(',')[1]);
+			reader.readAsDataURL(file);
+		  });
+		  filesArray.push({ base64, mime: file.type, fileName: file.name });
+		}
+
+			const payload = {
+		  action: "saveAchievement",
+		  memberNo: memberNo,                    // હંમેશા મુખ્ય સભ્યનો MemberNo
+		  aMobile: localStorage.getItem("userMobile") || "",   // ← મુખ્ય સભ્યનો મોબાઈલ (ઉપરના બોક્સમાં)
+		  inputMobile: window.selectedPersonMobile || document.getElementById("aMobile").value.trim(), 
+		  studentName: studentName,
+		  year: year,
+		  description: description,
+		  files: filesArray
+		};
+
+		const res = await fetch(SCRIPT_URL, {
+		  method: "POST",
+		  body: JSON.stringify(payload)
+		});
+
+		const result = await res.json();
+		showLoader(false);
+
+		if (result.status === "success") {
+		  alert(result.message || "સિદ્ધિ સેવ થઈ ગઈ ✅");
+		  closeModal();
+		} else {
+		  alert("ભૂલ: " + (result.message || "કંઈક ખોટું છે"));
+		}
+	  } catch (e) {
+		showLoader(false);
+		alert("સર્વર સાથે કનેક્શન નથી થઈ શક્યું!");
+	  }
+	}
+		  // ======================== END ACHIEVEMENT FUNCTIONS ========================
+		  
+		  async function loadAchievements() {
+	  const container = document.getElementById("achievementsContainer");
+	  if (!container) return;
+
+	  showLoader(true);
+	  container.innerHTML = "";
+
+	  try {
+		const memberNo = localStorage.getItem("userMemberNo") || "";
+		const res = await fetch(`${SCRIPT_URL}?action=getAchievements&memberNo=${memberNo}`);
+		const response = await res.json();
+
+		if (!response.data || response.data.length === 0) {
+		  container.innerHTML = `
+			<div style="text-align:center; color:#94a3b8; padding:80px; background:rgba(15,23,42,0.4); border-radius:20px;">
+			  હજુ સુધી કોઈ સિદ્ધિ ઉમેરી નથી.
+			</div>`;
+		  return;
+		}
+
+		// વર્ટિકલ + ડાબી બાજુથી શરૂ + સ્ક્વેર લુક
+		container.style.display = "flex";
+		container.style.flexDirection = "column";
+		container.style.gap = "18px";
+		container.style.alignItems = "flex-start";   // ડાબી બાજુથી શરૂ
+		container.style.maxWidth = "100%";
+		container.style.padding = "10px 0";
+
+		response.data.forEach(item => {
+		  const isPDF = item.photo && 
+						(item.photo.toString().toLowerCase().includes('.pdf') || 
+						 item.photo.toString().includes('/file/d/'));
+
+		  let mediaHtml = '';
+
+		  if (isPDF) {
+			mediaHtml = `
+			  <div onclick="window.open('${item.photo}', '_blank')" 
+				   style="width:100%; height:145px; background: linear-gradient(135deg, #dc2626, #b91c1c); 
+						  border-radius:14px; display:flex; flex-direction:column; align-items:center; 
+						  justify-content:center; color:white; cursor:pointer;">
+				<i class="fas fa-file-pdf" style="font-size:48px; margin-bottom:8px;"></i>
+				<span style="font-size:16px; font-weight:600;">PDF ખોલો</span>
+			  </div>`;
+		  } 
+		  else if (item.photo && item.photo.toString().trim() !== '') {
+			const firstUrl = item.photo.toString().split('|')[0].trim();
+			mediaHtml = `
+			  <img src="${firstUrl}" 
+				   onclick="openImage('${firstUrl}')"
+				   style="width:100%; height:145px; object-fit:cover; border-radius:14px; cursor:zoom-in;"
+				   onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'height:145px;background:#1e293b;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#64748b;\'><i class=\'fas fa-image\' style=\'font-size:36px;opacity:0.5;\'></i></div>';">
+			`;
+		  } 
+		  else {
+			mediaHtml = `
+			  <div style="width:100%; height:145px; background:#1e293b; border-radius:14px; 
+						  display:flex; align-items:center; justify-content:center; color:#64748b;">
+				<i class="fas fa-image" style="font-size:40px; opacity:0.45;"></i>
+			  </div>`;
+		  }
+
+		  const cardHTML = `
+			<div style="background:rgba(15,23,42,0.95); border:1px solid rgba(59,130,246,0.25);
+						border-radius:16px; overflow:hidden; box-shadow:0 8px 25px rgba(0,0,0,0.35); 
+						width: 100%; max-width: 420px;">   <!-- સ્ક્વેર લુક માટે max-width -->
+
+			  <!-- Media -->
+			  <div style="padding:12px 12px 0 12px;">
+				${mediaHtml}
+			  </div>
+
+			  <!-- Details -->
+			  <div style="padding:14px 16px 18px 16px;">
+				<h3 style="margin:0 0 10px 0; color:#60a5fa; font-size:17px; font-weight:600;">
+				  ${item.studentName || 'વ્યક્તિ'}
+				</h3>
+				
+				<div style="margin-bottom:7px; color:#94a3b8; font-size:13.5px;">
+				  <i class="fas fa-phone-alt"></i> મોબાઈલ: 
+				  <strong style="color:#f1f5f9;">${item.mobile || '-'}</strong>
+				</div>
+				
+				<div style="margin-bottom:10px; color:#94a3b8; font-size:13.5px;">
+				  <i class="fas fa-calendar-alt"></i> વર્ષ: 
+				  <strong style="color:#f1f5f9;">${item.year || '-'}</strong>
+				</div>
+				
+				<div style="color:#cbd5e1; font-size:13.8px; line-height:1.5;">
+				  ${item.description || 'વર્ણન ઉપલબ્ધ નથી...'}
+				</div>
+			  </div>
+			</div>
+		  `;
+
+		  container.innerHTML += cardHTML;
+		});
+
+	  } catch (err) {
+		console.error("Achievements Load Error:", err);
+		container.innerHTML = `<div style="color:#ef4444; text-align:center; padding:60px;">સિદ્ધિઓ લોડ કરવામાં ભૂલ આવી.</div>`;
+	  } finally {
+		showLoader(false);
+	  }
+	}
+	// ============================================
+	// 🎯 RESULT માટે અલગ Form (Independent)
+	// ============================================
+	function openResultForm() {
+		const userRole = localStorage.getItem("userRole");
+		const userMobile = localStorage.getItem("userMobile") || "";
+
+		document.getElementById("modalTitle").innerHTML = 
+			`<i class="fas fa-chart-line"></i> રિઝલ્ટ ઉમેરો`;
+
+		const formBody = document.querySelector("#commonModal .form-body");
+		formBody.innerHTML = `
+			<div class="form-row">
+				<label>સભ્ય નંબર</label>
+				<input type="text" id="rMemberNo" placeholder="સભ્ય નંબર" readonly 
+					style="background: rgba(255,255,255,0.02); color: #94a3b8;">
+			</div>
+
+			<div class="form-row">
+				<label>સભ્યનું નામ</label>
+				<input type="text" id="rMemberName" placeholder="સભ્યનું નામ" readonly 
+					style="background: rgba(255,255,255,0.02); color: #94a3b8;">
+			</div>
+
+			<div class="form-row">
+				<label>મોબાઈલ નંબર</label>
+				<input type="text" id="rMobile" value="${userMobile}" readonly 
+					style="background: rgba(255,255,255,0.02); color: #94a3b8;">
+			</div>
+
+			<div class="form-row">
+				<label>વિદ્યાર્થીનું નામ</label>
+				<select id="rStudentName">
+					<option value="">⏳ લોડ થઈ રહ્યું છે...</option>
+				</select>
+			</div>
+
+			<div class="form-row">
+    <label>ધોરણ / અભ્યાસ</label>
+    <select id="rStandard">
+        <option value="">પહેલા વિદ્યાર્થી પસંદ કરો</option>
+    </select>
+</div>
+
+<div class="form-row">
+    <label>પરીક્ષાનું વર્ષ</label>
+    <select id="rExamYear">
+        <option value="2026" selected>2026</option>
+        <option value="2025">2025</option>
+        <option value="2024">2024</option>
+        <option value="2023">2023</option>
+        <option value="2022">2022</option>
+        <option value="2021">2021</option>
+        <option value="2020">2020</option>
+    </select>
+</div>
+
+			<div class="form-row">
+				<label>ટકાવારી (Percentage)</label>
+				<input type="text" id="rPercentage" placeholder="દા.ત. 85">
+			</div>
+
+			
+
+			<div class="form-row">
+				<label>રિઝલ્ટનો ફોટા અથવા PDF</label>
+				<input type="file" id="rPhoto" accept="image/*,application/pdf" multiple>
+			</div>
+		`;
+
+		// 🎯 Save બટન માટે અલગ handler
+		const saveBtn = document.querySelector("#commonModal .btn-save");
+		if (saveBtn) {
+			saveBtn.onclick = saveResultData;   // ← અલગ function
+			saveBtn.innerText = "રિઝલ્ટ સેવ કરો";
+		}
+
+		// Modal ખોલો
+		document.getElementById("commonModal").style.display = "flex";
+
+		// Member details અને students load કરો
+		showLoader(true);
+		Promise.all([loadMemberDetails(), loadStudents()])
+			.finally(() => showLoader(false));
+	}
+
+	// ============================================
+	// 🎯 Result Save માટે અલગ Function
+	// ============================================
+	async function saveResultData() {
+		const mobile = localStorage.getItem("userMobile");
+		const memberNo = localStorage.getItem("userMemberNo") || "";
+
+		if (!mobile) {
+			alert("તમે લોગિન નથી.");
+			return;
+		}
+
+		const studentDropdown = document.getElementById("rStudentName");
+		const standard = document.getElementById("rStandard").value.trim();
+		const percentage = document.getElementById("rPercentage").value.trim();
+		const year = document.getElementById("rExamYear").value.trim();
+		const photoInput = document.getElementById("rPhoto");
+
+		const studentName = studentDropdown.options[studentDropdown.selectedIndex]?.text || "";
+		const studentValue = studentDropdown.value;
+
+		// Validation
+		if (!studentValue || studentName === "વિદ્યાર્થી પસંદ કરો") {
+			alert("વિદ્યાર્થી પસંદ કરો. ❌");
+			return;
+		}
+		if (!standard) { alert("ધોરણ / અભ્યાસ ભરો. ❌"); return; }
+		if (!percentage) { alert("ટકાવારી ભરો. ❌"); return; }
+		if (!year) { alert("પરીક્ષાનું વર્ષ ભરો. ❌"); return; }
+
+		// Files handle
+		const filesArray = [];
+		const selectedFiles = photoInput?.files || [];
+
+		if (selectedFiles.length > 10) {
+			alert("વધુમાં વધુ 10 ફાઇલ અપલોડ કરી શકો છો. ❌");
+			return;
+		}
+
+		for (let i = 0; i < selectedFiles.length; i++) {
+			if (selectedFiles[i].size > 5 * 1024 * 1024) {
+				alert(`ફાઇલ "${selectedFiles[i].name}" 5 MB કરતાં મોટી છે. ❌`);
+				return;
+			}
+		}
+
+		showLoader(true);
+
+		try {
+			// Files ને base64 માં convert કરો
+			for (let i = 0; i < selectedFiles.length; i++) {
+				const file = selectedFiles[i];
+				const base64 = await new Promise((resolve, reject) => {
+					const reader = new FileReader();
+					reader.onload = () => {
+						const s = reader.result;
+						const commaIdx = s.indexOf(",");
+						resolve(commaIdx >= 0 ? s.substring(commaIdx + 1) : s);
+					};
+					reader.onerror = reject;
+					reader.readAsDataURL(file);
+				});
+
+				filesArray.push({
+					base64: base64,
+					mime: file.type || "image/jpeg",
+					fileName: file.name || ("file_" + (i + 1)),
+				});
+			}
+
+			// 🎯 Payload (આ missing હતું!)
+			const payload = {
+				action: "saveResult",
+				mobile: mobile,
+				memberNo: memberNo,
+				studentName: studentName,
+				standard: standard,
+				percentage: percentage,
+				year: year,
+				files: filesArray,
+			};
+
+			const res = await fetch(SCRIPT_URL, {
+				method: "POST",
+				body: JSON.stringify(payload),
+			});
+
+			const result = await res.json();
+			showLoader(false);
+
+			if (result.status === "success") {
+				alert(result.message || "રિઝલ્ટ સેવ થયું ✅");
+				closeModal();
+				if (document.getElementById("resultListContainer")) {
+					loadResults();
+				}
+			} else {
+				alert("ભૂલ: " + (result.message || "સેવ થઈ શક્યું નથી"));
+			}
+		} catch (err) {
+			showLoader(false);
+			console.error(err);
+			alert("સર્વર સાથે સંપર્ક થઈ શક્યો નથી. ❌");
+		}
+	}
+	// ==================== PRELOAD ALL DATA AFTER LOGIN ====================
+	async function preloadAllImportantData() {
+  showLoader(true);
+  const mobile = localStorage.getItem("userMobile");
+  if (!mobile) {
+    showLoader(false);
+    return;
+  }
+
+  try {
+    // 🎯 બંને status check કરો
+    await checkResultStatus();
+    await checkAchievementStatus();  // ← નવું
+
+    await Promise.all([
+      loadNews(),
+      loadGallery(),
+      loadMemberData(),
+      loadResults(),
+      loadAchievements(),
+      loadEvents("snehmilan"),
+      loadCommittee("karobari")
+    ]);
+
+    console.log("✅ Preload completed");
+  } catch (err) {
+    console.error("Preload error:", err);
+  } finally {
+    showLoader(false);
+  }
+}
+
+// 🎯 નવું function
+async function checkAchievementStatus() {
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=getAchievementStatus`);
+    const data = await res.json();
+    const isEnabled = data.status === "success" ? (data.enabled !== false) : true;
+    localStorage.setItem("achievementEnabled", isEnabled ? "true" : "false");
+    console.log("✅ Achievement enabled:", isEnabled);
+  } catch (e) {
+    console.error("❌ Achievement status check error:", e);
+    localStorage.setItem("achievementEnabled", "true");
+  }
+}
+
+// 🎯 નવું function — Result ON/OFF status ચેક કરે
+async function checkResultStatus() {
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=getResultStatus`);
+    const data = await res.json();
+    console.log("🔍 Result status from server:", data);
+    
+    // 🎯 Default ON unless server explicitly says false
+    const isEnabled = data.status === "success" ? (data.enabled !== false) : true;
+    
+    localStorage.setItem("resultEnabled", isEnabled ? "true" : "false");
+    applyResultVisibility(isEnabled);
+    
+    console.log("✅ Result enabled:", isEnabled);
+  } catch (e) {
+    console.error("❌ Result status check error:", e);
+    // 🎯 Error થાય તો default ON રાખો
+    localStorage.setItem("resultEnabled", "true");
+    applyResultVisibility(true);
+  }
+}
+
+// 🎯 નવું function — Result menu બતાવવા કે છુપાવવા
+function applyResultVisibility(isEnabled) {
+  // Menu item બધાને હંમેશા બતાવો
+  // Lock screen showContent('result') માં handle થશે
+  const resultNav = document.querySelector('.nav-item[onclick*="result"]');
+  if (resultNav) {
+    resultNav.style.display = "flex";
+  }
+}
+	async function toggleResultForAll() {
+  const currentStatus = localStorage.getItem("resultEnabled") !== "false";
+  const newStatus = !currentStatus;
+  
+  const confirmMsg = newStatus 
+    ? "શું તમે બધા સભ્યો માટે રિઝલ્ટ + વિશિષ્ટ સિદ્ધિઓ બંને ચાલુ કરવા માંગો છો?"
+    : "શું તમે બધા સભ્યો માટે રિઝલ્ટ + વિશિષ્ટ સિદ્ધિઓ બંને બંધ કરવા માંગો છો?";
+  
+  if (!confirm(confirmMsg)) return;
+
+  showLoader(true);
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "toggleResultStatus",
+        enabled: newStatus
+      })
+    });
+    const result = await res.json();
+    showLoader(false);
+
+    if (result.status === "success") {
+      localStorage.setItem("resultEnabled", newStatus ? "true" : "false");
+      localStorage.setItem("achievementEnabled", newStatus ? "true" : "false");   // ← આ લાઇન મહત્વની
+
+      alert(newStatus 
+        ? "✅ રિઝલ્ટ અને વિશિષ્ટ સિદ્ધિઓ બંને ચાલુ કરવામાં આવ્યા!" 
+        : "❌ રિઝલ્ટ અને વિશિષ્ટ સિદ્ધિઓ બંને બંધ કરવામાં આવ્યા!");
+
+      // Refresh current page
+      showContent("result");
+    } else {
+      alert("ભૂલ: " + (result.message || "કંઈક ખોટું થયું"));
+    }
+  } catch (err) {
+    showLoader(false);
+    alert("સર્વર સાથે સંપર્ક થઈ શક્યો નથી.");
+  }
+}
+async function toggleAchievementForAll() {
+  const currentStatus = localStorage.getItem("achievementEnabled") !== "false";
+  const newStatus = !currentStatus;
+  
+  const confirmMsg = newStatus 
+    ? "શું તમે બધા સભ્યો માટે વિશિષ્ટ સિદ્ધિઓ પેજ ચાલુ કરવા માંગો છો?"
+    : "શું તમે બધા સભ્યો માટે વિશિષ્ટ સિદ્ધિઓ પેજ બંધ કરવા માંગો છો? (Admin ને દેખાતું રહેશે)";
+  
+  if (!confirm(confirmMsg)) return;
+
+  showLoader(true);
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "toggleAchievementStatus",
+        enabled: newStatus
+      })
+    });
+    const result = await res.json();
+    showLoader(false);
+
+    if (result.status === "success") {
+      localStorage.setItem("achievementEnabled", newStatus ? "true" : "false");
+      alert(newStatus ? "✅ વિશિષ્ટ સિદ્ધિઓ ચાલુ કરવામાં આવી!" : "❌ વિશિષ્ટ સિદ્ધિઓ બંધ કરવામાં આવી!");
+      showContent("achievements");
+    } else {
+      alert("ભૂલ: " + (result.message || "કંઈક ખોટું થયું"));
+    }
+  } catch (err) {
+    showLoader(false);
+    alert("સર્વર સાથે સંપર્ક થઈ શક્યો નથી.");
+  }
+}
+// ==================== ACHIEVEMENT VISIBILITY CONTROL ====================
+
+async function loadMembersWithResultsDropdown(dropdown) {
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=getMembersWithResults`);
+    const data = await res.json();
+
+    if (data.status !== "success" || !data.data) {
+      dropdown.innerHTML = `<option value="">લોડ થઈ શક્યું નથી</option>`;
+      return;
+    }
+
+    dropdown.innerHTML = `<option value="">-- સભ્ય પસંદ કરો (Result જોવા) --</option>`;
+
+    data.data.forEach(m => {
+      const opt = document.createElement("option");
+      opt.value = m.memberNo;                    // value માં માત્ર નંબર રાખો (જરૂરી છે)
+      opt.textContent = m.display || `${m.memberNo} - ${m.name}`;   // પહેલા નંબર પછી નામ
+      dropdown.appendChild(opt);
+    });
+
+  } catch(e) {
+    console.error("Dropdown load error:", e);
+    dropdown.innerHTML = `<option value="">એરર આવી - ફરી ટ્રાય કરો</option>`;
+  }
+}
+
+async function loadSpecificMemberResults(memberNo) {
+  const container = document.getElementById("resultListContainer");
+  if (!container) return;
+
+  container.innerHTML = `<div style="text-align:center; padding:40px;">લોડ થઈ રહ્યું છે...</div>`;
+
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=getResults&memberNo=${memberNo}`);
+    const response = await res.json();
+
+    if (!response.data || response.data.length === 0) {
+      container.innerHTML = `<div style="text-align:center; color:#94a3b8; padding:40px;">આ સભ્યનું કોઈ રિઝલ્ટ મળ્યું નથી.</div>`;
+      return;
+    }
+
+    // તમારા હાલના renderResultFiles વાળા કોડને રીયુઝ કરીને cards બનાવો
+    // અથવા loadResults() ને મોડિફાઈ કરીને memberNo પાસ કરી શકો છો
+
+    container.innerHTML = ""; // તમારા હાલના card rendering કોડ અહીં મૂકો
+
+  } catch(e) {
+    container.innerHTML = `<div style="color:red; text-align:center;">ભૂલ આવી.</div>`;
+  }
+}
+// મોબાઈલ માટે Hamburger Menu
+function toggleMobileSidebar() {
+  const sidebar = document.getElementById("sidebar");
+  sidebar.classList.toggle("active");
+}
+
+// Desktop toggle ને મોબાઈલમાં બદલો
+// Hamburger click — બધા devices પર એક જ રીતે કામ કરશે
+function toggleMobileSidebar() {
+  const sidebar = document.getElementById("sidebar");
+  sidebar.classList.toggle("active");
+}
+
+
+// Sidebar ની બહાર click થાય ત્યારે બંધ કરો
+document.addEventListener("click", function(e) {
+  const sidebar = document.getElementById("sidebar");
+  const hamburgerBtn = e.target.closest("button[onclick*='toggleMobileSidebar']");
+  
+  if (sidebar.classList.contains("active") && 
+      !sidebar.contains(e.target) && 
+      !hamburgerBtn) {
+    sidebar.classList.remove("active");
+  }
+});
+
+// કોઈ menu item click થાય ત્યારે sidebar બંધ કરો
+document.querySelectorAll(".nav-item").forEach(item => {
+  item.addEventListener("click", () => {
+    document.getElementById("sidebar").classList.remove("active");
+  });
+});
+function createSquareCommitteeCard(name, hodo, photo) {
+  return `
+    <div style="background: rgba(15,23,42,0.95); 
+                border: 1px solid rgba(59,130,246,0.4); 
+                border-radius: 16px; 
+                padding: 16px 18px; 
+                display: flex; 
+                align-items: center; 
+                gap: 16px; 
+                transition: all 0.3s ease;
+                margin-bottom: 12px;">
+      
+      <!-- Circular Icon -->
+      <div style="width: 78px; height: 78px; border-radius: 50%; 
+                  background: rgba(255,255,255,0.08); 
+                  display: flex; align-items: center; justify-content: center; 
+                  border: 3px solid #3b82f6; flex-shrink: 0;">
+        <img src="${photo || 'https://cdn-icons-png.flaticon.com/512/149/149071.png'}" 
+             style="width: 68px; height: 68px; border-radius: 50%; object-fit: cover;"
+             onerror="this.src='https://cdn-icons-png.flaticon.com/512/149/149071.png';">
+      </div>
+
+      <!-- Text -->
+      <div style="flex: 1;">
+        <div style="font-size: 18px; font-weight: 700; color: white; margin-bottom: 4px;">
+          ${name}
+        </div>
+        <div style="color: #60a5fa; font-size: 15px; font-weight: 500;">
+          ${hodo}
+        </div>
+      </div>
+    </div>`;
+}
+function switchCommitteeTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  
+  if (tab === "karobari") {
+    document.getElementById("tab-karobari").classList.add("active");
+  } else {
+    document.getElementById("tab-yuva").classList.add("active");
+  }
+
+  loadCommittee(tab);
+}
+		</script>
+	  </body>
+	</html>
