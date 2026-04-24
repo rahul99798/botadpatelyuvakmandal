@@ -1420,7 +1420,7 @@ body.is-admin button.admin-only {
 
 		<script>
 		  const SCRIPT_URL =
-			"https://script.google.com/macros/s/AKfycbxomeTTLmqK-_xokN-H6vyZne1bn9u5X4eWrexDs1qv5LQUwlhuavAJe_nJFE5hv0qz/exec";
+			"https://script.google.com/macros/s/AKfycbzGNblT2Heolok3S05VilLRUBlF3hmoQQVczSLOKvJ0R62yFxuu18RBAwdQG4JlRC8M/exec";
 			
 
 		  async function login() {
@@ -1759,7 +1759,25 @@ body.is-admin button.admin-only {
   <div class="news-title" style="white-space: nowrap;">
     <i class="fa-solid fa-users"></i> સભ્યો
   </div>
-
+${userRole === "admin" ? `
+<div style="margin-top: 12px; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 14px; padding: 12px 15px;">
+  <label style="color: #94a3b8; font-size: 12.5px; display: block; margin-bottom: 8px;">
+    <i class="fa-solid fa-user-shield" style="color: #60a5fa;"></i> એડમિન: કોઈપણ સભ્યની વિગત જુઓ
+  </label>
+  <select id="adminMemberDropdown" style="
+    width: 100%;
+    font-size: 13px;
+    padding: 9px 12px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: white;
+  ">
+    <option value="">-- સભ્ય પસંદ કરો --</option>
+  </select>
+</div>
+` : ""}
   <!-- જમણી બાજુના બંને buttons — Compact -->
   <div style="margin-left: auto; display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
     
@@ -1839,6 +1857,13 @@ setTimeout(() => {
         btn.disabled = true;
         btn.style.opacity = "0.6";
 
+        // 🎯 Admin dropdown હોય તો reset કરો
+        const adminDropdown = document.getElementById("adminMemberDropdown");
+        if (adminDropdown) {
+          adminDropdown.value = "";
+        }
+
+        // હંમેશા પોતાનો ડેટા લોડ કરો
         loadMemberData().finally(() => {
           // Original icon પાછું લાવો
           icon.classList.remove("fa-spinner", "fa-spin");
@@ -1847,6 +1872,23 @@ setTimeout(() => {
           btn.style.opacity = "1";
         });
       };
+    }
+
+    // 🎯 ADMIN DROPDOWN LOGIC
+    const userRole = localStorage.getItem("userRole");
+    if (userRole === "admin") {
+      const adminDropdown = document.getElementById("adminMemberDropdown");
+      if (adminDropdown) {
+        loadAllMembersDropdown(adminDropdown);
+        adminDropdown.onchange = function() {
+          const memberNo = this.value;
+          if (!memberNo) {
+            loadMemberData();   // dropdown ખાલી કરે તો પોતાનો ડેટા
+          } else {
+            loadMemberData(memberNo);  // admin પસંદ કરે તે સભ્યનો ડેટા
+          }
+        };
+      }
     }
   }, 100);
 
@@ -1898,7 +1940,25 @@ setTimeout(() => {
                         <option value="">-- સભ્ય પસંદ કરો --</option>
                     </select>
                 ` : ""}
-
+					<!-- Excel Download બટન -->
+                ${userRole === "admin" ? `
+                    <button type="button" id="downloadResultBtn" style="
+                        background: rgba(34, 197, 94, 0.1);
+                        border: 1px solid rgba(34, 197, 94, 0.4);
+                        color: white;
+                        padding: 7px 12px;
+                        border-radius: 10px;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        gap: 6px;
+                        font-size: 12.5px;
+                        height: 38px;
+                    ">
+                        <i class="fa-solid fa-file-excel" style="color: #22c55e;"></i>
+                        <span>Excel Download</span>
+                    </button>
+                ` : ""}
                 <!-- On/Off બટન -->
                 ${userRole === "admin" ? `
                     <button type="button" id="toggleResultBtn" style="
@@ -1941,12 +2001,13 @@ setTimeout(() => {
         const addBtn = document.getElementById("addResultBtn");
         if (addBtn) addBtn.onclick = openResultForm;
 
-        const toggleBtn = document.getElementById("toggleResultBtn");
-        if (toggleBtn) {
-            toggleBtn.onclick = (e) => {
+        // 🎯 Excel Download Button
+        const downloadBtn = document.getElementById("downloadResultBtn");
+        if (downloadBtn) {
+            downloadBtn.onclick = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                toggleResultForAll();
+                downloadAllResultsExcel();
             };
         }
 
@@ -1977,43 +2038,33 @@ setTimeout(() => {
 			// ----- BUSINESS PAGE LOGIC -----
 			// ----- BUSINESS PAGE LOGIC -----
 			if (type === "business") {
-			  const userRole = localStorage.getItem("userRole"); // લોગિન વખતે સેવ થયેલો રોલ મેળવો
+  const userRole = localStorage.getItem("userRole");
 
-			  contentArea.innerHTML = `
-			<div class="news-header-card">
-				<div class="news-title">
-					<i class="fa-solid fa-briefcase"></i> વ્યવસાય
-				</div>
+  contentArea.innerHTML = `
+    <div class="news-header-card">
+      <div class="news-title"><i class="fa-solid fa-briefcase"></i> વ્યવસાય</div>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        ${userRole === "admin" ? `
+          <button class="add-btn" onclick="viewRequests()" 
+            style="background:rgba(234,179,8,0.1); border:1px solid rgba(234,179,8,0.5); color:#fcd34d;">
+            <i class="fa-solid fa-bell"></i> 
+            <span>રિકવેસ્ટ જોવો</span>
+            <span id="pendingBadge" style="display:none; background:#ef4444; color:white; 
+              border-radius:50%; padding:2px 8px; margin-left:5px; font-size:11px;"></span>
+          </button>
+        ` : ""}
+        <button class="add-btn" onclick="openAddForm('business')">
+          <i class="fa-solid fa-plus"></i> વ્યવસાય ઉમેરો
+        </button>
+      </div>
+    </div>
+    <div id="listContainer" style="margin-top:15px;">લોડ થઈ રહ્યું છે...</div>
+  `;
 
-				<div style="display: flex; gap: 12px; align-items: center;">
-					
-					${
-					  userRole === "admin"
-						? `
-						<button class="add-btn" onclick="viewRequests()" style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.4); color: #93c5fd;">
-							રિકવેસ્ટ જોવો
-						</button>
-					`
-						: ""
-					}
-
-					<button class="add-btn" onclick="openAddForm('business')">
-						<span>+</span> વ્યવસાય ઉમેરો
-					</button>
-					
-				</div>
-			</div>
-
-			<div class="search-container" style="margin-top: 15px;">
-				<input type="text" class="search-input" placeholder="વ્યવસાયનું નામ અથવા વિગત સર્ચ કરો..." style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); padding: 12px 15px; border-radius: 15px; color: white; outline: none; box-sizing: border-box;">
-			</div>
-
-			<div id="listContainer" class="empty-news-box" style="margin-top: 15px; width: 100%; box-sizing: border-box;">
-				${data.empty}
-			</div>
-		`;
-			  return;
-			} 
+  loadBusinesses();
+  if (userRole === "admin") loadPendingCount();
+  return;
+}
 			  else if (type === "achievements") {
   const userRole = localStorage.getItem("userRole") || "public";
   
@@ -2031,8 +2082,38 @@ setTimeout(() => {
       <div class="news-title" style="display:flex; align-items:center; gap:10px;">
         <i class="fa-solid fa-award"></i> વિશિષ્ટ સિદ્ધિઓ
       </div>
+	  ${userRole === "admin" ? `
+  <select id="adminAchievementDropdown" style="
+    font-size: 13px;
+    padding: 7px 10px;
+    height: 38px;
+    min-width: 190px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: white;
+  ">
+    <option value="">-- સભ્ય પસંદ કરો --</option>
+  </select>
+` : ""}
       <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
-        
+        ${userRole === "admin" ? `
+  <button type="button" id="downloadAchievementBtn" style="
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.4);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+  ">
+    <i class="fa-solid fa-file-excel" style="color: #22c55e; font-size: 16px;"></i>
+    <span>Excel<br>Download</span>
+  </button>
+` : ""}
         ${userRole === "admin" ? `
           <button type="button" id="toggleAchievementBtn" style="
             background: ${achievementEnabled ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)'};
@@ -2086,7 +2167,11 @@ setTimeout(() => {
   }
 
   // Toggle button event
+  // Toggle button event + Admin dropdown
+  // 🎯 Excel Download Button
+// Toggle button event + Admin dropdown + Excel Download
   setTimeout(() => {
+    // 🎯 Toggle Button
     const toggleBtn = document.getElementById("toggleAchievementBtn");
     if (toggleBtn) {
       toggleBtn.onclick = function(e) {
@@ -2094,6 +2179,32 @@ setTimeout(() => {
         e.stopPropagation();
         toggleAchievementForAll();
       };
+    }
+
+    // 🎯 Excel Download Button
+    const downloadAchBtn = document.getElementById("downloadAchievementBtn");
+    if (downloadAchBtn) {
+      downloadAchBtn.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        downloadAllAchievementsExcel();
+      };
+    }
+
+    // 🎯 ADMIN DROPDOWN LOGIC
+    if (userRole === "admin") {
+      const dropdown = document.getElementById("adminAchievementDropdown");
+      if (dropdown) {
+        loadMembersWithAchievementsDropdown(dropdown);
+        dropdown.onchange = function() {
+          const memberNo = this.value;
+          if (!memberNo) {
+            loadAchievements();   // dropdown ખાલી → પોતાનું
+          } else {
+            loadSpecificMemberAchievements(memberNo);
+          }
+        };
+      }
     }
   }, 100);
 
@@ -2220,33 +2331,61 @@ return;
 						<textarea id="sAddress" placeholder="તમારું પૂરું સરનામું લખો" style="width: 100%; background: #15191e; border: 1px solid #334155; color: white; padding: 15px; border-radius: 10px; height: 100px; resize: vertical; font-size: 14px; outline: none; box-sizing: border-box;" required></textarea>
 					</div>
 				`;
-			} else if (type === "business") {
-			  formBody.innerHTML = `
-					<div class="form-row"><label>સભ્ય નંબર (Member ID) *</label><input type="text" placeholder="સભ્ય નંબર લખો" required></div>
-					<div class="form-row"><label>વ્યવસાયનું વિઝિટિંગ કાર્ડ / ફોટો *</label><input type="file" accept="image/*" required></div>
-					<div class="form-row"><label>વ્યવસાયનું નામ *</label><input type="text" placeholder="વ્યવસાય કે પેઢીનું નામ લખો" required></div>
-					<div class="form-row">
-						<label>માલિકનું નામ *</label>
-						<select required><option value="">Select Owner</option><option value="owner1">માલિક ૧</option></select>
-					</div>
-					<div class="form-row"><label>વ્યવસાયનો પ્રકાર *</label><input type="text" placeholder="દા.ત. દુકાન, ફેક્ટરી, ઓફિસ" required></div>
-					<div class="form-row"><label>મોબાઈલ નંબર *</label><input type="text" placeholder="મોબાઈલ નંબર લખો" maxlength="10" required></div>
-					<div class="form-row" style="margin-bottom: 20px;">
-				<label style="color: #cbd5e1; font-size: 14px; margin-bottom: 8px; display: block;">ઈમેઈલ આઈડી</label>
-				<input type="email" id="bEmail" placeholder="ઈમેઈલ આઈડી લખો" style="width: 100%; background: #1e2329; border: 1px solid #334155; color: white; padding: 12px 15px; border-radius: 10px; font-size: 14px; outline: none; box-sizing: border-box;">
-			</div>
+			 } else if (type === "business") {
+  const userMemberNo = localStorage.getItem("userMemberNo") || "";
+  const userMobile = localStorage.getItem("userMobile") || "";
 
-			<div class="form-row" style="margin-bottom: 20px;">
-				<label style="color: #cbd5e1; font-size: 14px; margin-bottom: 8px; display: block;">વ્યવસાયની વિગત</label>
-				<textarea id="bDesc" placeholder="તમારા વ્યવસાય વિશે ટૂંકમાં લખો" style="width: 100%; background: #15191e; border: 1px solid #334155; color: white; padding: 15px; border-radius: 10px; height: 100px; resize: vertical; font-size: 14px; outline: none; box-sizing: border-box;"></textarea>
-			</div>
+  formBody.innerHTML = `
+    <div class="form-row">
+      <label>સભ્ય નંબર</label>
+      <input type="text" id="bMemberNo" value="${userMemberNo}" readonly 
+        style="background:#1a2232;color:#94a3b8;cursor:not-allowed;">
+    </div>
 
-			<div class="form-row" style="margin-bottom: 25px;">
-				<label style="color: #cbd5e1; font-size: 14px; margin-bottom: 8px; display: block;">સ્થળ / એરિયા</label>
-				<input type="text" id="bArea" placeholder="દા.ત. સુરત, વરાછા, કતારગામ" style="width: 100%; background: #1e2329; border: 1px solid #334155; color: white; padding: 12px 15px; border-radius: 10px; font-size: 14px; outline: none; box-sizing: border-box;">
-			</div>
-				`;
-			} 
+    <div class="form-row">
+      <label>વ્યવસાયનું વિઝિટિંગ કાર્ડ / ફોટો *</label>
+      <input type="file" id="bPhoto" accept="image/*">
+    </div>
+
+    <div class="form-row">
+      <label>વ્યવસાયનું નામ *</label>
+      <input type="text" id="bName" placeholder="વ્યવસાય કે પેઢીનું નામ">
+    </div>
+
+    <div class="form-row">
+      <label>માલિકનું નામ *</label>
+      <input type="text" id="bOwner" placeholder="માલિકનું પૂરું નામ">
+    </div>
+
+    <div class="form-row">
+      <label>વ્યવસાયનો પ્રકાર *</label>
+      <input type="text" id="bType" placeholder="દા.ત. દુકાન, ફેક્ટરી, ઓફિસ">
+    </div>
+
+    <div class="form-row">
+      <label>મોબાઈલ નંબર *</label>
+      <input type="text" id="bMobile" value="${userMobile}" maxlength="10" 
+        oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+    </div>
+
+    <div class="form-row">
+      <label>ઈમેઈલ આઈડી</label>
+      <input type="email" id="bEmail" placeholder="ઈમેઈલ">
+    </div>
+
+    <div class="form-row">
+      <label>વ્યવસાયની વિગત</label>
+      <textarea id="bDesc" placeholder="વ્યવસાય વિશે ટૂંકમાં" style="height:90px;"></textarea>
+    </div>
+
+    <div class="form-row">
+      <label>સ્થળ / એરિયા</label>
+      <input type="text" id="bArea" placeholder="દા.ત. વરાછા, કતારગામ">
+    </div>
+  `;
+
+  document.querySelector(".btn-save").onclick = handleBusinessSave;
+}
 			else if (type === "achievements") {
 			  const userMobile = localStorage.getItem("userMobile") || "";
 			  const userMemberNo = localStorage.getItem("userMemberNo") || "";
@@ -3060,15 +3199,16 @@ return;
 			  icon.style.transform = "rotate(0deg)";
 			}
 		  }
-		  async function loadMemberData() {
-			const mobile = localStorage.getItem("userMobile");
-			if (!mobile) return;
+		  async function loadMemberData(overrideMemberNo) {
+    const mobile = localStorage.getItem("userMobile");
+    if (!mobile && !overrideMemberNo) return;
 
 			showLoader(true);
 			try {
-			  const res = await fetch(
-				`${SCRIPT_URL}?type=memberData&mobile=${mobile}`,
-			  );
+			  const url = overrideMemberNo 
+    ? `${SCRIPT_URL}?type=memberDataByNo&memberNo=${overrideMemberNo}`
+    : `${SCRIPT_URL}?type=memberData&mobile=${mobile}`;
+const res = await fetch(url);
 			  const data = await res.json();
 
 			  if (data.status === "success") {
@@ -4922,24 +5062,84 @@ async function loadSpecificMemberResults(memberNo) {
   const container = document.getElementById("resultListContainer");
   if (!container) return;
 
-  container.innerHTML = `<div style="text-align:center; padding:40px;">લોડ થઈ રહ્યું છે...</div>`;
+  container.innerHTML = `<div style="text-align:center; padding:40px; color:#94a3b8;">લોડ થઈ રહ્યું છે...</div>`;
 
   try {
     const res = await fetch(`${SCRIPT_URL}?action=getResults&memberNo=${memberNo}`);
     const response = await res.json();
 
     if (!response.data || response.data.length === 0) {
-      container.innerHTML = `<div style="text-align:center; color:#94a3b8; padding:40px;">આ સભ્યનું કોઈ રિઝલ્ટ મળ્યું નથી.</div>`;
+      container.innerHTML = `
+        <div style="text-align:center; color:#94a3b8; padding:40px; background: rgba(15,23,42,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px;">
+          <i class="fa-solid fa-chart-simple" style="font-size: 40px; opacity: 0.3; margin-bottom: 15px; display: block;"></i>
+          આ સભ્યનું કોઈ રિઝલ્ટ મળ્યું નથી.
+        </div>`;
       return;
     }
 
-    // તમારા હાલના renderResultFiles વાળા કોડને રીયુઝ કરીને cards બનાવો
-    // અથવા loadResults() ને મોડિફાઈ કરીને memberNo પાસ કરી શકો છો
+    // loadResults() જેવી જ card rendering
+    container.innerHTML = "";
+    container.style.display = "flex";
+    container.style.flexDirection = "column";
+    container.style.gap = "20px";
+    container.style.maxWidth = "380px";
+    container.style.margin = "15px 0";
 
-    container.innerHTML = ""; // તમારા હાલના card rendering કોડ અહીં મૂકો
+    response.data.forEach((item) => {
+      container.innerHTML += `
+        <div style="
+          background: rgba(15, 23, 42, 0.6);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 20px;
+          padding: 15px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 12px;
+          width: 100%;
+          box-sizing: border-box;
+        ">
+          ${renderResultFiles(item.photo)}
+
+          <div style="
+            width: 100%;
+            background: linear-gradient(90deg, #1e3a8a, #2563eb);
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            color: white;
+            padding: 10px 12px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+          ">
+            <i class="fa-solid fa-graduation-cap"></i> ${item.studentName}
+          </div>
+
+          <div style="display: flex; gap: 10px; width: 100%;">
+            <div style="flex: 1; background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px; text-align: center;">
+              <div style="color: #94a3b8; font-size: 11px; margin-bottom: 4px;">ધોરણ/અભ્યાસ</div>
+              <div style="color: white; font-size: 16px; font-weight: bold;">${item.standard || '-'}</div>
+            </div>
+            <div style="flex: 1; background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px; text-align: center;">
+              <div style="color: #94a3b8; font-size: 11px; margin-bottom: 4px;">ટકાવારી</div>
+              <div style="color: #22c55e; font-size: 16px; font-weight: bold;">${item.percentage ? item.percentage + '%' : '-'}</div>
+            </div>
+          </div>
+
+          <div style="width: 100%; text-align: center; color: #94a3b8; font-size: 12px; padding-top: 5px; border-top: 1px solid rgba(255,255,255,0.05);">
+            પાસ કર્યાનું વર્ષ: <span style="color: #60a5fa; font-weight: 600;">${item.year || '-'}</span>
+          </div>
+        </div>
+      `;
+    });
 
   } catch(e) {
-    container.innerHTML = `<div style="color:red; text-align:center;">ભૂલ આવી.</div>`;
+    console.error("loadSpecificMemberResults error:", e);
+    container.innerHTML = `<div style="color:#ef4444; text-align:center; padding:40px;">ભૂલ આવી.</div>`;
   }
 }
 // મોબાઈલ માટે Hamburger Menu
@@ -5017,6 +5217,543 @@ function switchCommitteeTab(tab) {
   }
 
   loadCommittee(tab);
+}
+async function loadAllMembersDropdown(dropdown) {
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=getAllMembers`);
+    const data = await res.json();
+
+    if (data.status !== "success" || !data.data) {
+      dropdown.innerHTML = `<option value="">લોડ થઈ શક્યું નથી</option>`;
+      return;
+    }
+
+    dropdown.innerHTML = `<option value="">-- સભ્ય પસંદ કરો --</option>`;
+    data.data.forEach(m => {
+      const opt = document.createElement("option");
+      opt.value = m.memberNo;
+      opt.textContent = m.display;
+      dropdown.appendChild(opt);
+    });
+  } catch (e) {
+    console.error("Admin dropdown load error:", e);
+    dropdown.innerHTML = `<option value="">એરર આવી - ફરી ટ્રાય કરો</option>`;
+  }
+}
+// 🎯 Achievements dropdown માટે members લોડ કરો (ફક્ત જેણે achievement ઉમેર્યું હોય)
+async function loadMembersWithAchievementsDropdown(dropdown) {
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=getMembersWithAchievements`);
+    const data = await res.json();
+
+    if (data.status !== "success" || !data.data) {
+      dropdown.innerHTML = `<option value="">લોડ થઈ શક્યું નથી</option>`;
+      return;
+    }
+
+    dropdown.innerHTML = `<option value="">-- સભ્ય પસંદ કરો (સિદ્ધિ જોવા) --</option>`;
+
+    data.data.forEach(m => {
+      const opt = document.createElement("option");
+      opt.value = m.memberNo;
+      opt.textContent = m.display || `${m.memberNo} - ${m.name}`;
+      dropdown.appendChild(opt);
+    });
+
+  } catch(e) {
+    console.error("Achievement dropdown load error:", e);
+    dropdown.innerHTML = `<option value="">એરર આવી - ફરી ટ્રાય કરો</option>`;
+  }
+}
+
+// 🎯 ચોક્કસ સભ્યની સિદ્ધિઓ લોડ કરો (admin માટે)
+async function loadSpecificMemberAchievements(memberNo) {
+  const container = document.getElementById("achievementsContainer");
+  if (!container) return;
+
+  container.innerHTML = `<div style="text-align:center; padding:40px; color:#94a3b8;">લોડ થઈ રહ્યું છે...</div>`;
+
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=getAchievements&memberNo=${memberNo}`);
+    const response = await res.json();
+
+    if (!response.data || response.data.length === 0) {
+      container.innerHTML = `
+        <div style="text-align:center; color:#94a3b8; padding:80px; background:rgba(15,23,42,0.4); border-radius:20px;">
+          આ સભ્યની કોઈ સિદ્ધિ મળી નથી.
+        </div>`;
+      return;
+    }
+
+    container.style.display = "flex";
+    container.style.flexDirection = "column";
+    container.style.gap = "18px";
+    container.style.alignItems = "flex-start";
+    container.style.maxWidth = "100%";
+    container.style.padding = "10px 0";
+    container.innerHTML = "";
+
+    response.data.forEach(item => {
+      const isPDF = item.photo && 
+                    (item.photo.toString().toLowerCase().includes('.pdf') || 
+                     item.photo.toString().includes('/file/d/'));
+
+      let mediaHtml = '';
+
+      if (isPDF) {
+        mediaHtml = `
+          <div onclick="window.open('${item.photo}', '_blank')" 
+               style="width:100%; height:145px; background: linear-gradient(135deg, #dc2626, #b91c1c); 
+                      border-radius:14px; display:flex; flex-direction:column; align-items:center; 
+                      justify-content:center; color:white; cursor:pointer;">
+            <i class="fas fa-file-pdf" style="font-size:48px; margin-bottom:8px;"></i>
+            <span style="font-size:16px; font-weight:600;">PDF ખોલો</span>
+          </div>`;
+      } 
+      else if (item.photo && item.photo.toString().trim() !== '') {
+        const firstUrl = item.photo.toString().split('|')[0].trim();
+        mediaHtml = `
+          <img src="${firstUrl}" 
+               onclick="openImage('${firstUrl}')"
+               style="width:100%; height:145px; object-fit:cover; border-radius:14px; cursor:zoom-in;"
+               onerror="this.style.display='none';">
+        `;
+      } 
+      else {
+        mediaHtml = `
+          <div style="width:100%; height:145px; background:#1e293b; border-radius:14px; 
+                      display:flex; align-items:center; justify-content:center; color:#64748b;">
+            <i class="fas fa-image" style="font-size:40px; opacity:0.45;"></i>
+          </div>`;
+      }
+
+      container.innerHTML += `
+        <div style="background:rgba(15,23,42,0.95); border:1px solid rgba(59,130,246,0.25);
+                    border-radius:16px; overflow:hidden; box-shadow:0 8px 25px rgba(0,0,0,0.35); 
+                    width: 100%; max-width: 420px;">
+          <div style="padding:12px 12px 0 12px;">${mediaHtml}</div>
+          <div style="padding:14px 16px 18px 16px;">
+            <h3 style="margin:0 0 10px 0; color:#60a5fa; font-size:17px; font-weight:600;">
+              ${item.studentName || 'વ્યક્તિ'}
+            </h3>
+            <div style="margin-bottom:7px; color:#94a3b8; font-size:13.5px;">
+              <i class="fas fa-phone-alt"></i> મોબાઈલ: 
+              <strong style="color:#f1f5f9;">${item.mobile || '-'}</strong>
+            </div>
+            <div style="margin-bottom:10px; color:#94a3b8; font-size:13.5px;">
+              <i class="fas fa-calendar-alt"></i> વર્ષ: 
+              <strong style="color:#f1f5f9;">${item.year || '-'}</strong>
+            </div>
+            <div style="color:#cbd5e1; font-size:13.8px; line-height:1.5;">
+              ${item.description || 'વર્ણન ઉપલબ્ધ નથી...'}
+            </div>
+          </div>
+        </div>
+      `;
+    });
+
+  } catch(e) {
+    console.error("loadSpecificMemberAchievements error:", e);
+    container.innerHTML = `<div style="color:#ef4444; text-align:center; padding:60px;">ભૂલ આવી.</div>`;
+  }
+}
+// 🎯 બધા results Excel માં download કરે (Admin only)
+async function downloadAllResultsExcel() {
+    showLoader(true);
+    
+    try {
+        const res = await fetch(`${SCRIPT_URL}?action=getAllResultsForExport`);
+        const response = await res.json();
+
+        if (response.status !== "success" || !response.data || response.data.length === 0) {
+            showLoader(false);
+            alert("ડાઉનલોડ કરવા માટે કોઈ ડેટા નથી.");
+            return;
+        }
+
+        // 🎯 Standard મુજબ sort કરો (1, 2, 3... 10, 11, 12 Science, 12 Commerce...)
+        const sortedData = response.data.sort((a, b) => {
+            const aNum = parseInt(String(a.standard || '').match(/\d+/)?.[0] || 0);
+            const bNum = parseInt(String(b.standard || '').match(/\d+/)?.[0] || 0);
+            
+            if (aNum !== bNum) return aNum - bNum;
+            return String(a.standard || '').localeCompare(String(b.standard || ''));
+        });
+
+        // 🎯 CSV બનાવો (Excel માં ખુલે)
+        // 🎯 CSV બનાવો (Excel માં ખુલે) — દરેક Standard પછી 2 ખાલી row
+        let csv = "\uFEFF"; // BOM for proper Gujarati rendering
+        csv += "ક્રમ,સભ્ય નંબર,વિદ્યાર્થીનું નામ,ધોરણ/અભ્યાસ,ટકાવારી,વર્ષ,મોબાઈલ\n";
+
+        let previousStandard = null;
+        let serialNo = 0;
+
+        sortedData.forEach((item) => {
+            const currentStandard = String(item.standard || '').trim();
+
+            // 🎯 Standard બદલાય તો 2 ખાલી row મૂકો
+            if (previousStandard !== null && previousStandard !== currentStandard) {
+                csv += ",,,,,,\n";   // ખાલી row 1
+                csv += ",,,,,,\n";   // ખાલી row 2
+            }
+
+            serialNo++;
+            const row = [
+                serialNo,
+                `"${item.memberNo || ''}"`,
+                `"${(item.studentName || '').replace(/"/g, '""')}"`,
+                `"${currentStandard}"`,
+                `"${item.percentage || ''}"`,
+                `"${item.year || ''}"`,
+                `"${item.mobile || ''}"`
+            ].join(",");
+            csv += row + "\n";
+
+            previousStandard = currentStandard;
+        });
+
+        // 🎯 File download
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        
+        const today = new Date();
+        const dateStr = `${today.getDate()}-${today.getMonth()+1}-${today.getFullYear()}`;
+        
+        link.href = url;
+        link.download = `Results_${dateStr}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        showLoader(false);
+        alert(`✅ ${sortedData.length} રિઝલ્ટ ડાઉનલોડ થયું!`);
+
+    } catch (err) {
+        showLoader(false);
+        console.error("Download error:", err);
+        alert("ડાઉનલોડ કરવામાં ભૂલ આવી.");
+    }
+}
+// 🎯 બધી Achievements Excel માં download કરે (Admin only)
+async function downloadAllAchievementsExcel() {
+    showLoader(true);
+    
+    try {
+        const res = await fetch(`${SCRIPT_URL}?action=getAllAchievementsForExport`);
+        const response = await res.json();
+
+        if (response.status !== "success" || !response.data || response.data.length === 0) {
+            showLoader(false);
+            alert("ડાઉનલોડ કરવા માટે કોઈ ડેટા નથી.");
+            return;
+        }
+
+        // 🎯 સભ્ય નંબર મુજબ sort (1, 2, 3... 10, 11)
+        const sortedData = response.data.sort((a, b) => {
+            const aNum = parseInt(String(a.memberNo || '0').replace(/\D/g, '')) || 0;
+            const bNum = parseInt(String(b.memberNo || '0').replace(/\D/g, '')) || 0;
+            
+            if (aNum !== bNum) return aNum - bNum;
+            return String(a.year || '').localeCompare(String(b.year || ''));
+        });
+
+        // 🎯 CSV બનાવો — દરેક સભ્ય પછી 2 ખાલી row
+        let csv = "\uFEFF"; // BOM for Gujarati
+        csv += "ક્રમ,સભ્ય નંબર,વ્યક્તિનું નામ,મોબાઈલ,વર્ષ,સિદ્ધિ / વર્ણન\n";
+
+        let previousMemberNo = null;
+        let serialNo = 0;
+
+        sortedData.forEach((item) => {
+            const currentMemberNo = String(item.memberNo || '').trim();
+
+            // 🎯 સભ્ય નંબર બદલાય તો 2 ખાલી row મૂકો
+            if (previousMemberNo !== null && previousMemberNo !== currentMemberNo) {
+                csv += ",,,,,\n";
+                csv += ",,,,,\n";
+            }
+
+            serialNo++;
+            const row = [
+                serialNo,
+                `"${currentMemberNo}"`,
+                `"${(item.studentName || '').replace(/"/g, '""')}"`,
+                `"${item.mobile || ''}"`,
+                `"${item.year || ''}"`,
+                `"${(item.description || '').replace(/"/g, '""').replace(/\n/g, ' ')}"`
+            ].join(",");
+            csv += row + "\n";
+
+            previousMemberNo = currentMemberNo;
+        });
+
+        // 🎯 File download
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        
+        const today = new Date();
+        const dateStr = `${today.getDate()}-${today.getMonth()+1}-${today.getFullYear()}`;
+        
+        link.href = url;
+        link.download = `Achievements_${dateStr}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        showLoader(false);
+        alert(`✅ ${sortedData.length} સિદ્ધિ ડાઉનલોડ થઈ!`);
+
+    } catch (err) {
+        showLoader(false);
+        console.error("Download achievement error:", err);
+        alert("ડાઉનલોડ કરવામાં ભૂલ આવી.");
+    }
+}
+// ==================== BUSINESS SAVE ====================
+async function handleBusinessSave() {
+  const memberNo = document.getElementById("bMemberNo").value.trim();
+  const name = document.getElementById("bName").value.trim();
+  const owner = document.getElementById("bOwner").value.trim();
+  const type = document.getElementById("bType").value.trim();
+  const mobile = document.getElementById("bMobile").value.trim();
+  const email = document.getElementById("bEmail").value.trim();
+  const desc = document.getElementById("bDesc").value.trim();
+  const area = document.getElementById("bArea").value.trim();
+  const photoInput = document.getElementById("bPhoto");
+  const file = photoInput?.files?.[0];
+
+  if (!name || !owner || !type || mobile.length !== 10) {
+    alert("* વાળી બધી વિગતો ભરો.");
+    return;
+  }
+  if (!file) { alert("વિઝિટિંગ કાર્ડ / ફોટો ઉમેરો."); return; }
+  if (file.size > 5 * 1024 * 1024) { alert("ફોટો 5MB થી નાનો જોઈએ."); return; }
+
+  showLoader(true);
+  try {
+    const base64 = await new Promise((res, rej) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const s = reader.result;
+        const i = s.indexOf(",");
+        res(i >= 0 ? s.substring(i + 1) : s);
+      };
+      reader.onerror = rej;
+      reader.readAsDataURL(file);
+    });
+
+    const payload = {
+      action: "saveBusiness",
+      memberNo, businessName: name, ownerName: owner,
+      businessType: type, mobile, email, description: desc, area,
+      photoBase64: base64, photoMime: file.type, photoName: file.name
+    };
+
+    const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
+    const result = await res.json();
+    showLoader(false);
+
+    if (result.status === "success") {
+      alert(result.message);
+      closeModal();
+    } else {
+      alert("ભૂલ: " + result.message);
+    }
+  } catch(e) {
+    showLoader(false);
+    alert("સર્વર સાથે સંપર્ક થયો નથી.");
+  }
+}
+
+// ==================== LOAD APPROVED BUSINESSES (Public) ====================
+async function loadBusinesses() {
+  const container = document.getElementById("listContainer");
+  if (!container) return;
+
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=getBusinesses`);
+    const response = await res.json();
+
+    if (!response.data || response.data.length === 0) {
+      container.innerHTML = `<div class="empty-news-box" style="width:100%;">હજુ સુધી કોઈ વ્યવસાય ઉમેરાયો નથી.</div>`;
+      return;
+    }
+
+    container.style.display = "grid";
+    container.style.gridTemplateColumns = "repeat(auto-fit, minmax(300px, 1fr))";
+    container.style.gap = "18px";
+    container.style.background = "transparent";
+    container.style.border = "none";
+    container.innerHTML = "";
+
+    response.data.forEach(b => {
+      container.innerHTML += `
+        <div style="background:rgba(15,23,42,0.7); border:1px solid rgba(255,255,255,0.1); 
+                    border-radius:16px; padding:14px; display:flex; flex-direction:column; gap:10px;">
+          ${b.photo ? `
+            <img src="${b.photo}" onclick="openImage('${b.photo}')" 
+              style="width:100%; height:180px; object-fit:cover; border-radius:12px; cursor:zoom-in;"
+              onerror="this.style.display='none';">
+          ` : ''}
+          <div style="color:#60a5fa; font-size:16px; font-weight:bold;">${b.businessName}</div>
+          <div style="color:#94a3b8; font-size:13px;">
+            <i class="fa-solid fa-user"></i> ${b.ownerName}
+          </div>
+          <div style="color:#cbd5e1; font-size:12.5px;">
+            <i class="fa-solid fa-briefcase"></i> ${b.businessType}
+          </div>
+          ${b.description ? `<div style="color:#cbd5e1; font-size:13px; line-height:1.5;">${b.description}</div>` : ''}
+          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:5px;">
+            <a href="tel:${b.mobile}" style="color:#22c55e; text-decoration:none; font-size:12.5px;">
+              <i class="fa-solid fa-phone"></i> ${b.mobile}
+            </a>
+            ${b.area ? `<span style="color:#94a3b8; font-size:12.5px;">
+              <i class="fa-solid fa-location-dot"></i> ${b.area}
+            </span>` : ''}
+          </div>
+        </div>
+      `;
+    });
+  } catch(e) {
+    console.error(e);
+    container.innerHTML = `<div style="color:#ef4444;">લોડ કરવામાં ભૂલ આવી.</div>`;
+  }
+}
+
+// ==================== PENDING COUNT (Admin Badge) ====================
+async function loadPendingCount() {
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=getBusinessRequests`);
+    const response = await res.json();
+    const badge = document.getElementById("pendingBadge");
+    if (!badge) return;
+    const count = (response.data || []).length;
+    if (count > 0) {
+      badge.style.display = "inline-block";
+      badge.textContent = count;
+    } else {
+      badge.style.display = "none";
+    }
+  } catch(e) {}
+}
+
+// ==================== VIEW REQUESTS (Admin Modal) ====================
+async function viewRequests() {
+  showLoader(true);
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=getBusinessRequests`);
+    const response = await res.json();
+    showLoader(false);
+
+    document.getElementById("modalTitle").innerHTML = 
+      `<i class="fa-solid fa-bell"></i> પેન્ડિંગ રિકવેસ્ટ્સ (${(response.data || []).length})`;
+
+    const formBody = document.querySelector(".form-body");
+
+    if (!response.data || response.data.length === 0) {
+      formBody.innerHTML = `
+        <div style="text-align:center; padding:40px; color:#94a3b8;">
+          <i class="fa-solid fa-check-circle" style="font-size:48px; color:#22c55e; margin-bottom:15px;"></i>
+          <div>કોઈ પેન્ડિંગ રિકવેસ્ટ નથી.</div>
+        </div>
+      `;
+    } else {
+      let html = '';
+      response.data.forEach(b => {
+        html += `
+          <div id="req-${b.rowIndex}" style="background:rgba(30,41,59,0.5); border:1px solid rgba(234,179,8,0.3); 
+                      border-radius:14px; padding:14px; margin-bottom:15px;">
+            ${b.photo ? `
+              <img src="${b.photo}" onclick="openImage('${b.photo}')" 
+                style="width:100%; height:150px; object-fit:cover; border-radius:10px; cursor:zoom-in; margin-bottom:10px;">
+            ` : ''}
+            <div style="color:#60a5fa; font-size:15px; font-weight:bold; margin-bottom:5px;">${b.businessName}</div>
+            <div style="color:#cbd5e1; font-size:13px; margin-bottom:4px;">
+              <b>સભ્ય:</b> ${b.memberNo} | <b>માલિક:</b> ${b.ownerName}
+            </div>
+            <div style="color:#cbd5e1; font-size:13px; margin-bottom:4px;">
+              <b>પ્રકાર:</b> ${b.businessType}
+            </div>
+            <div style="color:#cbd5e1; font-size:13px; margin-bottom:4px;">
+              <b>મોબાઈલ:</b> ${b.mobile} ${b.area ? `| <b>એરિયા:</b> ${b.area}` : ''}
+            </div>
+            ${b.description ? `<div style="color:#94a3b8; font-size:12.5px; margin:8px 0; line-height:1.5;">${b.description}</div>` : ''}
+            <div style="color:#64748b; font-size:11px; margin-bottom:10px;">
+              <i class="fa-solid fa-clock"></i> ${b.timestamp}
+            </div>
+            <div style="display:flex; gap:10px;">
+              <button onclick="reviewBusiness(${b.rowIndex}, 'Approved')" 
+                style="flex:1; background:rgba(34,197,94,0.15); border:1px solid rgba(34,197,94,0.5); 
+                       color:#22c55e; padding:8px; border-radius:8px; cursor:pointer; font-weight:bold;">
+                <i class="fa-solid fa-check"></i> મંજૂર કરો
+              </button>
+              <button onclick="reviewBusiness(${b.rowIndex}, 'Rejected')" 
+                style="flex:1; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.5); 
+                       color:#ef4444; padding:8px; border-radius:8px; cursor:pointer; font-weight:bold;">
+                <i class="fa-solid fa-xmark"></i> નકારો
+              </button>
+            </div>
+          </div>
+        `;
+      });
+      formBody.innerHTML = html;
+    }
+
+    // Hide default save button
+    const actions = document.querySelector(".form-actions");
+    if (actions) {
+      actions.innerHTML = `<button class="btn-cancel" onclick="closeModal()">બંધ કરો</button>`;
+    }
+
+    document.getElementById("commonModal").style.display = "flex";
+  } catch(e) {
+    showLoader(false);
+    alert("લોડ કરવામાં ભૂલ આવી.");
+  }
+}
+
+// ==================== APPROVE / REJECT ====================
+async function reviewBusiness(rowIndex, newStatus) {
+  const confirmMsg = newStatus === 'Approved' 
+    ? "શું તમે આ વ્યવસાય મંજૂર કરવા માંગો છો?" 
+    : "શું તમે આ રિકવેસ્ટ નકારવા માંગો છો?";
+  if (!confirm(confirmMsg)) return;
+
+  showLoader(true);
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "updateBusinessStatus",
+        rowIndex: rowIndex,
+        newStatus: newStatus,
+        reviewedBy: localStorage.getItem("userMemberNo") || "Admin"
+      })
+    });
+    const result = await res.json();
+    showLoader(false);
+
+    if (result.status === "success") {
+      alert(result.message);
+      // Remove the card from the view
+      const card = document.getElementById(`req-${rowIndex}`);
+      if (card) card.remove();
+      // Refresh pending badge + public list
+      loadPendingCount();
+      if (document.querySelector('.nav-item.active')?.textContent?.includes('વ્યવસાય')) {
+        loadBusinesses();
+      }
+    } else {
+      alert("ભૂલ: " + result.message);
+    }
+  } catch(e) {
+    showLoader(false);
+    alert("સર્વર સાથે સંપર્ક થયો નથી.");
+  }
 }
 		</script>
 	  </body>
