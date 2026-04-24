@@ -97,7 +97,7 @@ body {
 }
 
 .menu-header {
-  display: none !important;
+  display: none ;
   justify-content: flex-end;
   align-items: center;
   margin-bottom: 25px;
@@ -477,7 +477,7 @@ select:focus {
 body.logged-out .sidebar,
 body.logged-out .top-header,
 body.logged-out .content-area {
-  display: none !important;
+  display: none ;
 }
 
 body.logged-in #loginScreen {
@@ -563,15 +563,15 @@ body.logged-in #loginScreen {
 
 /* ==================== ADMIN ONLY ==================== */
 .admin-only {
-  display: none !important;
+  display: none ;
 }
 
 body.is-admin .admin-only {
-  display: flex !important;
+  display: flex ;
 }
 
 body.is-admin button.admin-only {
-  display: inline-block !important;
+  display: inline-block ;
 }
 
 /* ==================== LOADER ==================== */
@@ -776,18 +776,18 @@ body.is-admin button.admin-only {
   }
 
   .top-header {
-    flex-direction: row !important;
+    flex-direction: row ;
     height: 60px;
     padding: 0 8px;
     gap: 0;
 }
 
 .top-header > div:nth-child(2) span {
-    font-size: 13.5px !important;
+    font-size: 13.5px ;
 }
 
 .top-header > div:nth-child(3) span {
-    font-size: 13px !important;
+    font-size: 13px ;
 }
 
   .header-logo span {
@@ -840,7 +840,7 @@ body.is-admin button.admin-only {
   }
 
   .content-area {
-    margin-left: 0 !important;
+    margin-left: 0 ;
     padding: 15px 12px;
     width: 100%;
   }
@@ -859,40 +859,40 @@ body.is-admin button.admin-only {
   .sabhy-card,
 #resultListContainer > div,
 .news-header-card {
-    width: 100% !important;
+    width: 100% ;
     margin: 0 auto;
 }
 
 /* 🔥 News & Event cards full width - Mobile */
 #listContainer > div {
-    width: 100% !important;
-    max-width: 100% !important;
-    margin: 0 !important;
-    box-sizing: border-box !important;
+    width: 100% ;
+    max-width: 100% ;
+    margin: 0 ;
+    box-sizing: border-box ;
 }
 
 #listContainer {
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    gap: 15px !important;
+    display: grid ;
+    grid-template-columns: 1fr ;
+    gap: 15px ;
     width: 100%;
 }
 
   #listContainer {
-    grid-template-columns: 1fr !important;
+    grid-template-columns: 1fr ;
     gap: 15px;
   }
 
   .modal-box {
-    width: 95% !important;
-    margin: 20px auto !important;
+    width: 95% ;
+    margin: 20px auto ;
     padding: 20px;
     max-height: 90vh;
   }
 
   .login-card {
-    width: 92% !important;
-    padding: 25px 20px !important;
+    width: 92% ;
+    padding: 25px 20px ;
   }
 
   .add-btn, .btn-save, .btn-cancel {
@@ -908,92 +908,18 @@ body.is-admin button.admin-only {
 
 /* ==================== SMALL MOBILE (≤ 480px) ==================== */
 @media (max-width: 480px) {
-  body {
-    padding-top: 58px;
-  }
-
   .top-header {
     height: 58px;
-    padding: 0 10px;
-  }
-
-  .header-logo span {
-    font-size: 14.5px;
   }
 
   .content-area {
     padding: 12px 10px;
-    margin-left: 0 !important;
   }
 
-  .news-header-card {
-    padding: 10px 12px;
-    flex-direction: row;           /* Column માંથી row */
-    gap: 8px;
-    align-items: center;
-    flex-wrap: nowrap;
-    justify-content: space-between;
-}
-
-.news-header-card .news-title {
-    font-size: 14px;
-    white-space: nowrap;
-}
-
-.news-header-card .add-btn {
-    padding: 7px 10px !important;
-    font-size: 12px !important;
-}
-
-  .sabhy-card,
-  #resultListContainer > div,
-  .empty-news-box {
-    width: 100% !important;
-    margin: 0 auto;
-  }
-
-  #listContainer {
-    grid-template-columns: 1fr !important;
-    gap: 14px;
-  }
-
-  .add-btn,
   .btn-save,
-  .btn-cancel {
+  .btn-cancel,
+  .add-btn {
     width: 100%;
-    padding: 13px;
-    font-size: 15px;
-  }
-
-  .form-actions {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .modal-box {
-    width: 96% !important;
-    margin: 15px auto !important;
-    padding: 20px 18px;
-    border-radius: 20px;
-  }
-
-  .sabhy-details p {
-    font-size: 14px;
-  }
-
-  .sabhy-details b {
-    width: 110px;
-  }
-
-  .login-card {
-    padding: 25px 20px !important;
-    max-width: 92% !important;
-  }
-
-  .login-btn {
-    width: 100% !important;
-    padding: 15px;
-    font-size: 15.5px;
   }
 }
 
@@ -1001,115 +927,68 @@ body.is-admin button.admin-only {
 /* ==================== DESKTOP (≥ 769px) ==================== */
 @media (min-width: 769px) {
   .content-area {
-    margin-left: 0 !important;
-    padding: 12px 10px !important;
-    width: 100% !important;
-    max-width: 100vw !important;
-    box-sizing: border-box !important;
-    overflow-x: hidden !important;
+    margin-left: 0 ;
+    padding: 12px 10px ;
+    width: 100% ;
+    max-width: 100vw ;
+    box-sizing: border-box ;
+    overflow-x: hidden ;
 }
 
 .news-header-card {
-    width: 100% !important;
-    padding: 12px 15px !important;
-    box-sizing: border-box !important;
-    margin: 0 !important;
+    width: 100% ;
+    padding: 12px 15px ;
+    box-sizing: border-box ;
+    margin: 0 ;
 }
 
 #listContainer {
-    width: 100% !important;
-    max-width: 100% !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    box-sizing: border-box !important;
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    gap: 15px !important;
+    width: 100% ;
+    max-width: 100% ;
+    padding: 0 ;
+    margin: 0 ;
+    box-sizing: border-box ;
+    display: grid ;
+    grid-template-columns: 1fr ;
+    gap: 15px ;
 }
 
 #listContainer > div {
-    width: 100% !important;
-    max-width: 100% !important;
-    margin: 0 !important;
-    box-sizing: border-box !important;
+    width: 100% ;
+    max-width: 100% ;
+    margin: 0 ;
+    box-sizing: border-box ;
 }
 }
-/* ==================== MOBILE RESPONSIVE (≤ 480px) ==================== */
-@media (max-width: 480px) {
-  .sabhy-card {
-    margin: 75px auto 30px auto;
-    padding-top: 80px;
-  }
-  
-  .profile-img {
-    width: 110px;
-    height: 110px;
-    top: -55px;
-  }
-}
+
 /* ==================== RESULT PAGE - DROPDOWN & ON/OFF BUTTON SMALLER ==================== */
 
 
 
 #toggleResultBtn {
-  font-size: 12.5px !important;
-  padding: 6px 12px !important;
-  height: 40px !important;
-  min-width: 110px !important;
-  border-radius: 10px !important;
+  font-size: 12.5px ;
+  padding: 6px 12px ;
+  height: 40px ;
+  min-width: 110px ;
+  border-radius: 10px ;
 }
 
 /* બટન અને ડ્રોપડાઉન વચ્ચે સારી જગ્યા */
 .news-header-card > div[style*="display: flex"] {
-  gap: 8px !important;
+  gap: 8px ;
 }
-
-/* મોબાઈલ પર વધુ કોમ્પેક્ટ */
-@media (max-width: 480px) {
-  #adminResultMemberDropdown {
-    font-size: 12.5px !important;
-    padding: 7px 9px !important;
-    height: 38px !important;
-    min-width: 100% !important;     /* મોબાઈલમાં પૂરી વીડ્થ */
-  }
-  
-  #toggleResultBtn {
-    font-size: 12px !important;
-    padding: 6px 10px !important;
-    height: 38px !important;
-    min-width: 105px !important;
-  }
-}
-/* ==================== RESULT DROPDOWN - VERY SMALL & COMPACT ==================== */
 
 
 
 /* મોબાઈલ પર વધુ નાનું અને સરસ */
-@media (max-width: 480px) {
-  #adminResultMemberDropdown {
-    font-size: 12.5px !important;
-    padding: 7px 10px !important;
-    height: 36px !important;
-    min-width: 100% !important;        /* મોબાઈલમાં પૂરી વીડ્થ લે */
-  }
-}
+
 
 #addResultBtn, #toggleResultBtn {
-    font-size: 13px !important;
-    padding: 7px 14px !important;
-    height: 38px !important;
+    font-size: 13px ;
+    padding: 7px 14px ;
+    height: 38px ;
 }
 
-@media (max-width: 480px) {
-    #adminResultMemberDropdown {
-        min-width: 100% !important;
-        font-size: 12.5px !important;
-    }
-    
-    #toggleResultBtn span {
-        font-size: 11.5px;
-    }
-}
 .login-photo {
   width: 90px;
   height: 90px;
@@ -3607,7 +3486,7 @@ updateBtn.innerHTML = isEmpty
 			
 			<div class="form-row">
 				<label style="color: #94a3b8; font-size: 13px; margin-left: 5px;">અટક:</label>
-				<input type="text" id="fSurname" value="${userSurname}" readonly style="background: rgba(255,255,255,0.05) !important; color: #94a3b8 !important; cursor: not-allowed;">
+				<input type="text" id="fSurname" value="${userSurname}" readonly style="background: rgba(255,255,255,0.05) ; color: #94a3b8 ; cursor: not-allowed;">
 			</div>
 
 			<div class="form-row">
