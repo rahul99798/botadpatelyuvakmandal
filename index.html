@@ -5088,6 +5088,7 @@ document.addEventListener("click", function(e) {
 document.querySelectorAll(".nav-item").forEach(item => {
   item.addEventListener("click", () => {
     document.getElementById("sidebar").classList.remove("active");
+	document.getElementById("overlay").classList.remove("active");
   });
 });
 function createSquareCommitteeCard(name, hodo, photo) {
