@@ -1003,6 +1003,21 @@ body.is-admin button.admin-only {
   height: 100%;
   object-fit: cover;
 }
+#overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.55); /* dark effect */
+  backdrop-filter: blur(3px);   /* optional blur */
+  z-index: 1400;
+  display: none;
+}
+
+#overlay.active {
+  display: block;
+}
 		</style>
 	  </head>
 
@@ -1053,26 +1068,52 @@ body.is-admin button.admin-only {
 		  <div class="loader-text">ડેટા લોડ થઈ રહ્યો છે...</div>
 		</div>
 		<!-- Top Header -->
-<div class="top-header" style="display: flex; align-items: center; justify-content: space-between;">
-  
-  <!-- ડાબી બાજુ: Hamburger -->
-  <div style="display: flex; align-items: center; flex: 1;">
+<div class="top-header" style="display:flex; align-items:center; padding:0 15px;">
+
+  <!-- Left -->
+  <div>
     <button onclick="toggleMobileSidebar()" 
-            style="background: none; border: none; color: white; font-size: 24px; cursor: pointer; padding: 8px;">
+      style="background:none; border:none; color:white; font-size:24px; cursor:pointer;">
       <i class="fas fa-bars"></i>
     </button>
   </div>
 
-  <!-- સેન્ટરમાં: Title -->
-  <div style="flex: 2; text-align: center;">
-    <span style="font-size: 16.5px; font-weight: 700; color: white;">
+  <!-- Center (perfect center fix) -->
+  <div style="
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+  ">
+    <span style="font-size:16.5px; font-weight:700; color:white;">
       શ્રી બોટાદ પટેલ યુવક મંડળ સુરત
     </span>
   </div>
 
-  <!-- જમણી બાજુ: સભ્ય નંબર -->
-  <div style="flex: 1; text-align: right; padding-right: 15px;">
-    <span id="memberDisplay" style="color: #3b82f6; font-weight: bold; font-size: 14px;"></span>
+  <!-- Right (IMPORTANT) -->
+  <div style="
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  ">
+    <span id="memberDisplay"
+      style="color:#3b82f6; font-weight:bold; font-size:14px;">
+    </span>
+
+    <button onclick="logout()" style="
+      background: rgba(220, 38, 38, 0.1);
+      border: 1px solid rgba(220, 38, 38, 0.4);
+      color: #f87171;
+      padding: 6px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+    ">
+      <i class="fas fa-sign-out-alt"></i>
+    </button>
   </div>
 
 </div>
@@ -1117,10 +1158,7 @@ body.is-admin button.admin-only {
 			</div>
 		  </div>
 
-		  <div class="logout-btn" onclick="logout()">
-			<i class="fas fa-sign-out-alt" style="margin-right: 15px"></i>
-			<span>લોગ આઉટ</span>
-		  </div>
+		  
 		</div>
 
 		<div class="content-area" id="mainContent">
@@ -1296,7 +1334,7 @@ body.is-admin button.admin-only {
 			</div>
 		  </div>
 		</div>
-
+<div id="overlay" onclick="toggleMobileSidebar()"></div>
 		<script>
 		  const SCRIPT_URL =
 			"https://script.google.com/macros/s/AKfycbzGNblT2Heolok3S05VilLRUBlF3hmoQQVczSLOKvJ0R62yFxuu18RBAwdQG4JlRC8M/exec";
@@ -5024,15 +5062,14 @@ async function loadSpecificMemberResults(memberNo) {
 // મોબાઈલ માટે Hamburger Menu
 function toggleMobileSidebar() {
   const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("overlay");
+
   sidebar.classList.toggle("active");
+  overlay.classList.toggle("active");
 }
 
 // Desktop toggle ને મોબાઈલમાં બદલો
 // Hamburger click — બધા devices પર એક જ રીતે કામ કરશે
-function toggleMobileSidebar() {
-  const sidebar = document.getElementById("sidebar");
-  sidebar.classList.toggle("active");
-}
 
 
 // Sidebar ની બહાર click થાય ત્યારે બંધ કરો
