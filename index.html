@@ -1340,7 +1340,7 @@ body.is-admin button.admin-only {
 <div id="overlay" onclick="toggleMobileSidebar()"></div>
 		<script>
 		  const SCRIPT_URL =
-			"https://script.google.com/macros/s/AKfycbzrEdug4kg_qAieEzaufwxcB5tu8JBls8VnzVmIjhUgYaUW3Xf4NZ7tncss-ret_doj/exec";
+			"https://script.google.com/macros/s/AKfycbzsyLVn15eYush4sYg3ZSrzkMm4PVNV_TNMI7zf2JiuVdhbkQwNxkk0cXqXDanpbucZ/exec";
 			
 
 		  async function login() {
@@ -3393,25 +3393,69 @@ updateBtn.innerHTML = isEmpty
 						}
 
 						allCardsHtml += `
-									<div style="background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 18px; padding: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); margin-bottom: 20px;">
-										<div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 12px; margin-bottom: 15px;">
-											<h3 style="color: #60a5fa; margin: 0; font-size: 16px; font-weight: bold; display: flex; align-items: center; gap: 8px;">
-												<i class="fa-solid fa-user-check"></i> ${member.fName} ${member.fSecondName} ${member.fSurname}
-											</h3>
-										</div>
-										
-										<div style="display: flex; flex-direction: column; gap: 12px; font-size: 13px; color: #cbd5e1;">
-											<p style="margin: 0; display: flex; align-items: center; gap: 10px;"><b style="color:#94a3b8; width: 18px; text-align: center;"><i class="fa-solid fa-phone"></i></b> મોબાઈલ: <span style="color: #fff;">${member.fMobile}</span></p>
-											
-											<p style="margin: 0; display: flex; align-items: center; gap: 10px;"><b style="color:#94a3b8; width: 18px; text-align: center;"><i class="fa-solid fa-briefcase"></i></b> ${occLabel}: <span style="color: #fff;">${occValue}</span></p>
-											
-											<p style="margin: 0; display: flex; align-items: center; gap: 10px;"><b style="color:#94a3b8; width: 18px; text-align: center;"><i class="fa-solid fa-cake-candles"></i></b> જન્મ તારીખ: <span style="color: #fff;">${member.fBirth && member.fBirth.includes("NaN") ? "-" : member.fBirth}</span></p>
-											<p style="margin: 0; display: flex; align-items: center; gap: 10px;"><b style="color:#94a3b8; width: 18px; text-align: center;"><i class="fa-solid fa-venus-mars"></i></b> જાતિ: <span style="color: #fff;">${member.fGender}</span></p>
-											<p style="margin: 0; display: flex; align-items: center; gap: 10px;"><b style="color:#ef4444; width: 18px; text-align: center;"><i class="fa-solid fa-droplet"></i></b> બ્લડ ગ્રુપ: <span style="color: #fff;">${member.fBlood}</span></p>
-											<p style="margin: 0; display: flex; align-items: center; gap: 10px;"><b style="color:#94a3b8; width: 18px; text-align: center;"><i class="fa-solid fa-users"></i></b> સંબંધ: <span style="color: #fff;">${member.fRelation}</span></p>
-										</div>
-									</div>
-								`;
+    <div style="background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 18px; padding: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); margin-bottom: 20px;">
+        
+        <!-- 🎯 Header: Photo + Name -->
+        <div style="display: flex; align-items: center; gap: 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 12px; margin-bottom: 15px;">
+            
+            ${member.fPhoto && member.fPhoto.trim() !== '' ? `
+    <div onclick="openImage('${member.fPhoto}')" style="
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        overflow: hidden;
+        flex-shrink: 0;
+        border: 2px solid #3b82f6;
+        cursor: zoom-in;
+        background: #0f172a;
+    ">
+        <img src="${member.fPhoto}" 
+             style="width: 100%; height: 100%; object-fit: cover;"
+             onerror="this.parentElement.innerHTML='<div style=\\'width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#64748b;\\'><i class=\\'fa-solid fa-user\\' style=\\'font-size:24px;\\'></i></div>';">
+    </div>
+` : `
+    <div onclick="openFamilyPhotoUpload('${member.fMobile}', '${(member.fName + ' ' + member.fSecondName + ' ' + member.fSurname).replace(/'/g, "\\'")}')" 
+         style="
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(59, 130, 246, 0.08);
+            border: 2px dashed rgba(59, 130, 246, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: #60a5fa;
+            cursor: pointer;
+            transition: 0.3s;
+            gap: 1px;
+         "
+         onmouseover="this.style.background='rgba(59, 130, 246, 0.15)'; this.style.borderColor='#3b82f6';"
+         onmouseout="this.style.background='rgba(59, 130, 246, 0.08)'; this.style.borderColor='rgba(59, 130, 246, 0.5)';"
+         title="ફોટો ઉમેરો">
+        <i class="fa-solid fa-plus" style="font-size: 16px;"></i>
+        <span style="font-size: 9px;">ફોટો</span>
+    </div>
+`}
+            
+            <h3 style="color: #60a5fa; margin: 0; font-size: 16px; font-weight: bold; flex: 1;">
+                <i class="fa-solid fa-user-check"></i> ${member.fName} ${member.fSecondName} ${member.fSurname}
+            </h3>
+        </div>
+        
+        <div style="display: flex; flex-direction: column; gap: 12px; font-size: 13px; color: #cbd5e1;">
+            <p style="margin: 0; display: flex; align-items: center; gap: 10px;"><b style="color:#94a3b8; width: 18px; text-align: center;"><i class="fa-solid fa-phone"></i></b> મોબાઈલ: <span style="color: #fff;">${member.fMobile}</span></p>
+            
+            <p style="margin: 0; display: flex; align-items: center; gap: 10px;"><b style="color:#94a3b8; width: 18px; text-align: center;"><i class="fa-solid fa-briefcase"></i></b> ${occLabel}: <span style="color: #fff;">${occValue}</span></p>
+            
+            <p style="margin: 0; display: flex; align-items: center; gap: 10px;"><b style="color:#94a3b8; width: 18px; text-align: center;"><i class="fa-solid fa-cake-candles"></i></b> જન્મ તારીખ: <span style="color: #fff;">${member.fBirth && member.fBirth.includes("NaN") ? "-" : member.fBirth}</span></p>
+            <p style="margin: 0; display: flex; align-items: center; gap: 10px;"><b style="color:#94a3b8; width: 18px; text-align: center;"><i class="fa-solid fa-venus-mars"></i></b> જાતિ: <span style="color: #fff;">${member.fGender}</span></p>
+            <p style="margin: 0; display: flex; align-items: center; gap: 10px;"><b style="color:#ef4444; width: 18px; text-align: center;"><i class="fa-solid fa-droplet"></i></b> બ્લડ ગ્રુપ: <span style="color: #fff;">${member.fBlood}</span></p>
+            <p style="margin: 0; display: flex; align-items: center; gap: 10px;"><b style="color:#94a3b8; width: 18px; text-align: center;"><i class="fa-solid fa-users"></i></b> સંબંધ: <span style="color: #fff;">${member.fRelation}</span></p>
+        </div>
+    </div>
+`;
 					  });
 
 					  // બધા કાર્ડ તૈયાર થઈ જાય એટલે કન્ટેનરમાં મૂકી દો
@@ -5991,6 +6035,152 @@ async function loadDonors() {
   } finally {
     showLoader(false);
   }
+}
+// ==================== FAMILY MEMBER PHOTO UPLOAD ====================
+let _familyPhotoTarget = { mobile: '', name: '' };
+
+function openFamilyPhotoUpload(fMobile, fName) {
+    if (!fMobile) {
+        alert("મોબાઈલ નંબર મળ્યો નથી.");
+        return;
+    }
+
+    _familyPhotoTarget.mobile = fMobile;
+    _familyPhotoTarget.name = fName || '';
+
+    document.getElementById("modalTitle").innerHTML = 
+        `<i class="fa-solid fa-camera"></i> ફોટો ઉમેરો`;
+
+    const formBody = document.querySelector("#commonModal .form-body");
+    formBody.innerHTML = `
+        <div style="text-align: center; margin-bottom: 20px;">
+            <p style="color: #cbd5e1; font-size: 14px; margin: 0 0 5px 0;">સભ્ય:</p>
+            <p style="color: #60a5fa; font-size: 16px; font-weight: bold; margin: 0;">${fName}</p>
+        </div>
+
+        <div id="familyPhotoPreview" style="
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            margin: 0 auto 20px auto;
+            background: rgba(255,255,255,0.05);
+            border: 2px dashed rgba(59,130,246,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            color: #94a3b8;
+            font-size: 13px;
+        ">
+            ફોટો પસંદ કરો
+        </div>
+
+        <div class="form-row">
+            <label>ફોટો ફાઇલ</label>
+            <input type="file" id="familyPhotoFile" accept="image/jpeg,image/png,image/webp" 
+                   onchange="previewFamilyPhoto(this)">
+        </div>
+    `;
+
+    // Save button setup
+    const saveBtn = document.querySelector("#commonModal .btn-save");
+    if (saveBtn) {
+        saveBtn.innerText = "ફોટો સેવ કરો";
+        saveBtn.onclick = submitFamilyPhoto;
+    }
+
+    document.getElementById("commonModal").style.display = "flex";
+}
+
+function previewFamilyPhoto(input) {
+    const preview = document.getElementById("familyPhotoPreview");
+    if (!preview) return;
+
+    const file = input.files && input.files[0];
+    if (!file || !file.type.startsWith("image/")) return;
+
+    if (file.size > 4 * 1024 * 1024) {
+        alert("ફોટો 4 MB કરતાં નાનો હોવો જોઈએ.");
+        input.value = "";
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        preview.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;">`;
+    };
+    reader.readAsDataURL(file);
+}
+
+async function submitFamilyPhoto() {
+    const fileInput = document.getElementById("familyPhotoFile");
+    const file = fileInput?.files?.[0];
+
+    if (!file) {
+        alert("મહેરબાની કરીને ફોટો પસંદ કરો.");
+        return;
+    }
+    if (!file.type.startsWith("image/")) {
+        alert("માત્ર ઈમેજ ફાઇલ પસંદ કરો.");
+        return;
+    }
+    if (file.size > 4 * 1024 * 1024) {
+        alert("ફોટો 4 MB કરતાં નાનો હોવો જોઈએ.");
+        return;
+    }
+
+    const mainMobile = localStorage.getItem("userMobile");
+    const familyMobile = _familyPhotoTarget.mobile;
+
+    if (!mainMobile || !familyMobile) {
+        alert("વિગતો અધૂરી છે.");
+        return;
+    }
+
+    closeModal();
+    showLoader(true);
+
+    try {
+        const base64 = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const s = reader.result;
+                const i = s.indexOf(",");
+                resolve(i >= 0 ? s.substring(i + 1) : s);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+
+        const payload = {
+            action: "familyPhotoUpload",
+            mainMemberMobile: mainMobile,
+            familyMobile: familyMobile,
+            base64: base64,
+            mimeType: file.type || "image/jpeg",
+            fileName: file.name || "family_photo.jpg"
+        };
+
+        const res = await fetch(SCRIPT_URL, {
+            method: "POST",
+            body: JSON.stringify(payload)
+        });
+
+        const result = await res.json();
+        showLoader(false);
+
+        if (result.status === "success") {
+            alert("✅ ફોટો સફળતાપૂર્વક અપલોડ થયો!");
+            // Member data રિફ્રેશ કરો જેથી નવો ફોટો દેખાય
+            loadMemberData();
+        } else {
+            alert("ભૂલ: " + (result.message || "ફોટો સેવ થયો નથી"));
+        }
+    } catch (err) {
+        showLoader(false);
+        console.error(err);
+        alert("સર્વર સાથે સંપર્ક થયો નથી.");
+    }
 }
 		</script>
 	  </body>
