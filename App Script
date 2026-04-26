@@ -1,0 +1,1951 @@
+  /**
+   * Botad Web — Google Apps Script (MERGED)
+   * Copy આખી ફાઇલ Apps Script માં પેસ્ટ કરો.
+   *
+   * 1) Drive માં ફોલ્ડર બનાવો → URL માંથી ID કૉપી → MEMBER_PHOTO_FOLDER_ID નાખો.
+   * 2) Deploy → New deployment → Web app (execute as you, anyone can access) જો જોઈએ.
+   * 3) ફોટો URL કૉલમ K (PHOTO_COL=11) પર લખાય; શીટ લખાણ નિષ્ફળ થાય તો Drive ફાઇલ ટ્રેશ થાય (અર્ધું અપલોડ ન રહે).
+   */
+
+
+  // --- Member photo upload (કૉલમ K = ફોટો URL) ---
+  var MEMBER_SHEET_NAME = 'Sabhy Details';
+  var SABHYA_COL = 4; // D = MemberNo
+  var PHOTO_COL = 11; // K = photo URL (1-based)
+  var MOBILE_COL = 1; // A = mobile — સિક્યુરિટી માટે; 0 = ચેક બંધ
+  var MEMBER_PHOTO_FOLDER_ID = '12yTD9gdK-1DIPYkXAGokbD2g5Q_ZOiyT';
+  var RESULT_PHOTO_FOLDER_ID = '1lsc3UC_pA-h8JGjbCu8WVxGv1INktrOx';
+  var ACHIEVEMENT_PHOTO_FOLDER_ID = '1yPKw27QDJ7aqqJlDTF0yo_lAXPwf202b';
+  var BUSINESS_PHOTO_FOLDER_ID = '1mtxp6-JWGHwWVhIaleSIxsJJbXZ1YM2Y';
+
+
+  function doGet(e) {  
+
+
+    var mobile = e.parameter.mobile;
+    var pass = e.parameter.pass;
+    var type = e.parameter.type;
+
+
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    // getResultStatus માટે
+if (e.parameter.action === "getResultStatus") {
+  return ContentService.createTextOutput(
+    JSON.stringify({ status: "success", enabled: getResultStatus() })
+  ).setMimeType(ContentService.MimeType.JSON);
+}
+    if (e.parameter.action === "getStudents") {
+    const data = getStudentsByMember(e.parameter.memberNo);
+    return ContentService
+      .createTextOutput(JSON.stringify(data))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+
+  if (e.parameter.action === "getMember") {
+    const data = getMemberDetails(e.parameter.memberNo);
+    return ContentService
+      .createTextOutput(JSON.stringify(data))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+
+  if (e.parameter.action === "getResults") {
+    const results = getResults(e.parameter.mobile, e.parameter.memberNo);
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: 'success', data: results }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+
+if (e.parameter.action === "getAchievements") {
+  const memberNo = e.parameter.memberNo;
+  const results = getAchievements(memberNo);
+  return ContentService
+    .createTextOutput(JSON.stringify({ status: 'success', data: results }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+// ==================== ADMIN - GET MEMBERS WHO SUBMITTED RESULTS ====================
+if (e.parameter.action === "getMembersWithResults") {
+  const data = getMembersWithResults();
+  return ContentService
+    .createTextOutput(JSON.stringify({ status: 'success', data: data }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+// 🎯 Admin: જેણે achievement ઉમેર્યું હોય તે સભ્યોનું લિસ્ટ
+if (e.parameter.action === "getMembersWithAchievements") {
+  const data = getMembersWithAchievements();
+  return ContentService
+    .createTextOutput(JSON.stringify({ status: 'success', data: data }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+// 🎯 Admin: બધા સભ્યોનું લિસ્ટ
+if (e.parameter.action === "getAllMembers") {
+  const data = getAllMembersList();
+  return ContentService
+    .createTextOutput(JSON.stringify({ status: 'success', data: data }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+// 🎯 Admin: બધા results export માટે
+if (e.parameter.action === "getAllResultsForExport") {
+    const data = getAllResultsForExport();
+    return ContentService
+        .createTextOutput(JSON.stringify({ status: 'success', data: data }))
+        .setMimeType(ContentService.MimeType.JSON);
+}
+
+// 🎯 Admin: બધી Achievements export માટે
+if (e.parameter.action === "getAllAchievementsForExport") {
+    const data = getAllAchievementsForExport();
+    return ContentService
+        .createTextOutput(JSON.stringify({ status: 'success', data: data }))
+        .setMimeType(ContentService.MimeType.JSON);
+}
+
+if (e.parameter.action === "getBusinesses") {
+  return ContentService.createTextOutput(JSON.stringify({
+    status: 'success', data: getBusinesses()
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+if (e.parameter.action === "getBusinessRequests") {
+  return ContentService.createTextOutput(JSON.stringify({
+    status: 'success', data: getBusinessRequests()
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+// 🎯 Admin: MemberNo થી કોઈપણ સભ્યની વિગત
+if (type === 'memberDataByNo' && e.parameter.memberNo) {
+  return getMemberDataByMemberNo(e.parameter.memberNo);
+}
+
+
+    // ================= 1. LOGIN (Sabhy Details Sheet) =================
+    if (mobile && pass) {
+      var sheet = ss.getSheetByName('Sabhy Details');
+      var data = sheet.getDataRange().getValues();
+
+
+      for (var i = 1; i < data.length; i++) {
+        if (data[i][0].toString() == mobile) {
+          if (data[i][1].toString() == pass) {
+            return ContentService.createTextOutput(
+              JSON.stringify({
+                status: 'success',
+                Mobile: data[i][0],
+                Role: data[i][2],
+                MemberNo: data[i][3],
+              }),
+            ).setMimeType(ContentService.MimeType.JSON);
+          } else {
+            return ContentService.createTextOutput(
+              JSON.stringify({ status: 'wrong_pass' }),
+            ).setMimeType(ContentService.MimeType.JSON);
+          }
+        }
+      }
+      return ContentService.createTextOutput(
+        JSON.stringify({ status: 'not_registered' }),
+      ).setMimeType(ContentService.MimeType.JSON);
+    }
+
+
+    // ================= 2. NEWS (Information Sheet) =================
+    if (type === 'news') {
+      var newsSheet = ss.getSheetByName('Information');
+      if (!newsSheet) return errorResponse('Information sheet not found');
+
+
+      var newsData = newsSheet.getDataRange().getValues();
+      var result = [];
+
+
+      for (var i = 4; i < newsData.length; i++) {
+        if (newsData[i][0] && newsData[i][0].toString().trim() !== '') {
+          result.push({
+            image: newsData[i][0].toString().trim(),
+            desc: newsData[i][1] ? newsData[i][1].toString().trim() : '',
+            date: formatDate(newsData[i][2]),
+          });
+        }
+      }
+      return successResponse(result);
+    }
+
+
+    // ================= 3. EVENTS (Information Sheet) =================
+    if (type === 'events') {
+      var eventSheet = ss.getSheetByName('Information');
+      if (!eventSheet) return errorResponse('Information sheet not found');
+
+
+      var eventData = eventSheet.getDataRange().getValues();
+      var eventResults = [];
+
+
+      for (var i = 4; i < eventData.length; i++) {
+        if (eventData[i][4] || eventData[i][6]) {
+          eventResults.push({
+            s_photo: eventData[i][4] ? eventData[i][4].toString().trim() : '',
+            s_desc: eventData[i][5] ? eventData[i][5].toString().trim() : '',
+            b_photo: eventData[i][6] ? eventData[i][6].toString().trim() : '',
+            b_desc: eventData[i][7] ? eventData[i][7].toString().trim() : '',
+            date: formatDate(eventData[i][2]),
+          });
+        }
+      }
+      return successResponse(eventResults);
+    }
+
+
+    // ================= 4. GALLERY (Information Sheet) =================
+    if (type === 'gallery') {
+      var gallerySheet = ss.getSheetByName('Information');
+      if (!gallerySheet) return errorResponse('Information sheet not found');
+
+
+      var galleryData = gallerySheet.getDataRange().getValues();
+      var galleryResults = [];
+
+
+      for (var i = 4; i < galleryData.length; i++) {
+        var year = galleryData[i][9];
+        var heading = galleryData[i][10];
+        var link = galleryData[i][11];
+
+
+        if (link && link.toString().trim() !== '') {
+          galleryResults.push({
+            year:
+              year !== undefined && year !== ''
+                ? year.toString().trim()
+                : 'Other',
+            heading: heading
+              ? heading.toString().trim()
+              : 'માહિતી ઉપલબ્ધ નથી',
+            link: link.toString().trim(),
+          });
+        }
+      }
+      return successResponse(galleryResults);
+    }
+
+
+    // ================= 5. COMMITTEE (Information Sheet) =================
+    if (type === 'committee') {
+      var commSheet = ss.getSheetByName('Information');
+      if (!commSheet) return errorResponse('Information sheet not found');
+
+
+      var commData = commSheet.getDataRange().getValues();
+      var commResults = [];
+
+
+      for (var i = 4; i < commData.length; i++) {
+        if (commData[i][14] || commData[i][17]) {
+          commResults.push({
+            k_photo: commData[i][13] ? commData[i][13].toString().trim() : '',
+            k_name: commData[i][14] ? commData[i][14].toString().trim() : '',
+            k_hodo: commData[i][15] ? commData[i][15].toString().trim() : '',
+
+
+            y_photo: commData[i][16] ? commData[i][16].toString().trim() : '',
+            y_name: commData[i][17] ? commData[i][17].toString().trim() : '',
+            y_hodo: commData[i][18] ? commData[i][18].toString().trim() : '',
+          });
+        }
+      }
+      return successResponse(commResults);
+    }
+
+
+    // ================= 6. DONORS (Information Sheet) =================
+    if (type === 'donors') {
+      var donorSheet = ss.getSheetByName('Information');
+      if (!donorSheet) return errorResponse('Information sheet not found');
+
+
+      var donorData = donorSheet.getDataRange().getValues();
+      var donorResults = [];
+
+
+      for (var i = 4; i < donorData.length; i++) {
+        var name = donorData[i][21];
+        if (name && name.toString().trim() !== '') {
+          donorResults.push({
+            mobile: donorData[i][20] ? donorData[i][20].toString().trim() : '',
+            name: name.toString().trim(),
+            year: donorData[i][22] ? donorData[i][22].toString().trim() : 'Other',
+            donate_type: donorData[i][23]
+              ? donorData[i][23].toString().trim()
+              : '',
+            money: donorData[i][24] ? donorData[i][24].toString().trim() : '0',
+            photo: donorData[i][25] ? donorData[i][25].toString().trim() : '',
+          });
+        }
+      }
+      return successResponse(donorResults);
+    }
+
+
+    // ================= 7. MEMBER DATA (Sabhy Details) =================
+    if (type === 'memberData' && mobile) {
+      var sheet = ss.getSheetByName('Sabhy Details');
+      var data = sheet.getDataRange().getValues();
+
+
+      for (var i = 1; i < data.length; i++) {
+        if (data[i][0].toString() == mobile.toString()) {
+          var familyList = [];
+          var startIdx = 21; // કોલમ 22 (V) થી પરિવાર
+
+
+          while (
+            startIdx < data[i].length &&
+            data[i][startIdx] &&
+            data[i][startIdx].toString().trim() !== ''
+          ) {
+            familyList.push({
+              fName: data[i][startIdx] || '',
+              fSecondName: data[i][startIdx + 1] || '',
+              fSurname: data[i][startIdx + 2] || '',
+              fMobile: data[i][startIdx + 3] || '',
+              fBusiness: data[i][startIdx + 4] || '',
+              fBusinessDetail: data[i][startIdx + 5] || '',
+              fBirth: formatDate(data[i][startIdx + 6]),
+              fGender: data[i][startIdx + 7] || '',
+              fBlood: data[i][startIdx + 8] || '',
+              fRelation: data[i][startIdx + 9] || '',
+                fPhoto: data[i][startIdx + 10] ? String(data[i][startIdx + 10]).trim() : '',
+            });
+            startIdx += 12;
+          }
+
+
+          return ContentService.createTextOutput(
+            JSON.stringify({
+              status: 'success',
+              sabhyNo: data[i][3] || '-',
+              mobile: data[i][0] || '-',
+              name: data[i][4] || '-',
+              father: data[i][5] || '-',
+              grand: data[i][6] || '-',
+              surname: data[i][7] || '-',
+              photo: data[i][10] ? data[i][10].toString().trim() : '',
+              email: data[i][11] || '-',
+              education: data[i][12] || '-',
+              business: data[i][13] || '-',
+              birthdate: formatDate(data[i][14]),
+              gender: data[i][15] || '-',
+              blood: data[i][16] || '-',
+              house: data[i][17] || '-',
+              address: data[i][18] || '-',
+              familyMembers: familyList,
+            }),
+          ).setMimeType(ContentService.MimeType.JSON);
+        }
+      }
+    }
+
+
+
+
+
+
+    // ================= Default Response =================
+    return ContentService.createTextOutput(
+      JSON.stringify({ status: 'invalid_request' }),
+    ).setMimeType(ContentService.MimeType.JSON);
+  }
+
+
+  function doPost(e) {
+    var data = JSON.parse(e.postData.contents);
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName('Sabhy Details');
+    var values = sheet.getDataRange().getValues();
+
+
+    // ================= 0. MEMBER PHOTO (પહેલાં — action memberPhoto) =================
+    if (data.action === 'memberPhoto') {
+      return handleMemberPhotoUpload_(data);
+    }
+
+// ================= FAMILY MEMBER PHOTO UPLOAD =================
+if (data.action === 'familyPhotoUpload') {
+  return handleFamilyPhotoUpload_(data);
+}
+
+    // ================= RESULT SAVE =================
+  if (data.action === 'saveResult') {
+    return handleResultSave_(data);
+  }
+
+
+  if (data.action === 'saveAchievement') {
+    return handleAchievementSave_(data);
+  }
+
+
+  // toggleResultStatus માટે
+// ==================== RESULT TOGGLE (MASTER CONTROL) ====================
+// ==================== RESULT TOGGLE (MASTER CONTROL) ====================
+if (data.action === "toggleResultStatus") {
+  const newStatus = data.enabled === true || data.enabled === "true";
+
+  // Result status સેવ કરો
+  toggleResultStatus(newStatus);
+
+  // 🔥 ACHIEVEMENT ને પણ એ જ સ્ટેટસ પર સેટ કરો
+  toggleAchievementStatus(newStatus);
+
+  return ContentService.createTextOutput(JSON.stringify({
+    status: "success", 
+    resultEnabled: newStatus,
+    achievementEnabled: newStatus
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+if (data.action === 'saveBusiness') {
+  return handleBusinessSave_(data);
+}
+
+if (data.action === 'updateBusinessStatus') {
+  return handleBusinessStatusUpdate_(data);
+}
+
+ function handleAchievementSave_(data) {
+  try {
+    var memberNo     = String(data.memberNo || '').trim();
+    var aMobile      = String(data.aMobile || '').trim();        // મુખ્ય સભ્યનો મોબાઈલ
+    var inputMobile  = String(data.inputMobile || '').trim();    // વિદ્યાર્થીનો મોબાઈલ (F કોલમ)
+    var studentName  = String(data.studentName || '').trim();
+    var year         = String(data.year || '').trim();
+    var description  = String(data.description || '').trim();
+    var files        = data.files || [];
+
+
+    if (!memberNo || !aMobile || !studentName || !year || !description) {
+      return ContentService.createTextOutput(JSON.stringify({
+        status: 'error',
+        message: 'સભ્ય નંબર, મોબાઈલ, વ્યક્તિનું નામ, વર્ષ અને વર્ણન જરૂરી છે.'
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sh = ss.getSheetByName('Achievements');
+    if (!sh) {
+      return ContentService.createTextOutput(JSON.stringify({
+        status: 'error',
+        message: 'Achievements sheet મળી નથી.'
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+
+    // ================= FILES UPLOAD =================
+    var photoUrls = [];
+    if (files.length > 0) {
+      var folder = DriveApp.getFolderById(ACHIEVEMENT_PHOTO_FOLDER_ID);
+
+
+      for (var i = 0; i < files.length; i++) {
+        var f = files[i];
+        if (!f.base64) continue;
+
+
+        var mime = f.mime || 'image/jpeg';
+        var origName = f.fileName || 'ach.jpg';
+        var extension = 'jpg';
+
+
+        // Extension નક્કી કરો
+        if (origName && origName.indexOf('.') > -1) {
+          extension = origName.split('.').pop().toLowerCase();
+        } else if (mime === 'application/pdf') {
+          extension = 'pdf';
+        }
+
+
+        // 🔥 તમારી જોઈતી ફાઈલ નેમિંગ: sabhyaNo_mobile_Year_studentName.ext
+        var safeStudentName = studentName.replace(/[\\/:*?"<>|]/g, '_').trim(); // special chars replace
+        var customFileName = memberNo + '_' +
+                             aMobile + '_' +
+                             year + '_' +
+                             safeStudentName +
+                             '.' + extension;
+
+
+        var blob = Utilities.newBlob(
+          Utilities.base64Decode(f.base64),
+          mime,
+          customFileName
+        );
+
+
+        var driveFile = folder.createFile(blob);
+        try {
+          driveFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+        } catch(e){}
+
+
+        var fileId = driveFile.getId();
+        var url = (mime && mime.includes('pdf')) || extension === 'pdf'
+          ? 'https://drive.google.com/file/d/' + fileId + '/view'
+          : 'https://lh3.googleusercontent.com/d/' + fileId;
+
+
+        photoUrls.push(url);
+      }
+    }
+    var photoUrlString = photoUrls.join('|');
+
+
+    // ================= ROW શોધવી =================
+    var lastRow = sh.getLastRow();
+    var targetRow = null;
+
+
+    if (lastRow >= 2) {
+      var checkData = sh.getRange(2, 1, lastRow - 1, 3).getValues(); // A, B, C
+      for (var i = 0; i < checkData.length; i++) {
+        if (String(checkData[i][0] || '').trim() === memberNo &&
+            String(checkData[i][2] || '').trim() === aMobile) {
+          targetRow = i + 2;
+          break;
+        }
+      }
+    }
+
+
+    if (!targetRow) {
+      return ContentService.createTextOutput(JSON.stringify({
+        status: 'error',
+        message: 'મુખ્ય સભ્યની રો મળી નથી.'
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+
+    // ================= ડાયનેમિક બ્લોક્સ =================
+    var startCols = [5, 11, 17, 23, 29, 35, 41, 47, 53, 59, 65, 71, 77, 83, 89, 95];
+
+
+    var targetBlock = null;
+    var isUpdate = false;
+
+
+    // 1. એ જ Student Name + એ જ Year હોય તો Update
+    for (var b = 0; b < startCols.length; b++) {
+      var col = startCols[b];
+      var existingName = String(sh.getRange(targetRow, col).getValue() || '').trim();
+      var existingYear = String(sh.getRange(targetRow, col + 2).getValue() || '').trim();
+
+
+      if (existingName === studentName && existingYear === year) {
+        targetBlock = { name: col, mobile: col + 1, year: col + 2, desc: col + 3, photo: col + 4 };
+        isUpdate = true;
+        break;
+      }
+    }
+
+
+    // 2. નવી એન્ટ્રી માટે ખાલી બ્લોક
+    if (!targetBlock) {
+      for (var b = 0; b < startCols.length; b++) {
+        var col = startCols[b];
+        if (!String(sh.getRange(targetRow, col).getValue() || '').trim()) {
+          targetBlock = { name: col, mobile: col + 1, year: col + 2, desc: col + 3, photo: col + 4 };
+          break;
+        }
+      }
+    }
+
+
+    if (!targetBlock) {
+      return ContentService.createTextOutput(JSON.stringify({
+        status: 'error',
+        message: 'બધા બ્લોક્સ ભરાઈ ગયા છે.'
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+
+    // ================= ડેટા સેવ =================
+    sh.getRange(targetRow, targetBlock.name).setValue(studentName);
+    sh.getRange(targetRow, targetBlock.mobile).setValue(inputMobile || '');
+    sh.getRange(targetRow, targetBlock.year).setValue(year);
+    sh.getRange(targetRow, targetBlock.desc).setValue(description);
+
+
+    if (photoUrlString) {
+      sh.getRange(targetRow, targetBlock.photo).setValue(photoUrlString);
+    }
+
+
+    SpreadsheetApp.flush();
+
+
+    return ContentService.createTextOutput(JSON.stringify({
+      status: 'success',
+      message: isUpdate ? 'સિદ્ધિ અપડેટ થઈ ગઈ ✅' : 'નવી સિદ્ધિ સેવ થઈ ગઈ ✅'
+    })).setMimeType(ContentService.MimeType.JSON);
+
+
+  } catch (err) {
+    Logger.log('Achievement Save Error: ' + err);
+    return ContentService.createTextOutput(JSON.stringify({
+      status: 'error',
+      message: 'સર્વર ભૂલ: ' + err.toString()
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+    // ================= પરિવારના સભ્ય =================
+    // ================= પરિવારના સભ્ય =================
+if (data.type === 'addFamilyMember') {
+  var mainMobile = data.mainMemberMobile;
+  for (var i = 1; i < values.length; i++) {
+    if (values[i][0].toString() == mainMobile.toString()) {
+      var startCol = 22;
+      while (sheet.getRange(i + 1, startCol).getValue() !== '') {
+        startCol += 12;
+      }
+
+      // 🎯 STEP 1: Photo Upload (જો આપ્યો હોય તો)
+      var photoUrl = '';
+      if (data.photo && data.photo.base64) {
+        try {
+          var folder = DriveApp.getFolderById("1YX5q124yM_ZPo2ac8dh7mf0K6WO2-sw0");
+          var decodedPhoto = Utilities.base64Decode(data.photo.base64);
+          var blob = Utilities.newBlob(decodedPhoto, data.photo.mimeType, data.photo.fileName);
+          var file = folder.createFile(blob);
+          try {
+            file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+          } catch(shareErr) {
+            Logger.log('Family photo sharing skipped: ' + shareErr);
+          }
+          photoUrl = 'https://lh3.googleusercontent.com/d/' + file.getId();
+        } catch(photoErr) {
+          Logger.log('Family photo upload error: ' + photoErr);
+        }
+      }
+
+      // 🎯 STEP 2: બધો ડેટા સેવ કરો
+      sheet.getRange(i + 1, startCol).setValue(String(data.name || '').toUpperCase());
+      sheet.getRange(i + 1, startCol + 1).setValue(String(data.secondName || '').toUpperCase());
+      sheet.getRange(i + 1, startCol + 2).setValue(data.surname);
+      sheet.getRange(i + 1, startCol + 3).setValue(data.mobile);
+      sheet.getRange(i + 1, startCol + 4).setValue(data.occupation);
+      sheet.getRange(i + 1, startCol + 5).setValue(data.occupationDetail);
+      sheet.getRange(i + 1, startCol + 6).setValue(data.birthdate);
+      sheet.getRange(i + 1, startCol + 7).setValue(data.gender);
+      sheet.getRange(i + 1, startCol + 8).setValue(data.blood);
+      sheet.getRange(i + 1, startCol + 9).setValue(data.relation);
+      sheet.getRange(i + 1, startCol + 10).setValue(photoUrl);   // 🎯 ફોટો URL અહીં
+
+      SpreadsheetApp.flush();
+
+      return ContentService.createTextOutput(
+        JSON.stringify({ status: 'success', photoUrl: photoUrl }),
+      ).setMimeType(ContentService.MimeType.JSON);
+    }
+  }
+}
+    // ================= મુખ્ય સભ્ય પ્રોફાઇલ (memberPhoto નહીં) =================
+    else if (data.mobile && !data.type && !data.action) {
+      var mobile = data.mobile;
+      for (var j = 1; j < values.length; j++) {
+        if (values[j][0].toString() == mobile.toString()) {
+          sheet.getRange(j + 1, 12).setValue(data.email);
+          sheet.getRange(j + 1, 13).setValue(data.education);
+          sheet.getRange(j + 1, 14).setValue(data.business);
+          sheet.getRange(j + 1, 15).setValue(data.birthdate);
+          sheet.getRange(j + 1, 16).setValue(data.gender);
+          sheet.getRange(j + 1, 17).setValue(data.blood);
+          sheet.getRange(j + 1, 18).setValue(data.house);
+          sheet.getRange(j + 1, 19).setValue(data.address);
+
+
+          return ContentService.createTextOutput(
+            JSON.stringify({ status: 'success' }),
+          ).setMimeType(ContentService.MimeType.JSON);
+        }
+      }
+    }
+
+
+    return ContentService.createTextOutput(
+      JSON.stringify({ status: 'error' }),
+    ).setMimeType(ContentService.MimeType.JSON);
+  }
+
+
+  function handleMemberPhotoUpload_(data) {
+    var mobile = String(data.mobile || '').trim();
+    var sabhyaNo = String(data.sabhyaNo || '').trim();
+    var base64 = data.imageBase64;
+    var mime = data.mimeType || 'image/jpeg';
+    var fileName = data.fileName || 'photo.jpg';
+
+
+    if (!mobile || !sabhyaNo || !base64) {
+      return memberPhotoJsonOut_({
+        status: 'error',
+        message: 'Missing mobile, sabhyaNo, or image',
+      });
+    }
+
+
+    if (
+      !MEMBER_PHOTO_FOLDER_ID ||
+      MEMBER_PHOTO_FOLDER_ID.indexOf('YOUR_DRIVE') === 0
+    ) {
+      return memberPhotoJsonOut_({
+        status: 'error',
+        message: 'MEMBER_PHOTO_FOLDER_ID સેટ કરો.',
+      });
+    }
+
+
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sh = ss.getSheetByName(MEMBER_SHEET_NAME);
+    if (!sh) {
+      return memberPhotoJsonOut_({
+        status: 'error',
+        message: 'Sabhy Details sheet not found',
+      });
+    }
+
+
+    var rowIndex = findRowBySabhyaNo_(sh, sabhyaNo);
+    if (!rowIndex) {
+      return memberPhotoJsonOut_({
+        status: 'error',
+        message: 'સભ્ય નંબર મળ્યો નથી.',
+      });
+    }
+
+
+    if (MOBILE_COL > 0) {
+      var rowMobile = String(
+        sh.getRange(rowIndex, MOBILE_COL).getValue() || '',
+      ).replace(/\D/g, '');
+      var reqMobile = mobile.replace(/\D/g, '');
+      if (rowMobile !== reqMobile) {
+        return memberPhotoJsonOut_({
+          status: 'error',
+          message: 'મોબાઈલ નંબર મેળ ખાતો નથી.',
+        });
+      }
+    }
+
+
+    var blob;
+    try {
+      blob = Utilities.newBlob(
+        Utilities.base64Decode(base64),
+        mime,
+        'sabhya_' + sabhyaNo + '_' + fileName,
+      );
+    } catch (err) {
+      return memberPhotoJsonOut_({ status: 'error', message: 'Invalid image data' });
+    }
+
+
+    var folder = DriveApp.getFolderById(MEMBER_PHOTO_FOLDER_ID);
+    var file;
+    try {
+      file = folder.createFile(blob);
+      // Workspace એડમિન "Anyone with link" બંધ કરે તો setSharing નિષ્ફળ → પહેલાં આખું અપલોડ ફેલ લાગતું.
+      // ફાઇલ ફોલ્ડરમાં બની ગયા પછી શેરિંગ નિષ્ફળ હોય તો પણ શીટ સેવ ચાલુ રાખો (ફોલ્ડર પહેલેથી શેર હોય તો લિંક ચાલી શકે).
+      try {
+        file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+      } catch (shareErr) {
+        Logger.log('setSharing skipped: ' + shareErr);
+      }
+
+
+      var fileId = file.getId();
+      var photoUrl = 'https://lh3.googleusercontent.com/d/' + fileId;
+
+
+      try {
+        sh.getRange(rowIndex, PHOTO_COL).setValue(photoUrl);
+        sh.getRange(rowIndex, PHOTO_COL).setNumberFormat('@');
+        SpreadsheetApp.flush();
+      } catch (sheetErr) {
+        try {
+          file.setTrashed(true);
+        } catch (trashErr) {}
+        return memberPhotoJsonOut_({
+          status: 'error',
+          message:
+            'શીટમાં URL સેવ થયું નથી: ' +
+            String(sheetErr) +
+            ' (કૉલમ K પ્રોટેક્ટેડ/મર્જ તો નહીં?)',
+        });
+      }
+
+
+      return memberPhotoJsonOut_({ status: 'success', photoUrl: photoUrl });
+    } catch (driveErr) {
+      return memberPhotoJsonOut_({
+        status: 'error',
+        message: 'Drive અપલોડ ભૂલ: ' + String(driveErr),
+      });
+    }
+  }
+
+
+  /** સભ્ય નંબર મેચ — ટેક્સ્ટ અથવા નંબર (5 vs "5") */
+  function sabhyaNoMatches_(cellVal, requested) {
+    var a = String(cellVal == null ? '' : cellVal).trim();
+    var b = String(requested == null ? '' : requested).trim();
+    if (a === b) return true;
+    var na = parseFloat(a.replace(/,/g, ''));
+    var nb = parseFloat(b.replace(/,/g, ''));
+    if (!isNaN(na) && !isNaN(nb) && na === nb) return true;
+    return false;
+  }
+
+
+  function findRowBySabhyaNo_(sheet, sabhyaNo) {
+    var last = sheet.getLastRow();
+    if (last < 2) return null;
+    var vals = sheet.getRange(2, SABHYA_COL, last, SABHYA_COL).getValues();
+    for (var i = 0; i < vals.length; i++) {
+      if (sabhyaNoMatches_(vals[i][0], sabhyaNo)) {
+        return i + 2;
+      }
+    }
+    return null;
+  }
+
+
+  function memberPhotoJsonOut_(obj) {
+    return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(
+      ContentService.MimeType.JSON,
+    );
+  }
+
+
+  function formatDate(dateRaw) {
+    if (!dateRaw) return '';
+    var d = new Date(dateRaw);
+    if (!isNaN(d.getTime())) {
+      var day = ('0' + d.getDate()).slice(-2);
+      var month = ('0' + (d.getMonth() + 1)).slice(-2);
+      var year = d.getFullYear();
+      return day + '-' + month + '-' + year;
+    }
+    return dateRaw.toString();
+  }
+
+
+  function successResponse(data) {
+    return ContentService.createTextOutput(
+      JSON.stringify({ status: 'success', data: data }),
+    ).setMimeType(ContentService.MimeType.JSON);
+  }
+
+
+  function errorResponse(msg) {
+    return ContentService.createTextOutput(
+      JSON.stringify({ status: 'error', message: msg }),
+    ).setMimeType(ContentService.MimeType.JSON);
+  }
+
+
+  function getMemberDetails(memberNo) {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName('Sabhy Details');
+    var data = sheet.getDataRange().getValues();
+    for (var i = 1; i < data.length; i++) {
+      if (String(data[i][3]).trim() == String(memberNo).trim()) {
+        return {
+          memberNo: data[i][3] || '',
+          fullName: (data[i][4] || '') + ' ' + (data[i][5] || '') + ' ' + (data[i][7] || '')
+        };
+      }
+    }
+    return { memberNo: '', fullName: '' };
+  }
+
+
+  function getStudentsByMember(memberNo) {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName('Sabhy Details');
+    var data = sheet.getDataRange().getValues();
+    var students = [];
+    for (var i = 1; i < data.length; i++) {
+      if (String(data[i][3]).trim() == String(memberNo).trim()) {
+        var startIdx = 21;
+        while (
+          startIdx < data[i].length &&
+          data[i][startIdx] &&
+          String(data[i][startIdx]).trim() !== ''
+        ) {
+          var occupation = String(data[i][startIdx + 4] || '').trim();
+          var occupationDetail = String(data[i][startIdx + 5] || '').trim();
+
+
+          // 🎯 ફક્ત "અભ્યાસ" વાળા સભ્ય જ લેવા, બાકીનાને skip કરો
+          if (occupation === 'અભ્યાસ') {
+            var name = String(data[i][startIdx]).trim() + ' ' +
+                      String(data[i][startIdx + 1] || '').trim() + ' ' +
+                      String(data[i][startIdx + 2] || '').trim();
+
+
+            students.push({
+              name: name.trim(),
+              dhoran: occupationDetail
+            });
+          }
+
+
+          startIdx += 12;
+        }
+        break;
+      }
+    }
+    return students;
+  }
+  function handleResultSave_(data) {
+    try {
+      Logger.log('🎯 handleResultSave_ શરૂ થયું');
+
+
+      var mobile = String(data.mobile || '').trim();
+      var memberNo = String(data.memberNo || '').trim();
+      var studentName = String(data.studentName || '').trim();
+      var standard = String(data.standard || '').trim();
+      var percentage = String(data.percentage || '').trim();
+      var year = String(data.year || '').trim();
+     
+      // 🔥 હવે files એક array છે: [{base64, mime, fileName}, ...]
+      var files = data.files || [];
+
+
+      Logger.log('Student=' + studentName + ' | Year=' + year + ' | Files count=' + files.length);
+
+
+      if (!mobile || !studentName || !standard || !percentage || !year) {
+        return memberPhotoJsonOut_({
+          status: 'error',
+          message: 'બધી વિગતો ભરો.',
+        });
+      }
+
+
+      var ss = SpreadsheetApp.getActiveSpreadsheet();
+      var sh = ss.getSheetByName('Result');
+      if (!sh) {
+        return memberPhotoJsonOut_({
+          status: 'error',
+          message: 'Result sheet મળી નથી.',
+        });
+      }
+
+
+      // ========= STEP 1: Row શોધો =========
+      var lastRow = sh.getLastRow();
+      var rowIndex = null;
+      var cleanMobile = mobile.replace(/\D/g, '');
+      var cleanMemberNo = memberNo.replace(/\D/g, '');
+
+
+      if (lastRow >= 2) {
+        var abData = sh.getRange(2, 1, lastRow - 1, 2).getValues();
+        for (var i = 0; i < abData.length; i++) {
+          var rowMemberNo = String(abData[i][0] || '').replace(/\D/g, '');
+          var rowMobile = String(abData[i][1] || '').replace(/\D/g, '');
+          if (rowMobile && rowMobile === cleanMobile) { rowIndex = i + 2; break; }
+          if (cleanMemberNo && rowMemberNo && rowMemberNo === cleanMemberNo) { rowIndex = i + 2; break; }
+        }
+      }
+
+
+      if (!rowIndex) {
+        rowIndex = lastRow < 1 ? 2 : lastRow + 1;
+        if (memberNo) {
+          sh.getRange(rowIndex, 1).setNumberFormat('@');
+          sh.getRange(rowIndex, 1).setValue(memberNo);
+        }
+        sh.getRange(rowIndex, 2).setNumberFormat('@');
+        sh.getRange(rowIndex, 2).setValue(mobile);
+        SpreadsheetApp.flush();
+      }
+
+
+      // ========= STEP 2: Block શોધો (same student+year → update) =========
+      var blockStartCols = [6, 14, 22, 30, 38, 46, 54, 62, 70, 78];
+      var targetCol = null;
+      var isUpdate = false;
+      var cleanStudentName = studentName.toLowerCase().replace(/\s+/g, ' ').trim();
+      var cleanYear = year.trim();
+
+
+      for (var b = 0; b < blockStartCols.length; b++) {
+        var checkCol = blockStartCols[b];
+        var existingName = String(sh.getRange(rowIndex, checkCol).getValue() || '').toLowerCase().replace(/\s+/g, ' ').trim();
+        var existingYear = String(sh.getRange(rowIndex, checkCol + 3).getValue() || '').trim();
+       
+        if (existingName && existingName === cleanStudentName && existingYear === cleanYear) {
+          targetCol = checkCol;
+          isUpdate = true;
+          Logger.log('🔄 UPDATE block at col ' + checkCol);
+          break;
+        }
+      }
+
+
+      if (!targetCol) {
+        for (var b = 0; b < blockStartCols.length; b++) {
+          var checkCol = blockStartCols[b];
+          var existing = sh.getRange(rowIndex, checkCol).getValue();
+          if (!existing || String(existing).trim() === '') {
+            targetCol = checkCol;
+            break;
+          }
+        }
+      }
+
+
+      if (!targetCol) {
+        return memberPhotoJsonOut_({
+          status: 'error',
+          message: 'આ સભ્યના બધા 10 blocks ભરાઈ ગયા છે.',
+        });
+      }
+
+
+      // ========= STEP 3: Files Upload =========
+      var uploadedUrls = [];
+      var oldUrls = '';
+
+
+      if (isUpdate) {
+        oldUrls = String(sh.getRange(rowIndex, targetCol + 4).getValue() || '').trim();
+      }
+
+
+      if (files && files.length > 0) {
+        // નવી files આપી છે - upload કરો
+        var folder = DriveApp.getFolderById(RESULT_PHOTO_FOLDER_ID);
+        var safeStudentName = studentName.replace(/[\\/:*?"<>|]/g, '').trim();
+
+
+        for (var f = 0; f < files.length; f++) {
+          try {
+            var file = files[f];
+            if (!file.base64) continue;
+
+
+            var mime = file.mime || 'image/jpeg';
+            var origName = file.fileName || ('file_' + (f + 1));
+            var extension = 'jpg';
+            if (origName && origName.indexOf('.') > -1) {
+              extension = origName.split('.').pop().toLowerCase();
+            } else if (mime === 'application/pdf') {
+              extension = 'pdf';
+            }
+
+
+            var customFileName = (memberNo || 'X') + '_' + mobile + '_' + standard + '_' + safeStudentName + '_' + (f + 1) + '.' + extension;
+
+
+            var blob = Utilities.newBlob(Utilities.base64Decode(file.base64), mime, customFileName);
+            var driveFile = folder.createFile(blob);
+            try {
+              driveFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+            } catch (shareErr) {
+              Logger.log('setSharing skipped: ' + shareErr);
+            }
+
+
+            // PDF અને images માટે URL format અલગ
+            var fileId = driveFile.getId();
+            var url;
+            if (mime === 'application/pdf' || extension === 'pdf') {
+              // PDF માટે direct preview link
+              url = 'https://drive.google.com/file/d/' + fileId + '/view';
+            } else {
+              url = 'https://lh3.googleusercontent.com/d/' + fileId;
+            }
+
+
+            uploadedUrls.push(url);
+            Logger.log('✅ File ' + (f + 1) + ' uploaded: ' + url);
+          } catch (fileErr) {
+            Logger.log('⚠️ File ' + (f + 1) + ' failed: ' + fileErr);
+          }
+        }
+
+
+        // જૂની files trash કરો (update case)
+        if (isUpdate && oldUrls) {
+          var oldList = oldUrls.split('|').filter(function(u){ return u.trim() !== ''; });
+          for (var o = 0; o < oldList.length; o++) {
+            try {
+              var oldId = oldList[o].match(/\/d\/([^\/\?]+)/);
+              if (oldId && oldId[1]) {
+                DriveApp.getFileById(oldId[1]).setTrashed(true);
+              }
+            } catch (delErr) {
+              Logger.log('Old file delete skipped: ' + delErr);
+            }
+          }
+        }
+      } else if (isUpdate && oldUrls) {
+        // નવી files નથી, update છે - જૂની જ રાખો
+        Logger.log('📌 જૂની files જ રાખી');
+      }
+
+
+      // Final URL string - pipe (|) થી separate
+      var finalUrlString;
+      if (uploadedUrls.length > 0) {
+        finalUrlString = uploadedUrls.join('|');
+      } else if (isUpdate) {
+        finalUrlString = oldUrls; // જૂની રાખો
+      } else {
+        finalUrlString = '';
+      }
+
+
+      // ========= STEP 4: Data લખો =========
+      var now = new Date();
+      var dateTime = Utilities.formatDate(now, Session.getScriptTimeZone(), 'dd-MM-yyyy HH:mm:ss');
+
+
+      try {
+        sh.getRange(rowIndex, targetCol).setValue(studentName);
+        sh.getRange(rowIndex, targetCol + 1).setValue(standard);
+        sh.getRange(rowIndex, targetCol + 2).setValue(percentage);
+        sh.getRange(rowIndex, targetCol + 3).setValue(year);
+        sh.getRange(rowIndex, targetCol + 4).setValue(finalUrlString);
+        sh.getRange(rowIndex, targetCol + 5).setValue(dateTime);
+        SpreadsheetApp.flush();
+      } catch (writeErr) {
+        return memberPhotoJsonOut_({
+          status: 'error',
+          message: 'શીટમાં લખવામાં ભૂલ: ' + String(writeErr),
+        });
+      }
+
+
+      return memberPhotoJsonOut_({
+        status: 'success',
+        message: isUpdate ? 'જૂનું રિઝલ્ટ અપડેટ થયું ✅' : 'નવું રિઝલ્ટ સેવ થયું ✅',
+        filesUploaded: uploadedUrls.length,
+        isUpdate: isUpdate,
+      });
+
+
+    } catch (e) {
+      Logger.log('❌ FATAL: ' + e + ' | ' + e.stack);
+      return memberPhotoJsonOut_({
+        status: 'error',
+        message: 'સર્વર ભૂલ: ' + String(e),
+      });
+    }
+  }
+
+
+  function getResults(mobile, memberNo) {
+    try {
+      var ss = SpreadsheetApp.getActiveSpreadsheet();
+      var sh = ss.getSheetByName('Result');
+      if (!sh) return [];
+
+
+      var lastRow = sh.getLastRow();
+      if (lastRow < 2) return [];
+
+
+      var cleanMobile = String(mobile || '').replace(/\D/g, '');
+      var cleanMemberNo = String(memberNo || '').replace(/\D/g, '');
+
+
+      // Column A=MemberNo, B=Mobile, F થી blocks
+      // એક row ના બધા columns વાંચો (max 83 columns - 10 blocks સુધી)
+      var data = sh.getRange(2, 1, lastRow - 1, 83).getValues();
+
+
+      var results = [];
+      for (var i = 0; i < data.length; i++) {
+        var rowMemberNo = String(data[i][0] || '').replace(/\D/g, '');
+        var rowMobile = String(data[i][1] || '').replace(/\D/g, '');
+
+
+        // Mobile અથવા MemberNo match થાય તો જ આ row ના results લો
+        var matched = false;
+        if (cleanMobile && rowMobile === cleanMobile) matched = true;
+        if (!matched && cleanMemberNo && rowMemberNo === cleanMemberNo) matched = true;
+
+
+        if (!matched) continue;
+
+
+        // Block start: F(index 5), N(13), V(21), AD(29), AL(37), AT(45), BB(53), BJ(61), BR(69), BZ(77)
+        var blockStarts = [5, 13, 21, 29, 37, 45, 53, 61, 69, 77];
+
+
+        for (var b = 0; b < blockStarts.length; b++) {
+          var s = blockStarts[b];
+          var name = String(data[i][s] || '').trim();
+          if (!name) continue; // ખાલી block skip
+
+
+          results.push({
+            studentName: name,
+            standard: String(data[i][s + 1] || '').trim(),
+            percentage: String(data[i][s + 2] || '').trim(),
+            year: String(data[i][s + 3] || '').trim(),
+            photo: String(data[i][s + 4] || '').trim(),
+            dateTime: String(data[i][s + 5] || '').trim(),
+          });
+        }
+      }
+
+
+      return results;
+    } catch (e) {
+      Logger.log('getResults error: ' + e);
+      return [];
+    }
+  }
+
+
+  function getAchievements(memberNo) {
+  try {
+    var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Achievements');
+    if (!sh) return [];
+
+
+    var data = sh.getDataRange().getValues();
+    var results = [];
+
+
+    var searchMemberNo = String(memberNo || '').trim();
+
+
+    for (var i = 1; i < data.length; i++) {
+      var rowMemberNo = String(data[i][0] || '').trim();   // Column A
+
+
+      if (rowMemberNo === searchMemberNo) {
+
+
+        var blocks = [
+          { name: 4, mobile: 5, year: 6, desc: 7, photo: 8 },   // E to I
+          { name:10, mobile:11, year:12, desc:13, photo:14 },   // K to O
+          { name:16, mobile:17, year:18, desc:19, photo:20 }    // Q to U
+        ];
+
+
+        for (var b = 0; b < blocks.length; b++) {
+          var blk = blocks[b];
+
+
+          var nameVal   = String(data[i][blk.name]   || '').trim();
+          var mobileVal = String(data[i][blk.mobile] || '').trim();
+          var yearVal   = String(data[i][blk.year]   || '').trim();
+          var descVal   = String(data[i][blk.desc]   || '').trim();
+          var photoVal  = String(data[i][blk.photo]  || '').trim();
+
+
+          // જો નામ હોય તો જ ઉમેરો
+          if (nameVal !== "") {
+            results.push({
+              studentName: nameVal,
+              mobile: mobileVal || "-",        // F કોલમ
+              year: yearVal || "-",            // G કોલમ
+              description: descVal || "",      // H કોલમ
+              photo: photoVal                  // I કોલમ
+            });
+          }
+        }
+      }
+    }
+
+
+    // સૌથી નવું ઉપર આવે તે માટે reverse
+    results.reverse();
+
+
+    return results;
+
+
+  } catch(e) {
+    Logger.log('getAchievements Error: ' + e);
+    return [];
+  }
+}
+// ==================== RESULT VISIBILITY CONTROL ====================
+
+
+// Settings Sheet માંથી result status get કરે
+function getResultStatus() {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    let sheet = ss.getSheetByName("Settings");
+   
+    // Settings sheet ના હોય તો બનાવો
+    if (!sheet) {
+      sheet = ss.insertSheet("Settings");
+      sheet.getRange("A1").setValue("Key");
+      sheet.getRange("B1").setValue("Value");
+      sheet.getRange("A2").setValue("resultEnabled");
+      sheet.getRange("B2").setValue("true");
+    }
+   
+    const data = sheet.getDataRange().getValues();
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0] === "resultEnabled") {
+        return String(data[i][1]).toLowerCase() === "true";
+      }
+    }
+    return true; // default ON
+  } catch (e) {
+    return true;
+  }
+}
+
+
+// Result status toggle કરે (admin only)
+function toggleResultStatus(newStatus) {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    let sheet = ss.getSheetByName("Settings");
+   
+    if (!sheet) {
+      sheet = ss.insertSheet("Settings");
+      sheet.getRange("A1").setValue("Key");
+      sheet.getRange("B1").setValue("Value");
+    }
+   
+    const data = sheet.getDataRange().getValues();
+    let found = false;
+   
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0] === "resultEnabled") {
+        sheet.getRange(i + 1, 2).setValue(String(newStatus));
+        found = true;
+        break;
+      }
+    }
+   
+    if (!found) {
+      sheet.appendRow(["resultEnabled", String(newStatus)]);
+    }
+   
+    return { status: "success", resultEnabled: newStatus };
+  } catch (e) {
+    return { status: "error", message: e.message };
+  }
+}
+
+// Achievement status toggle (Result ના master control થી કંટ્રોલ થાય)
+function toggleAchievementStatus(newStatus) {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    let sheet = ss.getSheetByName("Settings");
+    if (!sheet) {
+      sheet = ss.insertSheet("Settings");
+      sheet.getRange("A1").setValue("Key");
+      sheet.getRange("B1").setValue("Value");
+    }
+
+    const data = sheet.getDataRange().getValues();
+    let found = false;
+
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0] === "achievementEnabled") {
+        sheet.getRange(i + 1, 2).setValue(String(newStatus));
+        found = true;
+        break;
+      }
+    }
+
+    if (!found) {
+      sheet.appendRow(["achievementEnabled", String(newStatus)]);
+    }
+
+    return { status: "success" };
+  } catch (e) {
+    Logger.log('toggleAchievementStatus Error: ' + e);
+    return { status: "error" };
+  }
+}
+
+function getMembersWithResults() {
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sh = ss.getSheetByName('Result');
+    if (!sh) return [];
+
+    var data = sh.getDataRange().getValues();
+    var members = new Map(); // memberNo → full name
+
+    // A = MemberNo, B = Mobile, F onwards blocks
+    for (var i = 1; i < data.length; i++) {   // row 2 થી શરૂ
+      var memberNo = String(data[i][0] || '').trim();
+      if (!memberNo) continue;
+
+      // Check if this row has at least one result block
+      var hasResult = false;
+      var blockStarts = [5, 13, 21, 29, 37, 45, 53, 61, 69, 77]; // F, N, V ...
+
+      for (var b = 0; b < blockStarts.length; b++) {
+        var col = blockStarts[b];
+        if (String(data[i][col] || '').trim() !== '') {
+          hasResult = true;
+          break;
+        }
+      }
+
+      if (hasResult) {
+        // Sabhy Details sheet માંથી નામ લઈ લો
+        var name = getMemberFullName(memberNo);
+        members.set(memberNo, name || "Unknown (" + memberNo + ")");
+      }
+    }
+
+    // Array માં કન્વર્ટ કરો અને sort કરો
+    var resultList = [];
+    members.forEach((name, memberNo) => {
+      const cleanName = (name || "Unknown").trim();
+      const cleanNo   = String(memberNo || "").trim();
+      
+      resultList.push({ 
+        memberNo: cleanNo, 
+        name: cleanName,
+        display: `${cleanNo} - ${cleanName}`   // ← આ લાઇન બદલી (પહેલા નંબર)
+      });
+    });
+
+    // નામ મુજબ sort (ગુજરાતીમાં સારી રીતે sort થાય)
+      resultList.sort((a, b) => (parseInt(a.memberNo) || 0) - (parseInt(b.memberNo) || 0));
+
+    return resultList;
+
+  } catch (e) {
+    Logger.log("getMembersWithResults Error: " + e);
+    return [];
+  }
+}
+
+
+function getMemberFullName(memberNo) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Sabhy Details');
+  if (!sheet) return "";
+
+  var data = sheet.getDataRange().getValues();
+  for (var i = 1; i < data.length; i++) {
+    if (String(data[i][3] || '').trim() === String(memberNo).trim()) {
+      return String(data[i][4] || '') + " " + 
+             String(data[i][5] || '') + " " + 
+             String(data[i][7] || '');
+    }
+  }
+  return "";
+}
+
+// 🎯 બધા સભ્યોનું લિસ્ટ (admin dropdown માટે)
+function getAllMembersList() {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName('Sabhy Details');
+    if (!sheet) return [];
+    
+    const data = sheet.getDataRange().getValues();
+    const list = [];
+    
+    for (let i = 1; i < data.length; i++) {
+      const memberNo = String(data[i][3] || '').trim();
+      if (!memberNo) continue;
+      
+      const name = String(data[i][4] || '').trim();
+      const father = String(data[i][5] || '').trim();
+      const surname = String(data[i][7] || '').trim();
+      
+      const fullName = [name, father, surname].filter(v => v).join(' ').trim();
+      
+      list.push({
+        memberNo: memberNo,
+        name: fullName || 'Unknown',
+        display: memberNo + ' - ' + (fullName || 'Unknown')
+      });
+    }
+    
+    // MemberNo મુજબ sort (numeric)
+    list.sort((a, b) => {
+      const numA = parseInt(a.memberNo) || 0;
+      const numB = parseInt(b.memberNo) || 0;
+      return numA - numB;
+    });
+    
+    return list;
+  } catch (e) {
+    Logger.log('getAllMembersList Error: ' + e);
+    return [];
+  }
+}
+
+// 🎯 MemberNo થી સભ્યની પૂરી વિગત (admin view માટે)
+function getMemberDataByMemberNo(memberNo) {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName('Sabhy Details');
+    const data = sheet.getDataRange().getValues();
+    
+    for (let i = 1; i < data.length; i++) {
+      if (String(data[i][3]).trim() == String(memberNo).trim()) {
+        let familyList = [];
+        let startIdx = 21;
+        
+        while (
+          startIdx < data[i].length &&
+          data[i][startIdx] &&
+          data[i][startIdx].toString().trim() !== ''
+        ) {
+          familyList.push({
+            fName: data[i][startIdx] || '',
+            fSecondName: data[i][startIdx + 1] || '',
+            fSurname: data[i][startIdx + 2] || '',
+            fMobile: data[i][startIdx + 3] || '',
+            fBusiness: data[i][startIdx + 4] || '',
+            fBusinessDetail: data[i][startIdx + 5] || '',
+            fBirth: formatDate(data[i][startIdx + 6]),
+            fGender: data[i][startIdx + 7] || '',
+            fBlood: data[i][startIdx + 8] || '',
+            fRelation: data[i][startIdx + 9] || '',
+              fPhoto: data[i][startIdx + 10] ? String(data[i][startIdx + 10]).trim() : '',
+          });
+          startIdx += 12;
+        }
+        
+        return ContentService.createTextOutput(
+          JSON.stringify({
+            status: 'success',
+            sabhyNo: data[i][3] || '-',
+            mobile: data[i][0] || '-',
+            name: data[i][4] || '-',
+            father: data[i][5] || '-',
+            grand: data[i][6] || '-',
+            surname: data[i][7] || '-',
+            photo: data[i][10] ? data[i][10].toString().trim() : '',
+            email: data[i][11] || '-',
+            education: data[i][12] || '-',
+            business: data[i][13] || '-',
+            birthdate: formatDate(data[i][14]),
+            gender: data[i][15] || '-',
+            blood: data[i][16] || '-',
+            house: data[i][17] || '-',
+            address: data[i][18] || '-',
+            familyMembers: familyList,
+          })
+        ).setMimeType(ContentService.MimeType.JSON);
+      }
+    }
+    
+    return ContentService.createTextOutput(
+      JSON.stringify({ status: 'not_found', message: 'સભ્ય મળ્યા નથી' })
+    ).setMimeType(ContentService.MimeType.JSON);
+  } catch (e) {
+    Logger.log('getMemberDataByMemberNo Error: ' + e);
+    return ContentService.createTextOutput(
+      JSON.stringify({ status: 'error', message: e.toString() })
+    ).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+// 🎯 જે સભ્યોએ Achievement ઉમેર્યું હોય તેમનું લિસ્ટ
+function getMembersWithAchievements() {
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sh = ss.getSheetByName('Achievements');
+    if (!sh) return [];
+
+    var data = sh.getDataRange().getValues();
+    var members = new Map();
+
+    // Column A = MemberNo, E onwards blocks (E, K, Q... indexes 4, 10, 16)
+    var blockStarts = [4, 10, 16, 22, 28, 34, 40, 46, 52, 58, 64, 70, 76, 82, 88, 94];
+
+    for (var i = 1; i < data.length; i++) {
+      var memberNo = String(data[i][0] || '').trim();
+      if (!memberNo) continue;
+
+      // Check if this row has at least one achievement block filled
+      var hasAchievement = false;
+      for (var b = 0; b < blockStarts.length; b++) {
+        var col = blockStarts[b];
+        if (col < data[i].length && String(data[i][col] || '').trim() !== '') {
+          hasAchievement = true;
+          break;
+        }
+      }
+
+      if (hasAchievement) {
+        var name = getMemberFullName(memberNo);
+        members.set(memberNo, name || "Unknown (" + memberNo + ")");
+      }
+    }
+
+    var resultList = [];
+    members.forEach((name, memberNo) => {
+      const cleanName = (name || "Unknown").trim();
+      const cleanNo = String(memberNo || "").trim();
+      resultList.push({ 
+        memberNo: cleanNo, 
+        name: cleanName,
+        display: `${cleanNo} - ${cleanName}`
+      });
+    });
+
+ 
+    // MemberNo મુજબ numeric sort (1, 2, 3... 10, 11)
+resultList.sort((a, b) => (parseInt(a.memberNo) || 0) - (parseInt(b.memberNo) || 0));
+
+    return resultList;
+
+  } catch (e) {
+    Logger.log("getMembersWithAchievements Error: " + e);
+    return [];
+  }
+}
+
+// 🎯 બધા results Excel export માટે
+function getAllResultsForExport() {
+    try {
+        var ss = SpreadsheetApp.getActiveSpreadsheet();
+        var sh = ss.getSheetByName('Result');
+        if (!sh) return [];
+
+        var lastRow = sh.getLastRow();
+        if (lastRow < 2) return [];
+
+        var data = sh.getRange(2, 1, lastRow - 1, 83).getValues();
+        var allResults = [];
+
+        var blockStarts = [5, 13, 21, 29, 37, 45, 53, 61, 69, 77];
+
+        for (var i = 0; i < data.length; i++) {
+            var memberNo = String(data[i][0] || '').trim();
+            var mobile = String(data[i][1] || '').trim();
+
+            if (!memberNo && !mobile) continue;
+
+            for (var b = 0; b < blockStarts.length; b++) {
+                var s = blockStarts[b];
+                var name = String(data[i][s] || '').trim();
+                if (!name) continue;
+
+                allResults.push({
+                    memberNo: memberNo,
+                    mobile: mobile,
+                    studentName: name,
+                    standard: String(data[i][s + 1] || '').trim(),
+                    percentage: String(data[i][s + 2] || '').trim(),
+                    year: String(data[i][s + 3] || '').trim()
+                });
+            }
+        }
+
+        return allResults;
+
+    } catch (e) {
+        Logger.log('getAllResultsForExport Error: ' + e);
+        return [];
+    }
+}
+// 🎯 બધી Achievements Excel export માટે
+function getAllAchievementsForExport() {
+    try {
+        var ss = SpreadsheetApp.getActiveSpreadsheet();
+        var sh = ss.getSheetByName('Achievements');
+        if (!sh) return [];
+
+        var lastRow = sh.getLastRow();
+        if (lastRow < 2) return [];
+
+        var data = sh.getDataRange().getValues();
+        var allResults = [];
+
+        // Blocks: E(4), K(10), Q(16), W(22), AC(28), AI(34)...
+        var blockStarts = [4, 10, 16, 22, 28, 34, 40, 46, 52, 58, 64, 70, 76, 82, 88, 94];
+
+        for (var i = 1; i < data.length; i++) {
+            var memberNo = String(data[i][0] || '').trim();
+            if (!memberNo) continue;
+
+            for (var b = 0; b < blockStarts.length; b++) {
+                var s = blockStarts[b];
+                if (s >= data[i].length) break;
+
+                var name = String(data[i][s] || '').trim();
+                if (!name) continue;
+
+                allResults.push({
+                    memberNo: memberNo,
+                    studentName: name,
+                    mobile: String(data[i][s + 1] || '').trim(),
+                    year: String(data[i][s + 2] || '').trim(),
+                    description: String(data[i][s + 3] || '').trim()
+                });
+            }
+        }
+
+        return allResults;
+
+    } catch (e) {
+        Logger.log('getAllAchievementsForExport Error: ' + e);
+        return [];
+    }
+}
+
+function handleBusinessSave_(data) {
+  try {
+    var memberNo = String(data.memberNo || '').trim();
+    var businessName = String(data.businessName || '').trim();
+    var ownerName = String(data.ownerName || '').trim();
+    var businessType = String(data.businessType || '').trim();
+    var mobile = String(data.mobile || '').trim();
+    var email = String(data.email || '').trim();
+    var description = String(data.description || '').trim();
+    var area = String(data.area || '').trim();
+    var photoBase64 = data.photoBase64 || '';
+    var photoMime = data.photoMime || 'image/jpeg';
+    var photoName = data.photoName || 'business.jpg';
+
+    if (!memberNo || !businessName || !mobile) {
+      return memberPhotoJsonOut_({ status: 'error', message: 'ફરજિયાત વિગતો ખૂટે છે.' });
+    }
+
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sh = ss.getSheetByName('Business');
+    if (!sh) {
+      sh = ss.insertSheet('Business');
+      sh.getRange(1, 1, 1, 13).setValues([[
+        'Timestamp','MemberNo','BusinessName','OwnerName','BusinessType',
+        'Mobile','Email','Description','Area','PhotoURL',
+        'Status','ReviewedBy','ReviewedDate'
+      ]]);
+    }
+
+    var photoUrl = '';
+    if (photoBase64) {
+      var folder = DriveApp.getFolderById(BUSINESS_PHOTO_FOLDER_ID);
+      var ext = (photoName.indexOf('.') > -1) ? photoName.split('.').pop().toLowerCase() : 'jpg';
+      var customName = memberNo + '_' + mobile + '_business.' + ext;
+      var blob = Utilities.newBlob(Utilities.base64Decode(photoBase64), photoMime, customName);
+      var file = folder.createFile(blob);
+      try { file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); } catch(e){}
+      photoUrl = 'https://lh3.googleusercontent.com/d/' + file.getId();
+    }
+
+    var ts = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd-MM-yyyy HH:mm:ss');
+    sh.appendRow([ts, memberNo, businessName, ownerName, businessType,
+                  mobile, email, description, area, photoUrl,
+                  'Pending', '', '']);
+
+    return memberPhotoJsonOut_({
+      status: 'success',
+      message: 'તમારી વિનંતી એડમિનને મોકલાઈ છે. મંજૂરી બાદ દેખાશે ✅'
+    });
+  } catch(err) {
+    Logger.log('handleBusinessSave_ Error: ' + err);
+    return memberPhotoJsonOut_({ status: 'error', message: 'સર્વર ભૂલ: ' + err });
+  }
+}
+
+function getBusinesses() {
+  try {
+    var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Business');
+    if (!sh) return [];
+    var data = sh.getDataRange().getValues();
+    var results = [];
+    for (var i = 1; i < data.length; i++) {
+      if (String(data[i][10] || '').trim() === 'Approved') {
+        results.push({
+          rowIndex: i + 1,
+          timestamp: data[i][0] || '', memberNo: data[i][1] || '',
+          businessName: data[i][2] || '', ownerName: data[i][3] || '',
+          businessType: data[i][4] || '', mobile: data[i][5] || '',
+          email: data[i][6] || '', description: data[i][7] || '',
+          area: data[i][8] || '', photo: data[i][9] || ''
+        });
+      }
+    }
+    return results.reverse();
+  } catch(e) { Logger.log('getBusinesses Error: ' + e); return []; }
+}
+
+function getBusinessRequests() {
+  try {
+    var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Business');
+    if (!sh) return [];
+    var data = sh.getDataRange().getValues();
+    var results = [];
+    for (var i = 1; i < data.length; i++) {
+      if (String(data[i][10] || '').trim() === 'Pending') {
+        results.push({
+          rowIndex: i + 1,
+          timestamp: data[i][0] || '', memberNo: data[i][1] || '',
+          businessName: data[i][2] || '', ownerName: data[i][3] || '',
+          businessType: data[i][4] || '', mobile: data[i][5] || '',
+          email: data[i][6] || '', description: data[i][7] || '',
+          area: data[i][8] || '', photo: data[i][9] || ''
+        });
+      }
+    }
+    return results;
+  } catch(e) { Logger.log('getBusinessRequests Error: ' + e); return []; }
+}
+
+function handleBusinessStatusUpdate_(data) {
+  try {
+    var rowIndex = parseInt(data.rowIndex);
+    var newStatus = String(data.newStatus || '').trim();
+    var reviewedBy = String(data.reviewedBy || 'Admin').trim();
+
+    if (!rowIndex || !newStatus) {
+      return memberPhotoJsonOut_({ status: 'error', message: 'વિગતો ખૂટે છે.' });
+    }
+
+    var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Business');
+    if (!sh) return memberPhotoJsonOut_({ status: 'error', message: 'Business sheet નથી.' });
+
+    var reviewDate = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd-MM-yyyy HH:mm:ss');
+    sh.getRange(rowIndex, 11).setValue(newStatus);
+    sh.getRange(rowIndex, 12).setValue(reviewedBy);
+    sh.getRange(rowIndex, 13).setValue(reviewDate);
+    SpreadsheetApp.flush();
+
+    return memberPhotoJsonOut_({
+      status: 'success',
+      message: newStatus === 'Approved' ? 'વ્યવસાય મંજૂર ✅' : 'વ્યવસાય નકાર્યો ❌'
+    });
+  } catch(err) {
+    Logger.log('handleBusinessStatusUpdate_ Error: ' + err);
+    return memberPhotoJsonOut_({ status: 'error', message: 'સર્વર ભૂલ: ' + err });
+  }
+}
+
+function handleFamilyPhotoUpload_(data) {
+  try {
+    var mainMobile = String(data.mainMemberMobile || '').trim();
+    var familyMobile = String(data.familyMobile || '').trim();
+    var base64 = data.base64;
+    var mime = data.mimeType || 'image/jpeg';
+    var fileName = data.fileName || 'family.jpg';
+
+    if (!mainMobile || !familyMobile || !base64) {
+      return memberPhotoJsonOut_({ status: 'error', message: 'વિગતો અધૂરી છે.' });
+    }
+
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sh = ss.getSheetByName(MEMBER_SHEET_NAME);
+    if (!sh) {
+      return memberPhotoJsonOut_({ status: 'error', message: 'Sabhy Details sheet મળી નથી.' });
+    }
+
+    var cleanMainMobile = mainMobile.replace(/\D/g, '');
+    var cleanFamilyMobile = familyMobile.replace(/\D/g, '');
+
+    // 🎯 STEP 1: મુખ્ય સભ્યની row શોધો (1-based)
+    var lastRow = sh.getLastRow();
+    var rowIndex = null;
+    for (var i = 2; i <= lastRow; i++) {
+      var rowMobile = String(sh.getRange(i, 1).getValue() || '').replace(/\D/g, '');
+      if (rowMobile === cleanMainMobile) {
+        rowIndex = i;
+        break;
+      }
+    }
+
+    if (!rowIndex) {
+      return memberPhotoJsonOut_({ status: 'error', message: 'મુખ્ય સભ્ય મળ્યા નથી.' });
+    }
+
+    // 🎯 STEP 2: પરિવારના સભ્યનો block શોધો (mobile match કરો)
+    // Block structure: Name(0) SecondName(1) Surname(2) Mobile(3) Business(4) ... Photo(10)
+    var familyStartCol = 22;   // 1-based: column V
+    var lastCol = sh.getLastColumn();
+    var photoCol = null;
+
+    while (familyStartCol <= lastCol) {
+      var blockName = String(sh.getRange(rowIndex, familyStartCol).getValue() || '').trim();
+      if (!blockName) break;   // ખાલી block — અહીં અટકો
+
+      var blockMobile = String(sh.getRange(rowIndex, familyStartCol + 3).getValue() || '').replace(/\D/g, '');
+
+      if (blockMobile === cleanFamilyMobile) {
+        photoCol = familyStartCol + 10;   // 🎯 એ જ સભ્યના block નો photo column
+        break;
+      }
+
+      familyStartCol += 12;
+    }
+
+    if (!photoCol) {
+      return memberPhotoJsonOut_({ status: 'error', message: 'આ પરિવારના સભ્ય મળ્યા નથી.' });
+    }
+
+    // 🎯 STEP 3: Drive માં ફોટો અપલોડ કરો
+    var folder = DriveApp.getFolderById("1YX5q124yM_ZPo2ac8dh7mf0K6WO2-sw0");
+    var blob;
+    try {
+      blob = Utilities.newBlob(
+        Utilities.base64Decode(base64),
+        mime,
+        'family_' + cleanFamilyMobile + '_' + fileName
+      );
+    } catch (err) {
+      return memberPhotoJsonOut_({ status: 'error', message: 'Invalid image data' });
+    }
+
+    var file;
+    try {
+      file = folder.createFile(blob);
+      try {
+        file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+      } catch (shareErr) {
+        Logger.log('setSharing skipped: ' + shareErr);
+      }
+
+      var photoUrl = 'https://lh3.googleusercontent.com/d/' + file.getId();
+
+      // 🎯 STEP 4: એ જ સભ્યના photo column માં URL લખો
+      try {
+        sh.getRange(rowIndex, photoCol).setNumberFormat('@');
+        sh.getRange(rowIndex, photoCol).setValue(photoUrl);
+        SpreadsheetApp.flush();
+      } catch (sheetErr) {
+        try { file.setTrashed(true); } catch(e){}
+        return memberPhotoJsonOut_({
+          status: 'error',
+          message: 'શીટમાં લખવામાં ભૂલ: ' + String(sheetErr)
+        });
+      }
+
+      return memberPhotoJsonOut_({
+        status: 'success',
+        photoUrl: photoUrl,
+        message: 'ફોટો સેવ થયો ✅'
+      });
+
+    } catch (driveErr) {
+      return memberPhotoJsonOut_({
+        status: 'error',
+        message: 'Drive અપલોડ ભૂલ: ' + String(driveErr)
+      });
+    }
+
+  } catch (err) {
+    Logger.log('handleFamilyPhotoUpload_ Error: ' + err);
+    return memberPhotoJsonOut_({ status: 'error', message: 'સર્વર ભૂલ: ' + String(err) });
+  }
+}
