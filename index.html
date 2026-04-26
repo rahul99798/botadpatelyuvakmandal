@@ -1340,7 +1340,7 @@ body.is-admin button.admin-only {
 <div id="overlay" onclick="toggleMobileSidebar()"></div>
 		<script>
 		  const SCRIPT_URL =
-			"https://script.google.com/macros/s/AKfycbzGNblT2Heolok3S05VilLRUBlF3hmoQQVczSLOKvJ0R62yFxuu18RBAwdQG4JlRC8M/exec";
+			"https://script.google.com/macros/s/AKfycbzrEdug4kg_qAieEzaufwxcB5tu8JBls8VnzVmIjhUgYaUW3Xf4NZ7tncss-ret_doj/exec";
 			
 
 		  async function login() {
@@ -3715,6 +3715,10 @@ updateBtn.innerHTML = isEmpty
 					<option value="પૌત્રી">પૌત્રી</option>
 				</select>
 			</div>
+			<div class="form-row">
+    <label style="color: #94a3b8; font-size: 14px; margin-bottom: 5px;">સભ્યનો ફોટો:</label>
+    <input type="file" id="fPhoto" accept="image/*" style="width: 100%; background: #111827; border: 1px solid #1f2937; color: white; padding: 12px; border-radius: 8px;">
+</div>
 		`;
 
 			// થીમ મુજબ સ્ટાઇલ આપવી
@@ -3845,100 +3849,120 @@ updateBtn.innerHTML = isEmpty
 		  // પરિવારનો ડેટા સેવ કરવા માટેનું ફંક્શન (બધી વિગતો ફરજિયાત સાથે)
 		  // પરિવારનો ડેટા સેવ કરવા માટેનું ફંક્શન
 		  async function handleFamilySave() {
-			const mobile = localStorage.getItem("userMobile");
+    const mobile = localStorage.getItem("userMobile");
+    // સભ્ય નંબર મેળવો જેનો ઉપયોગ ફોટોના નામકરણમાં થશે
+    const sabhyaNo = document.getElementById("sabhyNo") ? document.getElementById("sabhyNo").innerText.trim() : "";
 
-			// ૧. બધા ઇનપુટ એલિમેન્ટ્સ મેળવો
-			const fName = document.getElementById("fName").value.trim();
-			const fSecondName = document.getElementById("fSecondName").value.trim();
-			const fSurname = document.getElementById("fSurname").value.trim();
-			const fMobile = document.getElementById("fMobile").value.trim();
-			const fBusiness = document.getElementById("fBusiness").value;
-			const fBirth = document.getElementById("fBirth").value;
-			const fGender = document.getElementById("fGender").value;
-			const fBlood = document.getElementById("fBlood").value;
-			const fRelation = document.getElementById("fRelation").value;
+    // ૧. ફોર્મમાંથી બધી વિગતો મેળવો
+    const fName = document.getElementById("fName").value.trim();
+    const fSecondName = document.getElementById("fSecondName").value.trim();
+    const fSurname = document.getElementById("fSurname").value.trim();
+    const fMobile = document.getElementById("fMobile").value.trim();
+    const fBusiness = document.getElementById("fBusiness").value;
+    const fBirth = document.getElementById("fBirth").value;
+    const fGender = document.getElementById("fGender").value;
+    const fBlood = document.getElementById("fBlood").value;
+    const fRelation = document.getElementById("fRelation").value;
+    
+    // ફોટો ઇનપુટ એલિમેન્ટ મેળવો
+    const fPhotoInput = document.getElementById("fPhoto");
+    const file = fPhotoInput ? fPhotoInput.files[0] : null;
 
-			// ૨. બેઝિક વેલિડેશન
-			if (
-			  !fName ||
-			  !fSecondName ||
-			  !fSurname ||
-			  !fMobile ||
-			  !fBusiness ||
-			  !fBirth ||
-			  !fGender ||
-			  !fRelation
-			) {
-			  alert("મહેરબાની કરીને પરિવારના સભ્યની બધી જ વિગતો ભરો. ❌");
-			  return;
-			}
-
-			// ૩. ડાયનેમિક ફીલ્ડ્સ વેલિડેશન
-			let fExtraDetail = "";
-			if (fBusiness === "અભ્યાસ") {
-			  fExtraDetail = document.getElementById("fEducationDetail").value;
-			  if (!fExtraDetail) {
-				alert("મહેરબાની કરીને ધોરણ / અભ્યાસ પસંદ કરો. ❌");
-				return;
-			  }
-			} else if (fBusiness === "નોકરી" || fBusiness === "વ્યવસાય" || fBusiness === "ગૃહિણી" || fBusiness === "ખેતીવાડી" || fBusiness === "અન્ય") {
-  const educationVal = document.getElementById("fEducationDetail").value;
-  if (!educationVal) {
-    alert("મહેરબાની કરીને છેલ્લો અભ્યાસ પસંદ કરો. ❌");
-    return;
-  }
-
-  if (fBusiness === "નોકરી" || fBusiness === "વ્યવસાય" || fBusiness === "ગૃહિણી") {
-    const occVal = document.getElementById("fOccupationDetail").value.trim();
-    if (!occVal) {
-      alert(`મહેરબાની કરીને ${fBusiness}ની વિગત લખો. ❌`);
-      return;
+    // ૨. ફરજિયાત વિગતોનું વેલિડેશન
+    if (!fName || !fSecondName || !fSurname || !fMobile || !fBusiness || !fBirth || !fGender || !fRelation) {
+        alert("મહેરબાની કરીને પરિવારના સભ્યની બધી જ વિગતો ભરો. ❌");
+        return;
     }
-    fExtraDetail = occVal + " | છેલ્લો અભ્યાસ: " + educationVal;
-  } else {
-    fExtraDetail = educationVal;
-  }
+
+    // ૩. વ્યવસાય/અભ્યાસ મુજબ વધારાની વિગતોનું વેલિડેશન
+    let fExtraDetail = "";
+    if (fBusiness === "અભ્યાસ") {
+        fExtraDetail = document.getElementById("fEducationDetail").value;
+        if (!fExtraDetail) {
+            alert("મહેરબાની કરીને ધોરણ / અભ્યાસ પસંદ કરો. ❌");
+            return;
+        }
+    } else if (["નોકરી", "વ્યવસાય", "ગૃહિણી", "ખેતીવાડી", "અન્ય"].includes(fBusiness)) {
+        const educationVal = document.getElementById("fEducationDetail").value;
+        if (!educationVal) {
+            alert("મહેરબાની કરીને છેલ્લો અભ્યાસ પસંદ કરો. ❌");
+            return;
+        }
+
+        if (["નોકરી", "વ્યવસાય", "ગૃહિણી"].includes(fBusiness)) {
+            const occVal = document.getElementById("fOccupationDetail").value.trim();
+            if (!occVal) {
+                alert(`મહેરબાની કરીને ${fBusiness}ની વિગત લખો. ❌`);
+                return;
+            }
+            fExtraDetail = occVal + " | છેલ્લો અભ્યાસ: " + educationVal;
+        } else {
+            fExtraDetail = educationVal;
+        }
+    }
+
+    showLoader(true); // 🛑 લોડર ચાલુ
+
+    try {
+        // ૪. ફોટોને Base64 માં ફેરવી તેનું નામકરણ કરવું
+        let photoData = null;
+        if (file) {
+            const base64 = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result.split(',')[1]);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+
+            photoData = {
+                base64: base64,
+                mimeType: file.type,
+                // નામ ફોર્મેટ: સભ્યનંબર_મોબાઈલ_નામ.extension
+                fileName: `${sabhyaNo}_${fMobile}_${fName}.${file.type.split('/')[1]}`
+            };
+        }
+
+        // ૫. ડેટા પેલોડ તૈયાર કરવો
+        const familyData = {
+            action: "addFamilyMember",
+            type: "addFamilyMember", 
+            mainMemberMobile: mobile,
+            name: fName,
+            secondName: fSecondName,
+            surname: fSurname,
+            mobile: fMobile,
+            occupation: fBusiness,
+            occupationDetail: fExtraDetail,
+            birthdate: fBirth,
+            gender: fGender,
+            blood: fBlood,
+            relation: fRelation,
+            photo: photoData // આ ડેટા Apps Script માં જશે જ્યાં Drive URL ક્રિએટ થશે
+        };
+
+        // ૬. સર્વર (Google Apps Script) પર ડેટા મોકલવો
+        const res = await fetch(SCRIPT_URL, {
+            method: "POST",
+            body: JSON.stringify(familyData),
+        });
+
+        const result = await res.json();
+        showLoader(false); // 🛑 લોડર બંધ
+
+        if (result.status === "success") {
+            alert("પરિવારના સભ્યની વિગત અને ફોટો ડ્રાઇવ લિંક સાથે સફળતાપૂર્વક સેવ થઈ ગયા! ✅");
+            closeModal();
+            // મેમ્બર ડેટા રિફ્રેશ કરવો જેથી નવો સભ્ય લિસ્ટમાં દેખાય
+            if (typeof loadMemberData === "function") loadMemberData(); 
+        } else {
+            alert("સેવ કરવામાં ભૂલ આવી: " + result.message);
+        }
+    } catch (err) {
+        showLoader(false);
+        console.error(err);
+        alert("સર્વર એરર! તમારી ઇન્ટરનેટ કનેક્શન તપાસો.");
+    }
 }
-
-			const familyData = {
-			  mainMemberMobile: mobile,
-			  name: fName,
-			  secondName: fSecondName,
-			  surname: fSurname,
-			  mobile: fMobile,
-			  occupation: fBusiness,
-			  occupationDetail: fExtraDetail,
-			  birthdate: fBirth,
-			  gender: fGender,
-			  blood: fBlood,
-			  relation: fRelation,
-			  type: "addFamilyMember", // Apps Script માં ઓળખવા માટે આ જરૂરી છે
-			};
-
-			try {
-			  showLoader(true); // 🛑 લોડર ચાલુ (યુઝર બીજું કઈ નહિ કરી શકે)
-
-			  // 🛑 અહીયાં ડેટા સેવ થવા જશે અને જ્યાં સુધી શીટમાંથી રિસ્પોન્સ નહિ આવે ત્યાં સુધી કોડ અહી જ ઉભો રહેશે
-			  const res = await fetch(SCRIPT_URL, {
-				method: "POST",
-				body: JSON.stringify(familyData),
-			  });
-
-			  const result = await res.json();
-
-			  showLoader(false); // 🛑 રિસ્પોન્સ આવી ગયો, હવે લોડર બંધ કરો
-
-			  if (result.status === "success") {
-				alert("પરિવારના સભ્યની વિગત સફળતાપૂર્વક સેવ થઈ ગઈ! ✅");
-				closeModal();
-			  } else {
-				alert("સેવ કરવામાં ભૂલ આવી. ફરી પ્રયત્ન કરો.");
-			  }
-			} catch (err) {
-			  showLoader(false);
-			  alert("સર્વર એરર! ઇન્ટરનેટ કનેક્શન ચેક કરો.");
-			}
-		  }
 		  (function () {
 			var MAX_BYTES = 4 * 1024 * 1024;
 
@@ -4224,60 +4248,80 @@ function populateStandardDropdown(currentDhoran) {
 
   dropdown.innerHTML = "";
 
+  // ધોરણમાંથી નંબર અલગ પાડવો (દા.ત. "8 ધોરણ" માંથી 8)
   const match = currentDhoran.match(/^(\d+)/);
   const currentNum = match ? parseInt(match[1]) : 0;
-  const currentYear = new Date().getFullYear(); // 2026
+  
+  // --- 📅 એકેડેમિક વર્ષનું લોજિક (૧૫ જૂન મુજબ) ---
+  const today = new Date();
+  const currentMonth = today.getMonth() + 1; // 1 to 12
+  const currentDate = today.getDate();
+  const currentFullYear = today.getFullYear();
 
-  // 🎯 Check — College/Higher છે કે નહીં
+  let academicYear;
+  // જો ૧૫ જૂન કે તેના પછીની તારીખ હોય, તો તે નવું શૈક્ષણિક વર્ષ ગણાય (દા.ત. 2026)
+  if (currentMonth > 6 || (currentMonth === 6 && currentDate >= 15)) {
+    academicYear = currentFullYear + 1;
+  } else {
+    academicYear = currentFullYear;
+  }
+
+  // 🎯 કોલેજ કે હાયર એજ્યુકેશન ચેક
   const isCollege = currentDhoran.toLowerCase().includes("college") || 
                     currentDhoran.toLowerCase().includes("higher");
 
-  // 🎯 Year dropdown update function
+  // 🎯 વર્ષ અપડેટ કરવાનું ફંક્શન
   function updateYearOptions(selectedStdNum) {
     yearField.innerHTML = "";
-    const currentRefNum = isCollege ? 13 : currentNum;
-    const diff = currentRefNum - selectedStdNum;
-    const examYear = currentYear - diff;
+    
+    let finalYear = academicYear;
+
+    // 🔥 તમારું લોજિક: ૧ થી ૯ ધોરણ માટે ઓટોમેટિક ૧ વર્ષ પ્લસ (ચાલુ વર્ષ જ રાખવું)
+    if (selectedStdNum >= 1 && selectedStdNum <= 9) {
+        finalYear = academicYear; 
+    } 
+    // ૧૦, ૧૨ અને કોલેજ માટે હંમેશા ૧ વર્ષ પાછળનું (ગયા વર્ષનું) રિઝલ્ટ હોય
+    else if (isCollege || selectedStdNum === 12 || selectedStdNum === 10) {
+        finalYear = academicYear - 1;
+    }
 
     const opt = document.createElement("option");
-    opt.value = examYear;
-    opt.textContent = examYear;
+    opt.value = finalYear;
+    opt.textContent = finalYear;
     opt.selected = true;
     yearField.appendChild(opt);
   }
 
   // ========================================
-  // 🎯 CASE 1: College/Higher Education વાળા
+  // 🎯 CASE 1: કોલેજ / હાયર એજ્યુકેશન
   // ========================================
   if (isCollege) {
-    // ફક્ત 12 ના ત્રણ stream — "ચાલુ વર્ષ" નહીં
     ["12 Science", "12 Commerce", "12 Arts"].forEach((stream, i) => {
       const opt = document.createElement("option");
       opt.value = stream;
       opt.textContent = stream;
       opt.dataset.standardNum = 12;
-      if (i === 0) opt.selected = true; // પહેલું default selected
+      if (i === 0) opt.selected = true;
       dropdown.appendChild(opt);
     });
 
-    // Year ને 2025 (પાછલું વર્ષ) fix કરી દો
-    updateYearOptions(12);
+    updateYearOptions(12); // કોલેજ હોય તો default ધોરણ ૧૨ સેટ થશે
   } 
   // ========================================
-  // 🎯 CASE 2: બીજા બધા ધોરણ વાળા
+  // 🎯 CASE 2: શાળાના બાકીના ધોરણો
   // ========================================
   else {
-    // Current ધોરણ (default selected)
+    // મુખ્ય ધોરણ (Default Selected)
     if (currentDhoran) {
       const curOpt = document.createElement("option");
       curOpt.value = currentDhoran;
-      curOpt.textContent = currentDhoran + "  (ચાલુ વર્ષ)";
+      curOpt.textContent = currentDhoran + " (ચાલુ વર્ષ)";
       curOpt.selected = true;
       curOpt.dataset.standardNum = currentNum;
       dropdown.appendChild(curOpt);
     }
 
-    // 11 વાળા ને → ધોરણ 10 નું extra option
+    // જો ધોરણ ૧૧ હોય તો ધોરણ ૧૦નું વધારાનું ઓપ્શન આપવું
     if (currentNum === 11) {
       const opt = document.createElement("option");
       opt.value = "ધોરણ 10";
@@ -4286,13 +4330,13 @@ function populateStandardDropdown(currentDhoran) {
       dropdown.appendChild(opt);
     }
 
-    // શરૂઆતમાં current ધોરણ માટેનું year set કરો
+    // શરૂઆતમાં વર્ષ સેટ કરવું
     if (currentNum) {
       updateYearOptions(currentNum);
     }
   }
 
-  // 🎯 Standard બદલાય ત્યારે Year આપોઆપ બદલાય
+  // 🎯 જ્યારે યુઝર ડ્રોપડાઉન બદલે ત્યારે વર્ષ આપોઆપ બદલાઈ જશે
   dropdown.onchange = function() {
     const selOpt = this.options[this.selectedIndex];
     const selStdNum = parseInt(selOpt?.dataset?.standardNum || 0);
