@@ -1997,6 +1997,24 @@ setTimeout(() => {
 			  else if (type === "achievements") {
   const userRole = localStorage.getItem("userRole") || "public";
   
+  // 🎯 સર્વર પરથી live status fetch કરો (parallel માં)
+  try {
+    const [achRes, resRes] = await Promise.all([
+      fetch(`${SCRIPT_URL}?action=getAchievementStatus`),
+      fetch(`${SCRIPT_URL}?action=getResultStatus`)
+    ]);
+    const achData = await achRes.json();
+    const resData = await resRes.json();
+    
+    const achEnabled = achData.status === "success" ? (achData.enabled !== false) : true;
+    const resEnabled = resData.status === "success" ? (resData.enabled !== false) : true;
+    
+    localStorage.setItem("achievementEnabled", achEnabled ? "true" : "false");
+    localStorage.setItem("resultEnabled", resEnabled ? "true" : "false");
+  } catch(e) {
+    console.error("Status fetch error:", e);
+  }
+  
   // 🔥 Result ની સ્થિતિ પણ ચેક કરો (કારણ કે હવે Result Master છે)
   let achievementEnabled = localStorage.getItem("achievementEnabled") !== "false";
   
@@ -2194,9 +2212,11 @@ return;
 					</div>
 
 					<div class="form-row" style="margin-bottom: 20px;">
-						<label style="color: #cbd5e1; font-size: 14px; margin-bottom: 8px; display: block; font-weight: 500;">જન્મ તારીખ (Birth Date)</label>
-						<input type="date" id="sBirth" style="width: 100%; background: #1e2329; border: 1px solid #334155; color: white; padding: 12px 15px; border-radius: 10px; font-size: 14px; outline: none; box-sizing: border-box; cursor: pointer;" required>
-					</div>
+    <label style="color: #cbd5e1; font-size: 14px; margin-bottom: 8px; display: block; font-weight: 500;">જન્મ તારીખ (Birth Date)</label>
+    <input type="text" id="sBirth" placeholder="DD-MM-YYYY" maxlength="10" inputmode="numeric"
+        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+        style="width: 100%; background: #1e2329; border: 1px solid #334155; color: white; padding: 12px 15px; border-radius: 10px; font-size: 14px; outline: none; box-sizing: border-box;" required>
+</div>
 
 					<div class="form-row" style="margin-bottom: 20px;">
 						<label style="color: #cbd5e1; font-size: 14px; margin-bottom: 8px; display: block; font-weight: 500;">જાતિ (Gender)</label>
@@ -2242,6 +2262,22 @@ return;
 						<textarea id="sAddress" placeholder="તમારું પૂરું સરનામું લખો" style="width: 100%; background: #15191e; border: 1px solid #334155; color: white; padding: 15px; border-radius: 10px; height: 100px; resize: vertical; font-size: 14px; outline: none; box-sizing: border-box;" required></textarea>
 					</div>
 				`;
+				// 🎯 Birth Date Auto-Format (DD-MM-YYYY)
+setTimeout(() => {
+    const birthField = document.getElementById("sBirth");
+    if (birthField) {
+        birthField.addEventListener("input", function() {
+            let raw = this.value.replace(/[^\d]/g, "").slice(0, 8);
+            let formatted = raw;
+            if (raw.length > 4) {
+                formatted = raw.slice(0, 2) + "-" + raw.slice(2, 4) + "-" + raw.slice(4);
+            } else if (raw.length > 2) {
+                formatted = raw.slice(0, 2) + "-" + raw.slice(2);
+            }
+            this.value = formatted;
+        });
+    }
+}, 100);
 			 } else if (type === "business") {
   const userMemberNo = localStorage.getItem("userMemberNo") || "";
   const userMobile = localStorage.getItem("userMobile") || "";
@@ -3542,9 +3578,10 @@ updateBtn.innerHTML = isEmpty
 			<div id="dynamicOccupationField"></div>
 
 			<div class="form-row">
-				<label style="color: #94a3b8; font-size: 14px; margin-bottom: 5px;">જન્મ તારીખ:</label>
-				<input type="date" id="fBirth" style="color-scheme: dark;">
-			</div>
+    <label style="color: #94a3b8; font-size: 14px; margin-bottom: 5px;">જન્મ તારીખ:</label>
+    <input type="text" id="fBirth" placeholder="DD-MM-YYYY" maxlength="10" inputmode="numeric"
+        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+</div>
 
 			<div class="form-row">
 				<label style="color: #94a3b8; font-size: 14px; margin-bottom: 5px;">જાતિ:</label>
@@ -3581,6 +3618,7 @@ updateBtn.innerHTML = isEmpty
 					<option value="કાકા">કાકા</option>
 					<option value="કાકી">કાકી</option>
 					<option value="ભાઈ">ભાઈ</option>
+					<option value="ભાભી">ભાભી</option>
 					<option value="બહેન">બહેન</option>
 					<option value="દીકરો">દીકરો</option>
 					<option value="દીકરી">દીકરી</option>
@@ -3637,7 +3675,20 @@ updateBtn.innerHTML = isEmpty
 		  secondNameInput.value = secondNameInput.value.toUpperCase();
 		});
 	  }
-	}, 300);
+	   const birthField = document.getElementById("fBirth");
+    if (birthField) {
+        birthField.addEventListener("input", function() {
+            let raw = this.value.replace(/[^\d]/g, "").slice(0, 8);
+            let formatted = raw;
+            if (raw.length > 4) {
+                formatted = raw.slice(0, 2) + "-" + raw.slice(2, 4) + "-" + raw.slice(4);
+            } else if (raw.length > 2) {
+                formatted = raw.slice(0, 2) + "-" + raw.slice(2);
+            }
+            this.value = formatted;
+        });
+    }
+}, 300);
 			document.getElementById("commonModal").style.display = "flex";
 		  }
 
