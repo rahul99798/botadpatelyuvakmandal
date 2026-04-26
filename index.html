@@ -3716,14 +3716,29 @@ updateBtn.innerHTML = isEmpty
 					</select>
 				</div>
 			`;
-			} else if (val === "વ્યવસાય" || val === "નોકરી") {
-			  container.innerHTML = `
-				<div class="form-row">
-					<label style="color: #94a3b8; font-size: 14px; margin-bottom: 5px;">${val}ની વિગત:</label>
-					<input type="text" id="fOccupationDetail" placeholder="${val}નું નામ અથવા પ્રકાર લખો">
-				</div>
-			`;
-			}
+			} 
+			else if (val === "નોકરી" || val === "વ્યવસાય" || val === "ગૃહિણી" || val === "ખેતીવાડી" || val === "અન્ય") {
+  let textBoxHtml = "";
+  if (val === "નોકરી" || val === "વ્યવસાય" || val === "ગૃહિણી") {
+    textBoxHtml = `
+      <div class="form-row">
+          <label style="color: #94a3b8; font-size: 14px; margin-bottom: 5px;">${val}ની વિગત:</label>
+          <input type="text" id="fOccupationDetail" placeholder="શું કરો છો? લખો">
+      </div>
+    `;
+  }
+
+  container.innerHTML = textBoxHtml + `
+    <div class="form-row">
+        <label style="color: #94a3b8; font-size: 14px; margin-bottom: 5px;">છેલ્લો અભ્યાસ:</label>
+        <select id="fEducationDetail">
+            <option value="">પસંદ કરો</option>
+            ${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((n) => `<option value="ધોરણ ${n}">ધોરણ ${n}</option>`).join("")}
+            <option value="College/Higher Education">કોલેજ / ઉચ્ચ અભ્યાસ</option>
+        </select>
+    </div>
+  `;
+}
 
 			// નવા એલિમેન્ટ્સને થીમ સ્ટાઇલ આપવી
 			const newFields = container.querySelectorAll("input, select");
@@ -3779,15 +3794,24 @@ updateBtn.innerHTML = isEmpty
 				alert("મહેરબાની કરીને ધોરણ / અભ્યાસ પસંદ કરો. ❌");
 				return;
 			  }
-			} else if (fBusiness === "વ્યવસાય" || fBusiness === "નોકરી") {
-			  fExtraDetail = document
-				.getElementById("fOccupationDetail")
-				.value.trim();
-			  if (!fExtraDetail) {
-				alert(`મહેરબાની કરીને ${fBusiness}ની વિગત લખો. ❌`);
-				return;
-			  }
-			}
+			} else if (fBusiness === "નોકરી" || fBusiness === "વ્યવસાય" || fBusiness === "ગૃહિણી" || fBusiness === "ખેતીવાડી" || fBusiness === "અન્ય") {
+  const educationVal = document.getElementById("fEducationDetail").value;
+  if (!educationVal) {
+    alert("મહેરબાની કરીને છેલ્લો અભ્યાસ પસંદ કરો. ❌");
+    return;
+  }
+
+  if (fBusiness === "નોકરી" || fBusiness === "વ્યવસાય" || fBusiness === "ગૃહિણી") {
+    const occVal = document.getElementById("fOccupationDetail").value.trim();
+    if (!occVal) {
+      alert(`મહેરબાની કરીને ${fBusiness}ની વિગત લખો. ❌`);
+      return;
+    }
+    fExtraDetail = occVal + " | છેલ્લો અભ્યાસ: " + educationVal;
+  } else {
+    fExtraDetail = educationVal;
+  }
+}
 
 			const familyData = {
 			  mainMemberMobile: mobile,
