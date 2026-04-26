@@ -1443,6 +1443,41 @@ body.is-admin button.admin-only {
 
 			
 		  });
+		  // 🔥 Custom Year Function (Donors dropdown માટે)
+function getCustomYear(date = new Date()) {
+  const d = new Date(date);
+  const year = d.getFullYear();
+
+  const cutoff = new Date(year, 5, 15); // 15 June
+
+  if (d >= cutoff) {
+    return year + 1;
+  } else {
+    return year;
+  }
+}
+
+// 🔥 Dropdown Generate
+function generateYearDropdown() {
+  const currentYear = getCustomYear();
+  const select = document.getElementById("yearDropdown");
+
+  if (!select) return;
+
+  select.innerHTML = "";
+
+  for (let i = currentYear - 5; i <= currentYear + 2; i++) {
+    const option = document.createElement("option");
+    option.value = i;
+    option.textContent = i;
+
+    if (i === currentYear) {
+      option.selected = true;
+    }
+
+    select.appendChild(option);
+  }
+}
 		  const contentData = {
 			news: {
 			  title: "સમાચાર",
@@ -1631,18 +1666,39 @@ body.is-admin button.admin-only {
 		}
 	}
 			else if (type === "events") {
-			  contentArea.innerHTML = `
-				<div class="news-header-card">
-					<div class="news-title"><i class="fas fa-calendar-alt"></i> ઇવેન્ટ્સ</div>
-				</div>
-				<div class="tabs-container">
-					<button class="tab-btn active" onclick="switchTab('events', 'snehmilan')">સ્નેહમિલન</button>
-					<button class="tab-btn" onclick="switchTab('events', 'bgpl')">બીજીપીએલ</button>
-				</div>
-				<div id="listContainer" class="empty-news-box">લોડ થઈ રહ્યું છે...</div>
-			`;
-			  loadEvents("snehmilan");
-			}
+  contentArea.innerHTML = `
+    <div class="news-header-card">
+        <div class="news-title"><i class="fas fa-calendar-alt"></i> ઇવેન્ટ્સ</div>
+    </div>
+    <div class="tabs-container">
+        <button class="tab-btn active" onclick="switchTab('events', 'snehmilan')">સ્નેહમિલન</button>
+        <button class="tab-btn" onclick="switchTab('events', 'bgpl')">બીજીપીએલ</button>
+    </div>
+    <div id="listContainer" class="empty-news-box">લોડ થઈ રહ્યું છે...</div>
+`;
+  loadEvents("snehmilan");
+  return;
+}
+else if (type === "committee") {
+  contentArea.innerHTML = `
+    <div class="news-header-card">
+        <div class="news-title"><i class="fas fa-users"></i> કમિટી</div>
+    </div>
+    <div class="tabs-container" style="margin: 15px 0 20px 0;">
+        <button class="tab-btn active" id="tab-karobari" onclick="switchCommitteeTab('karobari')">
+            કારોબારી કમિટી
+        </button>
+        <button class="tab-btn" id="tab-yuva" onclick="switchCommitteeTab('yuva')">
+            યુવા સંગઠન
+        </button>
+    </div>
+    <div id="listContainer" style="background:transparent; border:none; padding:10px 0;">
+        લોડ થઈ રહ્યું છે...
+    </div>
+  `;
+  loadCommittee("karobari");
+  return;
+}
 			// --- showContent ફંક્શનમાં આ ભાગ શોધો અને return ઉમેરો ---
 			else if (type === "gallery") {
 		contentArea.innerHTML = `
@@ -2850,13 +2906,37 @@ setTimeout(() => {
 				return;
 			  }
 
-			  // વર્ષ મુજબ ગ્રુપિંગ
-			  const groupedData = responseData.data.reduce((acc, item) => {
-				let y = item.year;
-				if (!acc[y]) acc[y] = [];
-				acc[y].push(item);
-				return acc;
-			  }, {});
+		
+			  // 🎯 15 જૂન થી 14 જૂન વાળું academic year grouping
+const groupedData = responseData.data.reduce((acc, item) => {
+    let y;
+    
+    // જો item માં date field હોય તો તેના આધારે academic year કાઢો
+    if (item.date) {
+        const d = new Date(item.date);
+        if (!isNaN(d.getTime())) {
+            const month = d.getMonth() + 1;  // 1-12
+            const day = d.getDate();
+            const year = d.getFullYear();
+            
+            // 15 જૂન કે પછી → એ જ વર્ષ
+            // 14 જૂન કે પહેલાં → પાછલું વર્ષ
+            if (month > 6 || (month === 6 && day >= 15)) {
+                y = year;
+            } else {
+                y = year - 1;
+            }
+        } else {
+            y = item.year;  // date parse ન થાય તો fallback
+        }
+    } else {
+        y = item.year;  // date જ ન હોય તો fallback
+    }
+    
+    if (!acc[y]) acc[y] = [];
+    acc[y].push(item);
+    return acc;
+}, {});
 
 			  container.innerHTML = "";
 			  container.style.display = "block";
@@ -2864,6 +2944,13 @@ setTimeout(() => {
 			  container.style.border = "none";
 
 			  const sortedYears = Object.keys(groupedData).sort((a, b) => b - a);
+			  const today = new Date();
+const todayMonth = today.getMonth() + 1;
+const todayDay = today.getDate();
+const todayYear = today.getFullYear();
+const currentAcademicYear = (todayMonth > 6 || (todayMonth === 6 && todayDay >= 15)) 
+    ? todayYear 
+    : todayYear - 1;
 
 			  sortedYears.forEach((year, idx) => {
 				const yearId = `year-group-${idx}`;
@@ -2888,10 +2975,10 @@ setTimeout(() => {
 								<i class="far fa-images" style="font-size: 16px; color: #f8fafc;"></i>
 								<span style="font-size: 15px; font-weight: bold;">વર્ષ - ${year}</span>
 							</div>
-							<i class="fas fa-chevron-down" id="icon-${yearId}" style="font-size: 12px; transition: 0.3s ease;"></i>
+							<i class="fas fa-chevron-down" id="icon-${yearId}" style="font-size: 12px; transition: 0.3s ease; transform: ${parseInt(year) === currentAcademicYear ? 'rotate(180deg)' : 'rotate(0deg)'};"></i>
 						</div>
 						
-						<div id="${yearId}" style="display: none; padding: 10px 0; flex-direction: column; gap: 10px; width: 100%;">
+						<div id="${yearId}" style="display: ${parseInt(year) === currentAcademicYear ? 'flex' : 'none'}; padding: 10px 0; flex-direction: column; gap: 10px; width: 100%;">
 				`;
 
 				groupedData[year].forEach((item) => {
@@ -5740,6 +5827,125 @@ async function reviewBusiness(rowIndex, newStatus) {
   } catch(e) {
     showLoader(false);
     alert("સર્વર સાથે સંપર્ક થયો નથી.");
+  }
+}
+async function loadDonors() {
+  showLoader(true);
+  const container = document.getElementById("listContainer");
+
+  try {
+    const res = await fetch(`${SCRIPT_URL}?type=donors`);
+    const responseData = await res.json();
+
+    if (responseData.status !== "success" || !responseData.data || responseData.data.length === 0) {
+      container.innerHTML = "કોઈ દાતાશ્રીઓની માહિતી ઉપલબ્ધ નથી";
+      container.style.display = "block";
+      return;
+    }
+
+    // --- 📅 15 JUNE ACADEMIC YEAR LOGIC START ---
+    const today = new Date();
+    const currentMonth = today.getMonth() + 1;
+    const currentDate = today.getDate();
+    const currentFullYear = today.getFullYear();
+
+    // જો ૧૫ જૂન કે પછીની તારીખ હોય તો "૨૦૨૫-૨૦૨૬" અથવા "૨૦૨૬" ગણાય
+    const currentAcademicYear = (currentMonth > 6 || (currentMonth === 6 && currentDate >= 15)) 
+        ? currentFullYear 
+        : currentFullYear - 1;
+    // --- ACADEMIC YEAR LOGIC END ---
+
+    const groupedDonors = responseData.data.reduce((acc, item) => {
+      let y = item.year;
+      if (!acc[y]) acc[y] = [];
+      acc[y].push(item);
+      return acc;
+    }, {});
+
+    container.innerHTML = "";
+    container.style.display = "block";
+    container.style.background = "transparent";
+    container.style.border = "none";
+
+    const sortedYears = Object.keys(groupedDonors).sort((a, b) => b - a);
+
+    sortedYears.forEach((year, idx) => {
+      const yearId = `donor-year-${idx}`;
+      
+      // જે વર્ષ currentAcademicYear સાથે મેચ થાય તેને ઓપન રાખવું
+      const isOpen = parseInt(year) === currentAcademicYear;
+
+      let yearHtml = `
+      <div style="margin-bottom: 20px; width: 340px;"> 
+        <div onclick="toggleGalleryGroup('${yearId}')" style="
+          background: rgba(30, 41, 59, 0.5); 
+          padding: 14px 20px; 
+          border-radius: 14px; 
+          display: flex; 
+          justify-content: space-between; 
+          align-items: center; 
+          cursor: pointer; 
+          border: 1px solid rgba(255, 255, 255, 0.1); 
+          color: white; 
+          width: 100%; 
+          box-sizing: border-box; 
+          margin-bottom: 12px;
+        ">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <i class="fas fa-calendar-alt" style="font-size: 18px; color: #f8fafc;"></i>
+            <span style="font-size: 16px; font-weight: bold;">${year}</span>
+          </div>
+          <i class="fas fa-chevron-down" id="icon-${yearId}" style="font-size: 14px; transition: 0.3s ease; transform: ${isOpen ? 'rotate(180deg)' : 'rotate(0deg)'};"></i>
+        </div>
+        
+        <div id="${yearId}" style="
+          display: ${isOpen ? 'grid' : 'none'}; 
+          grid-template-columns: repeat(2, 1fr); 
+          gap: 12px; 
+          width: 100%;
+        ">
+      `;
+
+      groupedDonors[year].forEach((donor) => {
+        let imgUrl = donor.photo || "";
+        if (imgUrl.includes("drive.google.com")) {
+          let fileId = imgUrl.match(/[-\w]{25,}/);
+          if (fileId) imgUrl = `https://lh3.googleusercontent.com/u/0/d/$${fileId[0]}`;
+        }
+
+        yearHtml += `
+          <div style="
+            background: rgba(15, 23, 42, 0.7); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            border-radius: 18px; 
+            padding: 12px; 
+            text-align: center; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center;
+            box-sizing: border-box;
+          ">
+            <div style="color: #60a5fa; font-weight: bold; font-size: 11px; margin-bottom: 8px; height: 28px; overflow: hidden; line-height: 1.2;">
+              ${donor.donate_type}
+            </div>
+            <div style="width: 80px; height: 80px; background: white; border-radius: 50%; margin-bottom: 10px; overflow: hidden; border: 2px solid rgba(255,255,255,0.1);">
+              <img src="${imgUrl}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2910/2910791.png'; this.style.width='30px'; opacity:0.3;" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+            <div style="color: white; font-size: 12px; font-weight: 600; width: 100%; white-space: pre-wrap; word-wrap: break-word; line-height: 1.4; margin-bottom: 5px; text-align: center;">${donor.name.trim()}</div>
+            <div style="color: #94a3b8; font-size: 10px; margin-bottom: 8px;">${donor.mobile}</div>
+            <div style="color: #3b82f6; font-size: 15px; font-weight: bold; margin-top: auto;">₹ ${donor.money}</div>
+          </div>
+        `;
+      });
+
+      yearHtml += `</div></div>`;
+      container.innerHTML += yearHtml;
+    });
+
+  } catch (err) {
+    console.error(err);
+  } finally {
+    showLoader(false);
   }
 }
 		</script>
