@@ -1871,28 +1871,18 @@ function handleFamilyPhotoUpload_(data) {
     }
 
     // 🎯 STEP 2: પરિવારના સભ્યનો block શોધો
-    var familyStartCol = 22;   // 1-based: column V
-    var lastCol = sh.getLastColumn();
-    var photoCol = null;
-    var familyFirstName = '';
-
-    while (familyStartCol <= lastCol) {
-      var blockName = String(sh.getRange(rowIndex, familyStartCol).getValue() || '').trim();
-      if (!blockName) break;
-
-      var blockMobile = String(sh.getRange(rowIndex, familyStartCol + 3).getValue() || '').replace(/\D/g, '');
-
-      if (blockMobile === cleanFamilyMobile) {
-        photoCol = familyStartCol + 10;
-        familyFirstName = blockName;
-        break;
-      }
-
-      familyStartCol += 12;
+// 🎯 STEP 2: પરિવારના સભ્યનો block — index આધારે સીધી ગણતરી
+    var familyIndex = parseInt(data.familyIndex);
+    if (isNaN(familyIndex) || familyIndex < 0) {
+      return memberPhotoJsonOut_({ status: 'error', message: 'સભ્યનો ક્રમ મળ્યો નથી.' });
     }
 
-    if (!photoCol) {
-      return memberPhotoJsonOut_({ status: 'error', message: 'આ પરિવારના સભ્ય મળ્યા નથી.' });
+    var familyStartCol = 22 + (familyIndex * 12);   // 1-based
+    var photoCol = familyStartCol + 10;
+    var familyFirstName = String(sh.getRange(rowIndex, familyStartCol).getValue() || '').trim();
+
+    if (!familyFirstName) {
+      return memberPhotoJsonOut_({ status: 'error', message: 'આ ક્રમ પર પરિવાર સભ્ય નથી.' });
     }
 
     // 🎯 મુખ્ય સભ્ય નંબર (MemberNo) મેળવો — column D
