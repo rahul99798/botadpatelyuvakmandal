@@ -1340,7 +1340,7 @@ body.is-admin button.admin-only {
 <div id="overlay" onclick="toggleMobileSidebar()"></div>
 		<script>
 		  const SCRIPT_URL =
-			"https://script.google.com/macros/s/AKfycbydenAZoAmL7n37hG0mVp4HVTKRCZUyywnqpOKqzhSB3Lh5xtT85CQOenDm1UtY4b01/exec";
+			"https://script.google.com/macros/s/AKfycbxkmf_AkVIPK5hwMlVvuOVDP05U9jMI2YvCWF6QmBSuTaXRK9fV4VLW_W7NoEUEFd7X/exec";
 			
 
 		  async function login() {
@@ -3363,7 +3363,7 @@ updateBtn.innerHTML = isEmpty
 					if (data.familyMembers && data.familyMembers.length > 0) {
 					  let allCardsHtml = "";
 
-					  data.familyMembers.forEach((member) => {
+					  data.familyMembers.forEach((member, familyIndex) => {
 						// વ્યવસાય મુજબ નામ અને વિગત બદલવા
 						let occLabel = "વ્યવસાય";
 						let occValue = member.fBusiness;
@@ -3414,7 +3414,7 @@ updateBtn.innerHTML = isEmpty
              onerror="this.parentElement.innerHTML='<div style=\\'width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#64748b;\\'><i class=\\'fa-solid fa-user\\' style=\\'font-size:24px;\\'></i></div>';">
     </div>
 ` : `
-    <div onclick="openFamilyPhotoUpload('${member.fMobile}', '${(member.fName + ' ' + member.fSecondName + ' ' + member.fSurname).replace(/'/g, "\\'")}')" 
+		<div onclick="openFamilyPhotoUpload('${member.fMobile}', '${(member.fName + ' ' + member.fSecondName + ' ' + member.fSurname).replace(/'/g, "\\'")}', ${familyIndex})"
          style="
             width: 60px;
             height: 60px;
@@ -6117,16 +6117,17 @@ async function loadDonors() {
   }
 }
 // ==================== FAMILY MEMBER PHOTO UPLOAD ====================
-let _familyPhotoTarget = { mobile: '', name: '' };
+let _familyPhotoTarget = { mobile: '', name: '', index: -1 };
 
-function openFamilyPhotoUpload(fMobile, fName) {
-    if (!fMobile) {
-        alert("મોબાઈલ નંબર મળ્યો નથી.");
+function openFamilyPhotoUpload(fMobile, fName, fIndex) {
+    if (fIndex === undefined || fIndex === null || fIndex < 0) {
+        alert("સભ્યની વિગત મળી નથી.");
         return;
     }
 
-    _familyPhotoTarget.mobile = fMobile;
+    _familyPhotoTarget.mobile = fMobile || '';
     _familyPhotoTarget.name = fName || '';
+    _familyPhotoTarget.index = fIndex;
 
     document.getElementById("modalTitle").innerHTML = 
         `<i class="fa-solid fa-camera"></i> ફોટો ઉમેરો`;
@@ -6233,13 +6234,14 @@ async function submitFamilyPhoto() {
         });
 
         const payload = {
-            action: "familyPhotoUpload",
-            mainMemberMobile: mainMobile,
-            familyMobile: familyMobile,
-            base64: base64,
-            mimeType: file.type || "image/jpeg",
-            fileName: file.name || "family_photo.jpg"
-        };
+    action: "familyPhotoUpload",
+    mainMemberMobile: mainMobile,
+    familyMobile: familyMobile,
+    familyIndex: _familyPhotoTarget.index,
+    base64: base64,
+    mimeType: file.type || "image/jpeg",
+    fileName: file.name || "family_photo.jpg"
+};
 
         const res = await fetch(SCRIPT_URL, {
             method: "POST",
