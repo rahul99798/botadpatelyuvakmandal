@@ -2320,19 +2320,7 @@ return;
 				`;
 				// 🎯 Birth Date Auto-Format (DD-MM-YYYY)
 setTimeout(() => {
-    const birthField = document.getElementById("sBirth");
-    if (birthField) {
-        birthField.addEventListener("input", function() {
-            let raw = this.value.replace(/[^\d]/g, "").slice(0, 8);
-            let formatted = raw;
-            if (raw.length > 4) {
-                formatted = raw.slice(0, 2) + "-" + raw.slice(2, 4) + "-" + raw.slice(4);
-            } else if (raw.length > 2) {
-                formatted = raw.slice(0, 2) + "-" + raw.slice(2);
-            }
-            this.value = formatted;
-        });
-    }
+    setupBirthDateField("sBirth");
 }, 100);
 			 } else if (type === "business") {
   const userMemberNo = localStorage.getItem("userMemberNo") || "";
@@ -2574,6 +2562,87 @@ setTimeout(() => {
     loader.classList.remove("active");
     document.body.style.pointerEvents = "auto";
   }
+}
+// 🎯 Birth Date Validator (DD-MM-YYYY)
+// 🎯 Birth Date Validator (DD-MM-YYYY) — Calendar મુજબ days adjust
+function setupBirthDateField(fieldId) {
+    const field = document.getElementById(fieldId);
+    if (!field) return;
+
+    // 🎯 દરેક મહિના મુજબ max days return કરે (leap year ધ્યાનમાં લે)
+    function getMaxDays(mmNum, yyyyNum) {
+        if (!mmNum) return 31;
+        // 30 day months: April, June, September, November
+        if ([4, 6, 9, 11].includes(mmNum)) return 30;
+        // February
+        if (mmNum === 2) {
+            if (yyyyNum && yyyyNum >= 1910) {
+                const isLeap = (yyyyNum % 4 === 0 && yyyyNum % 100 !== 0) || (yyyyNum % 400 === 0);
+                return isLeap ? 29 : 28;
+            }
+            return 29;
+        }
+        // 31 day months: Jan, Mar, May, Jul, Aug, Oct, Dec
+        return 31;
+    }
+
+    field.addEventListener("input", function() {
+        let raw = this.value.replace(/[^\d]/g, "").slice(0, 8);
+        let dd = raw.slice(0, 2);
+        let mm = raw.slice(2, 4);
+        let yyyy = raw.slice(4, 8);
+
+        // 🎯 MM: 01 થી 12 (પહેલા month fix કરો જેથી DD ને ખબર પડે)
+        if (mm.length === 2) {
+            if (parseInt(mm) > 12) mm = "12";
+            if (mm === "00") mm = "01";
+        }
+
+        // 🎯 DD: month અને year મુજબ valid range
+        if (dd.length === 2) {
+            if (dd === "00") dd = "01";
+            const mmNum = mm.length === 2 ? parseInt(mm) : 0;
+            const yyyyNum = yyyy.length === 4 ? parseInt(yyyy) : 0;
+            const maxDay = getMaxDays(mmNum, yyyyNum);
+            if (parseInt(dd) > maxDay) dd = String(maxDay).padStart(2, "0");
+        }
+
+        let formatted = dd;
+        if (raw.length > 2) formatted += "-" + mm;
+        if (raw.length > 4) formatted += "-" + yyyy;
+        this.value = formatted;
+    });
+
+    // 🎯 Blur પર: વર્ષ + leap year final check
+    field.addEventListener("blur", function() {
+        const parts = this.value.split("-");
+        if (parts.length === 3 && parts[2].length === 4) {
+            let dd = parts[0];
+            let mm = parts[1];
+            let yyyy = parts[2];
+            const yNum = parseInt(yyyy);
+            const currentYear = new Date().getFullYear();
+
+            // વર્ષ check
+            if (yNum < 1910) {
+                alert("વર્ષ 1910 કે પછીનું જ લખો ❌");
+                yyyy = "1910";
+            } else if (yNum > currentYear) {
+                alert("ભવિષ્યનું વર્ષ ન લખી શકાય ❌");
+                yyyy = String(currentYear);
+            }
+
+            // 🎯 Leap year અનુસાર Feb 29 પણ check કરો
+            const mmNum = parseInt(mm);
+            const yyyyNum = parseInt(yyyy);
+            const maxDay = getMaxDays(mmNum, yyyyNum);
+            if (parseInt(dd) > maxDay) {
+                dd = String(maxDay).padStart(2, "0");
+            }
+
+            this.value = `${dd}-${mm}-${yyyy}`;
+        }
+    });
 }
 		  // તમારા લોગિન ફંક્શનમાં આ રીતે સેટ કરો
 		  async function login() {
@@ -3367,29 +3436,28 @@ updateBtn.innerHTML = isEmpty
 						// વ્યવસાય મુજબ નામ અને વિગત બદલવા
 						let occLabel = "વ્યવસાય";
 						let occValue = member.fBusiness;
+						let educationDetail = "";
 
 						if (member.fBusiness === "અભ્યાસ") {
 						  occLabel = "અભ્યાસ";
 						  occValue = member.fBusinessDetail
 							? `ધોરણ ${member.fBusinessDetail}`
 							: member.fBusiness;
-						} else if (member.fBusiness === "નોકરી") {
-						  occLabel = "નોકરી";
-						  occValue = member.fBusinessDetail
-							? member.fBusinessDetail
-							: member.fBusiness;
-						} else if (member.fBusiness === "વ્યવસાય") {
-						  occLabel = "વ્યવસાય";
-						  occValue = member.fBusinessDetail
-							? member.fBusinessDetail
-							: member.fBusiness;
+} else if (member.fBusiness === "નોકરી" || member.fBusiness === "વ્યવસાય" || member.fBusiness === "ગૃહિણી") {
+						  occLabel = member.fBusiness;
+						  if (member.fBusinessDetail && member.fBusinessDetail.includes("| છેલ્લો અભ્યાસ:")) {
+							const parts = member.fBusinessDetail.split("| છેલ્લો અભ્યાસ:");
+							occValue = parts[0].trim();
+							educationDetail = parts[1].trim();
+						  } else {
+							occValue = member.fBusinessDetail || member.fBusiness;
+						  }
 						} else {
 						  occLabel = "વ્યવસાય";
-						  occValue =
-							member.fBusiness +
-							(member.fBusinessDetail
-							  ? ` (${member.fBusinessDetail})`
-							  : "");
+						  occValue = member.fBusiness;
+						  if (member.fBusinessDetail) {
+							educationDetail = member.fBusinessDetail;
+						  }
 						}
 
 						allCardsHtml += `
@@ -3447,7 +3515,8 @@ updateBtn.innerHTML = isEmpty
         <div style="display: flex; flex-direction: column; gap: 12px; font-size: 13px; color: #cbd5e1;">
             <p style="margin: 0; display: flex; align-items: center; gap: 10px;"><b style="color:#94a3b8; width: 18px; text-align: center;"><i class="fa-solid fa-phone"></i></b> મોબાઈલ: <span style="color: #fff;">${member.fMobile}</span></p>
             
-            <p style="margin: 0; display: flex; align-items: center; gap: 10px;"><b style="color:#94a3b8; width: 18px; text-align: center;"><i class="fa-solid fa-briefcase"></i></b> ${occLabel}: <span style="color: #fff;">${occValue}</span></p>
+<p style="margin: 0; display: flex; align-items: center; gap: 10px;"><b style="color:#94a3b8; width: 18px; text-align: center;"><i class="fa-solid fa-briefcase"></i></b> ${occLabel}: <span style="color: #fff;">${occValue}</span></p>
+            ${educationDetail ? `<p style="margin: 0; display: flex; align-items: center; gap: 10px;"><b style="color:#94a3b8; width: 18px; text-align: center;"><i class="fa-solid fa-graduation-cap"></i></b> અભ્યાસ: <span style="color: #fff;">${educationDetail}</span></p>` : ''}
             
             <p style="margin: 0; display: flex; align-items: center; gap: 10px;"><b style="color:#94a3b8; width: 18px; text-align: center;"><i class="fa-solid fa-cake-candles"></i></b> જન્મ તારીખ: <span style="color: #fff;">${member.fBirth && member.fBirth.includes("NaN") ? "-" : member.fBirth}</span></p>
             <p style="margin: 0; display: flex; align-items: center; gap: 10px;"><b style="color:#94a3b8; width: 18px; text-align: center;"><i class="fa-solid fa-venus-mars"></i></b> જાતિ: <span style="color: #fff;">${member.fGender}</span></p>
@@ -3811,19 +3880,7 @@ updateBtn.innerHTML = isEmpty
 		  secondNameInput.value = secondNameInput.value.toUpperCase();
 		});
 	  }
-	   const birthField = document.getElementById("fBirth");
-    if (birthField) {
-        birthField.addEventListener("input", function() {
-            let raw = this.value.replace(/[^\d]/g, "").slice(0, 8);
-            let formatted = raw;
-            if (raw.length > 4) {
-                formatted = raw.slice(0, 2) + "-" + raw.slice(2, 4) + "-" + raw.slice(4);
-            } else if (raw.length > 2) {
-                formatted = raw.slice(0, 2) + "-" + raw.slice(2);
-            }
-            this.value = formatted;
-        });
-    }
+setupBirthDateField("fBirth");
 }, 300);
 			document.getElementById("commonModal").style.display = "flex";
 		  }
