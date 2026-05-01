@@ -378,6 +378,16 @@ if (data.action === 'familyPhotoUpload') {
   return handleFamilyPhotoUpload_(data);
 }
 
+// ================= UPDATE FAMILY MEMBER =================
+if (data.action === 'updateFamilyMember') {
+  return handleFamilyUpdate_(data);
+}
+
+// ================= DELETE FAMILY MEMBER =================
+if (data.action === 'deleteFamilyMember') {
+  return handleFamilyDelete_(data);
+}
+
     // ================= RESULT SAVE =================
   if (data.action === 'saveResult') {
     return handleResultSave_(data);
@@ -1954,5 +1964,142 @@ function handleFamilyPhotoUpload_(data) {
   } catch (err) {
     Logger.log('handleFamilyPhotoUpload_ Error: ' + err);
     return memberPhotoJsonOut_({ status: 'error', message: 'સર્વર ભૂલ: ' + String(err) });
+  }
+}
+// ==================== FAMILY MEMBER UPDATE ====================
+function handleFamilyUpdate_(data) {
+  try {
+    var mainMobile = String(data.mainMemberMobile || '').trim();
+    var familyIndex = parseInt(data.familyIndex);
+
+    if (!mainMobile || isNaN(familyIndex) || familyIndex < 0) {
+      return memberPhotoJsonOut_({ status: 'error', message: 'વિગતો અધૂરી છે.' });
+    }
+
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName(MEMBER_SHEET_NAME);
+    if (!sheet) {
+      return memberPhotoJsonOut_({ status: 'error', message: 'Sabhy Details sheet મળી નથી.' });
+    }
+
+    var values = sheet.getDataRange().getValues();
+    var rowIndex = -1;
+    var cleanMain = mainMobile.replace(/\D/g, '');
+
+    for (var i = 1; i < values.length; i++) {
+      var rowMobile = String(values[i][0] || '').replace(/\D/g, '');
+      if (rowMobile === cleanMain) {
+        rowIndex = i + 1;
+        break;
+      }
+    }
+
+    if (rowIndex === -1) {
+      return memberPhotoJsonOut_({ status: 'error', message: 'મુખ્ય સભ્ય મળ્યા નથી.' });
+    }
+
+    var startCol = 22 + (familyIndex * 12);
+
+    // ચેક કરો કે આ index પર ખરેખર સભ્ય છે કે નહીં
+    var existingName = String(sheet.getRange(rowIndex, startCol).getValue() || '').trim();
+    if (!existingName) {
+      return memberPhotoJsonOut_({ status: 'error', message: 'આ ક્રમ પર સભ્ય નથી.' });
+    }
+
+    // 🎯 Photo column (startCol + 10) ને છોડીને બાકી બધું update કરો
+    sheet.getRange(rowIndex, startCol).setValue(String(data.name || '').toUpperCase());
+    sheet.getRange(rowIndex, startCol + 1).setValue(String(data.secondName || '').toUpperCase());
+    sheet.getRange(rowIndex, startCol + 2).setValue(data.surname || '');
+    sheet.getRange(rowIndex, startCol + 3).setValue(data.mobile || '');
+    sheet.getRange(rowIndex, startCol + 4).setValue(data.occupation || '');
+    sheet.getRange(rowIndex, startCol + 5).setValue(data.occupationDetail || '');
+    sheet.getRange(rowIndex, startCol + 6).setValue(data.birthdate || '');
+    sheet.getRange(rowIndex, startCol + 7).setValue(data.gender || '');
+    sheet.getRange(rowIndex, startCol + 8).setValue(data.blood || '');
+    sheet.getRange(rowIndex, startCol + 9).setValue(data.relation || '');
+    // photo (startCol + 10) ને touch ના કરો — જૂનો ફોટો જળવાઈ રહેશે
+
+    SpreadsheetApp.flush();
+
+    return memberPhotoJsonOut_({
+      status: 'success',
+      message: 'સભ્યની વિગત અપડેટ થઈ ✅'
+    });
+  } catch (err) {
+    Logger.log('handleFamilyUpdate_ Error: ' + err);
+    return memberPhotoJsonOut_({ status: 'error', message: 'સર્વર ભૂલ: ' + err });
+  }
+}
+
+// ==================== FAMILY MEMBER DELETE ====================
+function handleFamilyDelete_(data) {
+  try {
+    var mainMobile = String(data.mainMemberMobile || '').trim();
+    var familyIndex = parseInt(data.familyIndex);
+
+    if (!mainMobile || isNaN(familyIndex) || familyIndex < 0) {
+      return memberPhotoJsonOut_({ status: 'error', message: 'વિગતો અધૂરી છે.' });
+    }
+
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName(MEMBER_SHEET_NAME);
+    if (!sheet) {
+      return memberPhotoJsonOut_({ status: 'error', message: 'Sabhy Details sheet મળી નથી.' });
+    }
+
+    var values = sheet.getDataRange().getValues();
+    var rowIndex = -1;
+    var cleanMain = mainMobile.replace(/\D/g, '');
+
+    for (var i = 1; i < values.length; i++) {
+      var rowMobile = String(values[i][0] || '').replace(/\D/g, '');
+      if (rowMobile === cleanMain) {
+        rowIndex = i + 1;
+        break;
+      }
+    }
+
+    if (rowIndex === -1) {
+      return memberPhotoJsonOut_({ status: 'error', message: 'મુખ્ય સભ્ય મળ્યા નથી.' });
+    }
+
+    var lastCol = sheet.getLastColumn();
+
+    // કુલ કેટલા family members છે તે શોધો
+    var maxFamilies = 0;
+    for (var f = 0; f < 30; f++) {
+      var checkCol = 22 + (f * 12);
+      if (checkCol > lastCol) break;
+      var val = String(sheet.getRange(rowIndex, checkCol).getValue() || '').trim();
+      if (val) maxFamilies = f + 1;
+      else break; // ખાલી મળતા જ break (gap allow નથી)
+    }
+
+    if (familyIndex >= maxFamilies) {
+      return memberPhotoJsonOut_({ status: 'error', message: 'સભ્ય મળ્યો નથી.' });
+    }
+
+    // 🎯 deleted index પછીના બધા members ને એક position આગળ shift કરો
+    for (var f = familyIndex; f < maxFamilies - 1; f++) {
+      var currentStart = 22 + (f * 12);
+      var nextStart = 22 + ((f + 1) * 12);
+
+      var nextValues = sheet.getRange(rowIndex, nextStart, 1, 12).getValues()[0];
+      sheet.getRange(rowIndex, currentStart, 1, 12).setValues([nextValues]);
+    }
+
+    // છેલ્લો block clear કરો
+    var lastFamilyStart = 22 + ((maxFamilies - 1) * 12);
+    sheet.getRange(rowIndex, lastFamilyStart, 1, 12).clearContent();
+
+    SpreadsheetApp.flush();
+
+    return memberPhotoJsonOut_({
+      status: 'success',
+      message: 'સભ્ય દૂર કરવામાં આવ્યો ✅'
+    });
+  } catch (err) {
+    Logger.log('handleFamilyDelete_ Error: ' + err);
+    return memberPhotoJsonOut_({ status: 'error', message: 'સર્વર ભૂલ: ' + err });
   }
 }
