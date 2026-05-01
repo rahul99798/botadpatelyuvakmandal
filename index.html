@@ -1340,7 +1340,7 @@ body.is-admin button.admin-only {
 <div id="overlay" onclick="toggleMobileSidebar()"></div>
 		<script>
 		  const SCRIPT_URL =
-			"https://script.google.com/macros/s/AKfycbxkmf_AkVIPK5hwMlVvuOVDP05U9jMI2YvCWF6QmBSuTaXRK9fV4VLW_W7NoEUEFd7X/exec";
+			"https://script.google.com/macros/s/AKfycbwNN6SztdiiJnu8UyhS_tu5y4CU4ZPVylf-Gq-cyN55935Gq2q-jmfZMVYQJZAlzMuI/exec";
 			
 
 		  async function login() {
@@ -3303,6 +3303,7 @@ const currentAcademicYear = (todayMonth > 6 || (todayMonth === 6 && todayDay >= 
 			}
 		  }
 		  async function loadMemberData(overrideMemberNo) {
+    window._isViewingOtherMember = !!overrideMemberNo;
     const mobile = localStorage.getItem("userMobile");
     if (!mobile && !overrideMemberNo) return;
 
@@ -3429,10 +3430,11 @@ updateBtn.innerHTML = isEmpty
 					}
 
 					// 🚀 જો પરિવારના સભ્યોનું લિસ્ટ (Array) હોય તો લૂપ ચલાવો
-					if (data.familyMembers && data.familyMembers.length > 0) {
-					  let allCardsHtml = "";
+if (data.familyMembers && data.familyMembers.length > 0) {
+    window._familyMembersData = data.familyMembers;
+    let allCardsHtml = "";
 
-					  data.familyMembers.forEach((member, familyIndex) => {
+    data.familyMembers.forEach((member, familyIndex) => {
 						// વ્યવસાય મુજબ નામ અને વિગત બદલવા
 						let occLabel = "વ્યવસાય";
 						let occValue = member.fBusiness;
@@ -3510,6 +3512,24 @@ updateBtn.innerHTML = isEmpty
             <h3 style="color: #60a5fa; margin: 0; font-size: 16px; font-weight: bold; flex: 1;">
                 <i class="fa-solid fa-user-check"></i> ${member.fName} ${member.fSecondName} ${member.fSurname}
             </h3>
+			 ${!window._isViewingOtherMember ? `
+        <div style="display: flex; gap: 6px; flex-shrink: 0;">
+            <button onclick="openEditFamilyForm(${familyIndex})" 
+                style="background: rgba(59,130,246,0.15); border: 1px solid rgba(59,130,246,0.4); color: #60a5fa; width: 34px; height: 34px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;"
+                onmouseover="this.style.background='rgba(59,130,246,0.3)'" 
+                onmouseout="this.style.background='rgba(59,130,246,0.15)'"
+                title="વિગત બદલો">
+                <i class="fa-solid fa-pen-to-square" style="font-size: 13px;"></i>
+            </button>
+            <button onclick="deleteFamilyMember(${familyIndex})" 
+                style="background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); color: #ef4444; width: 34px; height: 34px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;"
+                onmouseover="this.style.background='rgba(239,68,68,0.3)'" 
+                onmouseout="this.style.background='rgba(239,68,68,0.15)'"
+                title="સભ્ય દૂર કરો">
+                <i class="fa-solid fa-trash" style="font-size: 13px;"></i>
+            </button>
+        </div>
+    ` : ''}
         </div>
         
         <div style="display: flex; flex-direction: column; gap: 12px; font-size: 13px; color: #cbd5e1;">
@@ -6314,6 +6334,211 @@ async function submitFamilyPhoto() {
             loadMemberData();
         } else {
             alert("ભૂલ: " + (result.message || "ફોટો સેવ થયો નથી"));
+        }
+    } catch (err) {
+        showLoader(false);
+        console.error(err);
+        alert("સર્વર સાથે સંપર્ક થયો નથી.");
+    }
+}
+// ==================== EDIT FAMILY MEMBER ====================
+function openEditFamilyForm(familyIndex) {
+    if (!window._familyMembersData || familyIndex >= window._familyMembersData.length) {
+        alert("સભ્યની વિગત મળી નથી.");
+        return;
+    }
+
+    const member = window._familyMembersData[familyIndex];
+
+    // પહેલા add form ખોલો (બધા inputs તૈયાર થઈ જશે)
+    openFamilyForm();
+
+    // Title બદલો
+    document.getElementById("modalTitle").innerHTML =
+        `<i class="fa-solid fa-user-pen"></i> સભ્યની વિગત બદલો`;
+
+    // 🎯 બધા values pre-fill કરો
+    document.getElementById("fName").value = member.fName || '';
+    document.getElementById("fSecondName").value = member.fSecondName || '';
+    document.getElementById("fMobile").value = member.fMobile || '';
+    document.getElementById("fBusiness").value = member.fBusiness || '';
+
+    // Occupation change trigger કરો જેથી extra fields દેખાય
+    handleOccupationChange(member.fBusiness || '');
+
+    // 🎯 Extra fields ભરો (occupation મુજબ)
+    const businessDetail = member.fBusinessDetail || '';
+    if (member.fBusiness === 'અભ્યાસ') {
+        const eduField = document.getElementById('fEducationDetail');
+        if (eduField) eduField.value = businessDetail;
+    } else if (['નોકરી', 'વ્યવસાય', 'ગૃહિણી'].includes(member.fBusiness)) {
+        if (businessDetail.includes('| છેલ્લો અભ્યાસ:')) {
+            const parts = businessDetail.split('| છેલ્લો અભ્યાસ:');
+            const occField = document.getElementById('fOccupationDetail');
+            const eduField = document.getElementById('fEducationDetail');
+            if (occField) occField.value = parts[0].trim();
+            if (eduField) eduField.value = parts[1].trim();
+        } else {
+            const occField = document.getElementById('fOccupationDetail');
+            if (occField) occField.value = businessDetail;
+        }
+    } else if (['ખેતીવાડી', 'અન્ય'].includes(member.fBusiness)) {
+        const eduField = document.getElementById('fEducationDetail');
+        if (eduField) eduField.value = businessDetail;
+    }
+
+    document.getElementById("fBirth").value =
+        member.fBirth && !member.fBirth.includes("NaN") ? member.fBirth : '';
+    document.getElementById("fGender").value = member.fGender || '';
+    document.getElementById("fBlood").value = member.fBlood || '';
+    document.getElementById("fRelation").value = member.fRelation || '';
+
+    // 🎯 Photo input row hide કરો (edit માં ફોટો બદલવો હોય તો card પર click થી થાય)
+    const photoInput = document.getElementById("fPhoto");
+    if (photoInput) {
+        const photoRow = photoInput.closest(".form-row");
+        if (photoRow) photoRow.style.display = "none";
+    }
+
+    // 🎯 Save button માં update handler લગાવો
+    const saveBtn = document.querySelector(".btn-save");
+    if (saveBtn) {
+        saveBtn.innerText = "અપડેટ કરો";
+        saveBtn.onclick = () => handleFamilyUpdate(familyIndex);
+    }
+}
+
+// ==================== HANDLE FAMILY UPDATE ====================
+async function handleFamilyUpdate(familyIndex) {
+    const mobile = localStorage.getItem("userMobile");
+    if (!mobile) {
+        alert("તમે લોગિન નથી.");
+        return;
+    }
+
+    const fName = document.getElementById("fName").value.trim();
+    const fSecondName = document.getElementById("fSecondName").value.trim();
+    const fSurname = document.getElementById("fSurname").value.trim();
+    const fMobile = document.getElementById("fMobile").value.trim();
+    const fBusiness = document.getElementById("fBusiness").value;
+    const fBirth = document.getElementById("fBirth").value;
+    const fGender = document.getElementById("fGender").value;
+    const fBlood = document.getElementById("fBlood").value;
+    const fRelation = document.getElementById("fRelation").value;
+
+    if (!fName || !fSecondName || !fSurname || !fMobile || !fBusiness || !fBirth || !fGender || !fRelation) {
+        alert("મહેરબાની કરીને બધી જ વિગતો ભરો. ❌");
+        return;
+    }
+
+    // Occupation detail handling (handleFamilySave જેવું જ)
+    let fExtraDetail = "";
+    if (fBusiness === "અભ્યાસ") {
+        fExtraDetail = document.getElementById("fEducationDetail").value;
+        if (!fExtraDetail) {
+            alert("મહેરબાની કરીને ધોરણ / અભ્યાસ પસંદ કરો. ❌");
+            return;
+        }
+    } else if (["નોકરી", "વ્યવસાય", "ગૃહિણી", "ખેતીવાડી", "અન્ય"].includes(fBusiness)) {
+        const educationVal = document.getElementById("fEducationDetail").value;
+        if (!educationVal) {
+            alert("મહેરબાની કરીને છેલ્લો અભ્યાસ પસંદ કરો. ❌");
+            return;
+        }
+        if (["નોકરી", "વ્યવસાય", "ગૃહિણી"].includes(fBusiness)) {
+            const occVal = document.getElementById("fOccupationDetail").value.trim();
+            if (!occVal) {
+                alert(`મહેરબાની કરીને ${fBusiness}ની વિગત લખો. ❌`);
+                return;
+            }
+            fExtraDetail = occVal + " | છેલ્લો અભ્યાસ: " + educationVal;
+        } else {
+            fExtraDetail = educationVal;
+        }
+    }
+
+    showLoader(true);
+
+    try {
+        const updateData = {
+            action: "updateFamilyMember",
+            mainMemberMobile: mobile,
+            familyIndex: familyIndex,
+            name: fName,
+            secondName: fSecondName,
+            surname: fSurname,
+            mobile: fMobile,
+            occupation: fBusiness,
+            occupationDetail: fExtraDetail,
+            birthdate: fBirth,
+            gender: fGender,
+            blood: fBlood,
+            relation: fRelation
+        };
+
+        const res = await fetch(SCRIPT_URL, {
+            method: "POST",
+            body: JSON.stringify(updateData)
+        });
+
+        const result = await res.json();
+        showLoader(false);
+
+        if (result.status === "success") {
+            alert("✅ સભ્યની વિગત અપડેટ થઈ ગઈ!");
+            closeModal();
+            if (typeof loadMemberData === "function") loadMemberData();
+        } else {
+            alert("ભૂલ: " + (result.message || "અપડેટ થઈ શક્યું નથી"));
+        }
+    } catch (err) {
+        showLoader(false);
+        console.error(err);
+        alert("સર્વર સાથે સંપર્ક થયો નથી.");
+    }
+}
+
+// ==================== DELETE FAMILY MEMBER ====================
+async function deleteFamilyMember(familyIndex) {
+    if (!window._familyMembersData || familyIndex >= window._familyMembersData.length) {
+        alert("સભ્યની વિગત મળી નથી.");
+        return;
+    }
+
+    const member = window._familyMembersData[familyIndex];
+    const memberName = `${member.fName || ''} ${member.fSecondName || ''} ${member.fSurname || ''}`.trim();
+
+    const confirmed = confirm(
+        `શું તમે ખરેખર "${memberName}" ને કાઢી નાખવા માંગો છો?\n\n⚠️ આ ક્રિયા પાછી લઈ શકાશે નહીં!`
+    );
+    if (!confirmed) return;
+
+    const mobile = localStorage.getItem("userMobile");
+    if (!mobile) {
+        alert("તમે લોગિન નથી.");
+        return;
+    }
+
+    showLoader(true);
+
+    try {
+        const res = await fetch(SCRIPT_URL, {
+            method: "POST",
+            body: JSON.stringify({
+                action: "deleteFamilyMember",
+                mainMemberMobile: mobile,
+                familyIndex: familyIndex
+            })
+        });
+
+        const result = await res.json();
+        showLoader(false);
+
+        if (result.status === "success") {
+            alert("✅ સભ્ય દૂર કરવામાં આવ્યો!");
+            if (typeof loadMemberData === "function") loadMemberData();
+        } else {
+            alert("ભૂલ: " + (result.message || "દૂર કરી શક્યું નથી"));
         }
     } catch (err) {
         showLoader(false);
