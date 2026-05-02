@@ -393,6 +393,13 @@ if (data.action === 'deleteFamilyMember') {
     return handleResultSave_(data);
   }
 
+if (data.action === 'updateResult') {
+  return handleUpdateResult_(data);
+}
+
+if (data.action === 'deleteResult') {
+  return handleDeleteResult_(data);
+}
 
   if (data.action === 'saveAchievement') {
     return handleAchievementSave_(data);
@@ -2101,5 +2108,183 @@ function handleFamilyDelete_(data) {
   } catch (err) {
     Logger.log('handleFamilyDelete_ Error: ' + err);
     return memberPhotoJsonOut_({ status: 'error', message: 'સર્વર ભૂલ: ' + err });
+  }
+}
+
+function handleUpdateResult_(data) {
+  try {
+    var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Result');
+    if (!sh) return memberPhotoJsonOut_({status:"error", message:"Result sheet not found"});
+
+    var lastRow = sh.getLastRow();
+    if (lastRow < 2) return memberPhotoJsonOut_({status:"error", message:"ડેટા નથી"});
+
+    var allData = sh.getRange(2, 1, lastRow - 1, 85).getValues();
+
+    var memberNo = String(data.memberNo || '').replace(/\D/g, '');
+    var mobile   = String(data.mobile   || '').replace(/\D/g, '');
+    var oldStudent = String(data.oldStudentName || '').trim().toLowerCase();
+    var oldYear    = String(data.oldYear        || '').trim();
+
+    // 🎯 handleResultSave_ સાથે EXACT match — 1-based column numbers
+    var blockStartCols = [6, 14, 22, 30, 38, 46, 54, 62, 70, 78];
+
+    var targetRow = null;
+    var targetCol = null;
+
+    for (var i = 0; i < allData.length; i++) {
+      var rMemberNo = String(allData[i][0] || '').replace(/\D/g, '');
+      var rMobile   = String(allData[i][1] || '').replace(/\D/g, '');
+      var rowMatch  = (memberNo && rMemberNo === memberNo) ||
+                      (mobile   && rMobile   === mobile);
+      if (!rowMatch) continue;
+
+      for (var b = 0; b < blockStartCols.length; b++) {
+        var startCol = blockStartCols[b];          // 1-based (F=6, N=14 ...)
+        var nameIdx  = startCol - 1;               // 0-based array index
+        var yearIdx  = startCol - 1 + 3;           // 0-based, year is +3 from name
+
+        var nm = String(allData[i][nameIdx] || '').trim().toLowerCase();
+        var yr = String(allData[i][yearIdx] || '').trim();
+
+        if (nm === oldStudent && yr === oldYear) {
+          targetRow = i + 2;      // sheet row (data starts at row 2)
+          targetCol = startCol;   // 1-based column (F=6 for first block)
+          break;
+        }
+      }
+      if (targetRow) break;
+    }
+
+    if (!targetRow) {
+      return memberPhotoJsonOut_({status:"error", message:"Result block not found"});
+    }
+
+    // ✅ ફક્ત Percentage update (targetCol + 2 = H for first block)
+    sh.getRange(targetRow, targetCol + 2).setValue(String(data.percentage || '').trim());
+
+    // ✅ Photo update — ફક્ત નવી file હોય તો (targetCol + 4 = J for first block)
+    if (data.files && data.files.length > 0) {
+      var folder = DriveApp.getFolderById(RESULT_PHOTO_FOLDER_ID);
+      var uploadedUrls = [];
+
+      for (var f = 0; f < data.files.length; f++) {
+        var fd = data.files[f];
+        if (!fd.base64) continue;
+        var ext  = (fd.mime && fd.mime.includes('pdf')) ? 'pdf' : 'jpg';
+        var blob = Utilities.newBlob(
+          Utilities.base64Decode(fd.base64),
+          fd.mime || 'image/jpeg',
+          fd.fileName || ('result_' + f + '.' + ext)
+        );
+        var driveFile = folder.createFile(blob);
+        try { driveFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); } catch(e){}
+        var fileId = driveFile.getId();
+        uploadedUrls.push(
+          ext === 'pdf'
+            ? 'https://drive.google.com/file/d/' + fileId + '/view'
+            : 'https://lh3.googleusercontent.com/d/' + fileId
+        );
+      }
+
+      if (uploadedUrls.length > 0) {
+        sh.getRange(targetRow, targetCol + 4).setValue(uploadedUrls.join('|'));
+      }
+    }
+
+    SpreadsheetApp.flush();
+    return memberPhotoJsonOut_({status:"success", message:"રિઝલ્ટ અપડેટ થયું ✅"});
+
+  } catch(e) {
+    Logger.log("handleUpdateResult_ Error: " + e);
+    return memberPhotoJsonOut_({status:"error", message:e.toString()});
+  }
+}
+
+function handleDeleteResult_(data) {
+  try {
+    var memberNo   = String(data.memberNo   || '').trim();
+    var mobile     = String(data.mobile     || '').trim();
+    var studentName = String(data.studentName || '').trim().toLowerCase();
+    var year       = String(data.year       || '').trim();
+
+    if (!studentName || !year) {
+      return memberPhotoJsonOut_({ status: 'error', message: 'વિદ્યાર્થી/વર્ષ ખૂટે છે.' });
+    }
+
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sh = ss.getSheetByName('Result');
+    if (!sh) return memberPhotoJsonOut_({ status: 'error', message: 'Result sheet નથી.' });
+
+    var lastRow = sh.getLastRow();
+    if (lastRow < 2) return memberPhotoJsonOut_({ status: 'error', message: 'ડેટા નથી.' });
+
+    var rowData = sh.getRange(2, 1, lastRow - 1, 83).getValues();
+    var cleanMobile   = mobile.replace(/\D/g, '');
+    var cleanMemberNo = memberNo.replace(/\D/g, '');
+    var blockStarts   = [5, 13, 21, 29, 37, 45, 53, 61, 69, 77]; // 0-based
+
+    var rowIndex       = null;
+    var targetBlockIdx = null;
+
+    for (var i = 0; i < rowData.length; i++) {
+      var rMemberNo = String(rowData[i][0] || '').replace(/\D/g, '');
+      var rMobile   = String(rowData[i][1] || '').replace(/\D/g, '');
+      var matched   = (cleanMobile && rMobile === cleanMobile) ||
+                      (cleanMemberNo && rMemberNo === cleanMemberNo);
+      if (!matched) continue;
+
+      rowIndex = i + 2; // 1-based
+      for (var b = 0; b < blockStarts.length; b++) {
+        var s  = blockStarts[b];
+        var nm = String(rowData[i][s]     || '').trim().toLowerCase();
+        var yr = String(rowData[i][s + 3] || '').trim();
+        if (nm === studentName && yr === year) { targetBlockIdx = b; break; }
+      }
+      break;
+    }
+
+    if (rowIndex === null || targetBlockIdx === null) {
+      return memberPhotoJsonOut_({ status: 'error', message: 'રિઝલ્ટ બ્લોક મળ્યો નહીં.' });
+    }
+
+    // --- Drive files ટ્રેશ ---
+    var photoVal = String(rowData[rowIndex - 2][blockStarts[targetBlockIdx] + 4] || '').trim();
+    if (photoVal) {
+      photoVal.split('|').filter(function(u){ return u.trim(); }).forEach(function(url) {
+        try {
+          var m = url.match(/\/d\/([^\/\?]+)/);
+          if (m && m[1]) DriveApp.getFileById(m[1]).setTrashed(true);
+        } catch(e) { Logger.log('Drive delete skipped: ' + e); }
+      });
+    }
+
+    // --- ભરેલા blocks ની list ---
+    var allBlocks = blockStarts.reduce(function(acc, s, b) {
+      if (String(rowData[rowIndex - 2][s] || '').trim()) acc.push(b);
+      return acc;
+    }, []);
+
+    // target સિવાયના blocks નો data વાંચો
+    var remaining = allBlocks
+      .filter(function(b){ return b !== targetBlockIdx; })
+      .map(function(b){ return sh.getRange(rowIndex, blockStarts[b] + 1, 1, 8).getValues()[0]; });
+
+    // ભૂંસો
+    allBlocks.forEach(function(b) {
+      sh.getRange(rowIndex, blockStarts[b] + 1, 1, 8).clearContent();
+    });
+
+    // ક્રમ જળવાઈ રહે તે રીતે પાછા લખો
+    remaining.forEach(function(blockData, ni) {
+      sh.getRange(rowIndex, blockStarts[ni] + 1, 1, 8).setValues([blockData]);
+    });
+
+    SpreadsheetApp.flush();
+    return memberPhotoJsonOut_({ status: 'success', message: 'રિઝલ્ટ ડિલીટ થઈ ગયું ✅' });
+
+  } catch (e) {
+    Logger.log('handleDeleteResult_ Error: ' + e);
+    return memberPhotoJsonOut_({ status: 'error', message: 'સર્વર ભૂલ: ' + e });
   }
 }
