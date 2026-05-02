@@ -5049,6 +5049,7 @@ setTimeout(() => {
             formatted = "100.00";
             rawDigits = "100";
         }
+		formatted = parseFloat(formatted).toFixed(2);
         return formatted;
     }
     
@@ -6604,7 +6605,7 @@ const saveBtn = document.querySelector("#commonModal .btn-save");
     // existing value માંથી raw digits કાઢો
     let rawDigits = String(newField.value || "").replace(/\D/g, "");
 
-    function formatRaw(raw) {
+ function formatRaw(raw) {
         if (raw === "") return "";
         raw = raw.replace(/^0+/, "") || "0";
         if (raw.length > 4) raw = raw.substring(0, 4);
@@ -6628,6 +6629,7 @@ const saveBtn = document.querySelector("#commonModal .btn-save");
             formatted = "100.00";
             rawDigits = "100";
         }
+		formatted = parseFloat(formatted).toFixed(2);
         return formatted;
     }
 
