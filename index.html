@@ -1340,7 +1340,7 @@ body.is-admin button.admin-only {
 <div id="overlay" onclick="toggleMobileSidebar()"></div>
 		<script>
 		  const SCRIPT_URL =
-			"https://script.google.com/macros/s/AKfycbzbS8WEaH0gprh2d7hK4R3WgTt8AcCqkwAzWoWjVenzcXh7o-UN49lAol01LOc12TdK/exec";
+			"https://script.google.com/macros/s/AKfycbxOHvWc-Pl7MvE-Izkx0_PGOmPxxEWw2VzkRTlhgf8iAZqs-T4MzxpwXu-v9UGODAla/exec";
 			
 
 		  async function login() {
@@ -5408,7 +5408,7 @@ async function loadSpecificMemberResults(memberNo) {
     window._loadedResults = response.data;
     window._loadedResultsMemberNo = memberNo;
 
-    response.data.forEach((item) => {
+    response.data.forEach((item, idx) => {
       container.innerHTML += `
         <div style="
           background: rgba(15, 23, 42, 0.6);
@@ -6891,6 +6891,7 @@ async function confirmDeleteAchievement(idx) {
     alert("સર્વર સાથે સંપર્ક થઈ શક્યો નથી. ❌");
   }
 }
+
 		</script>
 	  </body>
 	</html>
