@@ -1340,7 +1340,7 @@ body.is-admin button.admin-only {
 <div id="overlay" onclick="toggleMobileSidebar()"></div>
 		<script>
 		  const SCRIPT_URL =
-			"https://script.google.com/macros/s/AKfycbxOHvWc-Pl7MvE-Izkx0_PGOmPxxEWw2VzkRTlhgf8iAZqs-T4MzxpwXu-v9UGODAla/exec";
+			"https://script.google.com/macros/s/AKfycbwqfrafAhycKcAyluBnC-UrYC_wJxM8hF3w-s6rFVwlyfSfj_XTVko9C65MpOVtlIFj/exec";
 			
 
 		  async function login() {
@@ -1758,7 +1758,7 @@ ${userRole === "admin" ? `
   <div style="margin-left: auto; display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
     
     <!-- Update/Add button — Compact -->
-    <button id="updateBtn" onclick="openAddForm('members')" style="
+    <button id="updateBtn" style="
       display: none;
       background: rgba(59, 130, 246, 0.1);
       border: 1px solid var(--active-blue);
@@ -3320,16 +3320,23 @@ const res = await fetch(url);
 
 				// ૧. પ્રોફાઇલ અપડેટ બટન (ઉમેરો/બદલો)
 				if (updateBtn) {
-				  const isEmpty =
-					!data.email ||
-					data.email === "-" ||
-					!data.address ||
-					data.address === "-";
-				  updateBtn.style.display = "inline-flex";   // flex થી icon-text properly align થશે
-updateBtn.innerHTML = isEmpty
-    ? `<i class="fa-solid fa-plus" style="font-size:11px;"></i> <span>વિગત ઉમેરો</span>`
-    : `<i class="fa-solid fa-pen-to-square" style="font-size:11px;"></i> <span>વિગત બદલો</span>`;
-				}
+  const isEmpty =
+    !data.email ||
+    data.email === "-" ||
+    !data.address ||
+    data.address === "-";
+  updateBtn.style.display = "inline-flex";
+  
+  if (isEmpty) {
+    // ખાલી હોય તો "વિગત ઉમેરો" — ખાલી form ખોલો
+    updateBtn.innerHTML = `<i class="fa-solid fa-plus" style="font-size:11px;"></i> <span>વિગત ઉમેરો</span>`;
+    updateBtn.onclick = function() { openAddForm('members'); };
+  } else {
+    // ભરેલું હોય તો "વિગત બદલો" — pre-filled form ખોલો
+    updateBtn.innerHTML = `<i class="fa-solid fa-pen-to-square" style="font-size:11px;"></i> <span>વિગત બદલો</span>`;
+    updateBtn.onclick = function() { openEditMemberForm(); };
+  }
+}
 
 				// ૨. મેઈન કાર્ડમાં બેઝિક ડેટા સેટ કરો
 				document.getElementById("sabhyNo").innerText = data.sabhyNo || "-";
@@ -3628,7 +3635,7 @@ if (data.familyMembers && data.familyMembers.length > 0) {
 			  showLoader(false);
 
 		  if (result.status === "success") {
-		  alert(result.message || "રિઝલ્ટ સેવ થયું ✅");
+		  alert(result.message || "વિગત ઉમેરાઈ ગઈ ✅");
 		  closeModal();
 		  
 		  // 🔥 List આપોઆપ refresh થશે
@@ -6891,7 +6898,56 @@ async function confirmDeleteAchievement(idx) {
     alert("સર્વર સાથે સંપર્ક થઈ શક્યો નથી. ❌");
   }
 }
+// ==================== EDIT MEMBER DETAILS (Pre-fill form) ====================
+async function openEditMemberForm() {
+  const mobile = localStorage.getItem("userMobile");
+  if (!mobile) {
+    alert("તમે લોગિન નથી.");
+    return;
+  }
 
+  // પહેલા ખાલી form ખોલો (બધા inputs તૈયાર થઈ જશે)
+  openAddForm('members');
+
+  // Title બદલો
+  document.getElementById("modalTitle").innerHTML = 
+    `<i class="fas fa-pen-to-square"></i> વિગત બદલો`;
+
+  // Loader ચાલુ કરો
+  showLoader(true);
+
+  try {
+    // Server પરથી હાલની વિગતો લાવો
+    const res = await fetch(`${SCRIPT_URL}?type=memberData&mobile=${mobile}`);
+    const data = await res.json();
+
+    if (data.status === "success") {
+      // 🎯 બધા fields માં existing values ભરો
+      const emailField = document.getElementById("sEmail");
+      const educationField = document.getElementById("sEducation");
+      const businessField = document.getElementById("sBusiness");
+      const birthField = document.getElementById("sBirth");
+      const genderField = document.getElementById("sGender");
+      const bloodField = document.getElementById("sBlood");
+      const houseField = document.getElementById("sHouse");
+      const addressField = document.getElementById("sAddress");
+
+      if (emailField) emailField.value = (data.email && data.email !== "-") ? data.email : "";
+      if (educationField) educationField.value = (data.education && data.education !== "-") ? data.education : "";
+      if (businessField) businessField.value = (data.business && data.business !== "-") ? data.business : "";
+      if (birthField) birthField.value = (data.birthdate && data.birthdate !== "-") ? data.birthdate : "";
+      if (genderField) genderField.value = (data.gender && data.gender !== "-") ? data.gender : "";
+      if (bloodField) bloodField.value = (data.blood && data.blood !== "-") ? data.blood : "";
+      if (houseField) houseField.value = (data.house && data.house !== "-") ? data.house : "";
+      if (addressField) addressField.value = (data.address && data.address !== "-") ? data.address : "";
+    }
+  } catch (err) {
+    console.error("Edit form load error:", err);
+    alert("વિગતો લોડ કરવામાં ભૂલ આવી.");
+  } finally {
+    showLoader(false);
+  }
+}
 		</script>
 	  </body>
 	</html>
