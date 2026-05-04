@@ -1073,7 +1073,13 @@ if (data.type === 'addFamilyMember') {
             }
 
 
-            var customFileName = (memberNo || 'X') + '_' + mobile + '_' + standard + '_' + safeStudentName + '_' + (f + 1) + '.' + extension;
+            // જો એક જ ફાઇલ હોય તો index વગર, બહુ હોય તો duplicate ટાળવા index રાખવો
+var customFileName;
+if (files.length === 1) {
+  customFileName = (memberNo || 'X') + '_' + mobile + '_' + standard + '_' + safeStudentName + '.' + extension;
+} else {
+  customFileName = (memberNo || 'X') + '_' + mobile + '_' + standard + '_' + safeStudentName + '_' + (f + 1) + '.' + extension;
+}
 
 
             var blob = Utilities.newBlob(Utilities.base64Decode(file.base64), mime, customFileName);
