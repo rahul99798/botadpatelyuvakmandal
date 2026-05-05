@@ -2569,12 +2569,21 @@ function setupBirthDateField(fieldId) {
     const field = document.getElementById(fieldId);
     if (!field) return;
 
-    // 🎯 દરેક મહિના મુજબ max days return કરે (leap year ધ્યાનમાં લે)
+    const monthShort = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const monthGuj = ["જાન્યુઆરી", "ફેબ્રુઆરી", "માર્ચ", "એપ્રિલ", "મે", "જૂન", "જુલાઈ", "ઓગસ્ટ", "સપ્ટેમ્બર", "ઓક્ટોબર", "નવેમ્બર", "ડિસેમ્બર"];
+
+    // 🎯 નીચે hint બતાવવા માટે small text element બનાવો
+    let hintEl = document.getElementById(fieldId + "_hint");
+    if (!hintEl) {
+        hintEl = document.createElement("div");
+        hintEl.id = fieldId + "_hint";
+        hintEl.style.cssText = "color:#60a5fa; font-size:13px; margin-top:6px; font-weight:500; min-height:18px; padding-left:4px;";
+        field.parentNode.appendChild(hintEl);
+    }
+
     function getMaxDays(mmNum, yyyyNum) {
         if (!mmNum) return 31;
-        // 30 day months: April, June, September, November
         if ([4, 6, 9, 11].includes(mmNum)) return 30;
-        // February
         if (mmNum === 2) {
             if (yyyyNum && yyyyNum >= 1910) {
                 const isLeap = (yyyyNum % 4 === 0 && yyyyNum % 100 !== 0) || (yyyyNum % 400 === 0);
@@ -2582,8 +2591,24 @@ function setupBirthDateField(fieldId) {
             }
             return 29;
         }
-        // 31 day months: Jan, Mar, May, Jul, Aug, Oct, Dec
         return 31;
+    }
+
+    // 🎯 Hint update કરનારું function
+    function updateHint(dd, mm, yyyy) {
+        if (!hintEl) return;
+        if (mm && mm.length >= 1) {
+            const mmNum = parseInt(mm);
+            if (mmNum >= 1 && mmNum <= 12) {
+                let txt = "📅 ";
+                if (dd && dd.length >= 1) txt += dd + " ";
+                txt += monthShort[mmNum - 1] + " (" + monthGuj[mmNum - 1] + ")";
+                if (yyyy && yyyy.length === 4) txt += " " + yyyy;
+                hintEl.innerHTML = txt;
+                return;
+            }
+        }
+        hintEl.innerHTML = "";
     }
 
     field.addEventListener("input", function() {
@@ -2592,13 +2617,11 @@ function setupBirthDateField(fieldId) {
         let mm = raw.slice(2, 4);
         let yyyy = raw.slice(4, 8);
 
-        // 🎯 MM: 01 થી 12 (પહેલા month fix કરો જેથી DD ને ખબર પડે)
         if (mm.length === 2) {
             if (parseInt(mm) > 12) mm = "12";
             if (mm === "00") mm = "01";
         }
 
-        // 🎯 DD: month અને year મુજબ valid range
         if (dd.length === 2) {
             if (dd === "00") dd = "01";
             const mmNum = mm.length === 2 ? parseInt(mm) : 0;
@@ -2611,9 +2634,11 @@ function setupBirthDateField(fieldId) {
         if (raw.length > 2) formatted += "-" + mm;
         if (raw.length > 4) formatted += "-" + yyyy;
         this.value = formatted;
+
+        // 🎯 Hint update
+        updateHint(dd, mm, yyyy);
     });
 
-    // 🎯 Blur પર: વર્ષ + leap year final check
     field.addEventListener("blur", function() {
         const parts = this.value.split("-");
         if (parts.length === 3 && parts[2].length === 4) {
@@ -2623,7 +2648,6 @@ function setupBirthDateField(fieldId) {
             const yNum = parseInt(yyyy);
             const currentYear = new Date().getFullYear();
 
-            // વર્ષ check
             if (yNum < 1910) {
                 alert("વર્ષ 1910 કે પછીનું જ લખો ❌");
                 yyyy = "1910";
@@ -2632,7 +2656,6 @@ function setupBirthDateField(fieldId) {
                 yyyy = String(currentYear);
             }
 
-            // 🎯 Leap year અનુસાર Feb 29 પણ check કરો
             const mmNum = parseInt(mm);
             const yyyyNum = parseInt(yyyy);
             const maxDay = getMaxDays(mmNum, yyyyNum);
@@ -2641,6 +2664,7 @@ function setupBirthDateField(fieldId) {
             }
 
             this.value = `${dd}-${mm}-${yyyy}`;
+            updateHint(dd, mm, yyyy);
         }
     });
 }
