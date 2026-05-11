@@ -5734,35 +5734,48 @@ async function downloadAllResultsExcel() {
             return;
         }
 
-        // 🎯 Standard મુજબ sort કરો (1, 2, 3... 10, 11, 12 Science, 12 Commerce...)
+        // 🎯 Standard મુજબ sort + દરેક Standard માં Percentage descending (99, 98, 60...)
         const sortedData = response.data.sort((a, b) => {
             const aNum = parseInt(String(a.standard || '').match(/\d+/)?.[0] || 0);
             const bNum = parseInt(String(b.standard || '').match(/\d+/)?.[0] || 0);
             
+            // પહેલા Standard number મુજબ ascending (1, 2, 3...)
             if (aNum !== bNum) return aNum - bNum;
-            return String(a.standard || '').localeCompare(String(b.standard || ''));
+            
+            // પછી Standard string મુજબ (12 Science, 12 Commerce માટે)
+            const stdCompare = String(a.standard || '').localeCompare(String(b.standard || ''));
+            if (stdCompare !== 0) return stdCompare;
+            
+            // 🎯 Same Standard માં Percentage descending (99 → 98 → 60)
+            const aPct = parseFloat(a.percentage || 0);
+            const bPct = parseFloat(b.percentage || 0);
+            return bPct - aPct;
         });
 
-        // 🎯 CSV બનાવો (Excel માં ખુલે)
-        // 🎯 CSV બનાવો (Excel માં ખુલે) — દરેક Standard પછી 2 ખાલી row
-        let csv = "\uFEFF"; // BOM for proper Gujarati rendering
-        csv += "ક્રમ,સભ્ય નંબર,વિદ્યાર્થીનું નામ,ધોરણ/અભ્યાસ,ટકાવારી,વર્ષ,મોબાઈલ\n";
+        // 🎯 CSV બનાવો — દરેક Standard પછી 2 ખાલી row + ક્રમાંક column
+        let csv = "\uFEFF";
+        csv += "ક્રમ,ક્રમાંક,સભ્ય નંબર,વિદ્યાર્થીનું નામ,ધોરણ/અભ્યાસ,ટકાવારી,વર્ષ,મોબાઈલ\n";
 
         let previousStandard = null;
         let serialNo = 0;
+        let rankInStandard = 0;
 
         sortedData.forEach((item) => {
             const currentStandard = String(item.standard || '').trim();
 
-            // 🎯 Standard બદલાય તો 2 ખાલી row મૂકો
+            // Standard બદલાય તો 2 ખાલી row + rank reset
             if (previousStandard !== null && previousStandard !== currentStandard) {
-                csv += ",,,,,,\n";   // ખાલી row 1
-                csv += ",,,,,,\n";   // ખાલી row 2
+                csv += ",,,,,,,\n";
+                csv += ",,,,,,,\n";
+                rankInStandard = 0;
             }
 
             serialNo++;
+            rankInStandard++;
+
             const row = [
                 serialNo,
+                rankInStandard,
                 `"${item.memberNo || ''}"`,
                 `"${(item.studentName || '').replace(/"/g, '""')}"`,
                 `"${currentStandard}"`,
@@ -5775,7 +5788,7 @@ async function downloadAllResultsExcel() {
             previousStandard = currentStandard;
         });
 
-        // 🎯 File download
+        // File download
         const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
