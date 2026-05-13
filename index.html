@@ -5734,26 +5734,51 @@ async function downloadAllResultsExcel() {
             return;
         }
 
-        // 🎯 Standard મુજબ sort + દરેક Standard માં Percentage descending (99, 98, 60...)
+        // 🎯 Standard મુજબ sort + દરેક Standard માં Percentage descending
         const sortedData = response.data.sort((a, b) => {
             const aNum = parseInt(String(a.standard || '').match(/\d+/)?.[0] || 0);
             const bNum = parseInt(String(b.standard || '').match(/\d+/)?.[0] || 0);
             
-            // પહેલા Standard number મુજબ ascending (1, 2, 3...)
             if (aNum !== bNum) return aNum - bNum;
             
-            // પછી Standard string મુજબ (12 Science, 12 Commerce માટે)
             const stdCompare = String(a.standard || '').localeCompare(String(b.standard || ''));
             if (stdCompare !== 0) return stdCompare;
             
-            // 🎯 Same Standard માં Percentage descending (99 → 98 → 60)
             const aPct = parseFloat(a.percentage || 0);
             const bPct = parseFloat(b.percentage || 0);
             return bPct - aPct;
         });
 
-        // 🎯 CSV બનાવો — દરેક Standard પછી 2 ખાલી row + ક્રમાંક column
+        // 🎯 દરેક ધોરણમાં કેટલા વિદ્યાર્થી છે તે count કરો
+        const standardCounts = {};
+        const standardsInOrder = [];
+        const seenStandards = new Set();
+        
+        sortedData.forEach(item => {
+            const std = String(item.standard || '').trim() || 'Unknown';
+            standardCounts[std] = (standardCounts[std] || 0) + 1;
+            if (!seenStandards.has(std)) {
+                seenStandards.add(std);
+                standardsInOrder.push(std);
+            }
+        });
+
+        // 🎯 CSV બનાવો
         let csv = "\uFEFF";
+
+        // ========== ધોરણવાર સારાંશ (TOP માં) ==========
+        csv += "ધોરણવાર સારાંશ (Standard-wise Total)\n";
+        csv += "ધોરણ/અભ્યાસ,કુલ વિદ્યાર્થી\n";
+        
+        standardsInOrder.forEach(std => {
+            csv += `"${std}",${standardCounts[std]}\n`;
+        });
+        
+        csv += `"કુલ TOTAL",${sortedData.length}\n`;
+        csv += ",\n";
+        csv += ",\n";
+
+        // ========== વિગતવાર Data ==========
         csv += "ક્રમ,ક્રમાંક,સભ્ય નંબર,વિદ્યાર્થીનું નામ,ધોરણ/અભ્યાસ,ટકાવારી,વર્ષ,મોબાઈલ\n";
 
         let previousStandard = null;
@@ -5763,10 +5788,14 @@ async function downloadAllResultsExcel() {
         sortedData.forEach((item) => {
             const currentStandard = String(item.standard || '').trim();
 
-            // Standard બદલાય તો 2 ખાલી row + rank reset
-            if (previousStandard !== null && previousStandard !== currentStandard) {
-                csv += ",,,,,,,\n";
-                csv += ",,,,,,,\n";
+            // Standard બદલાય તો 2 ખાલી row + group header
+            if (previousStandard !== currentStandard) {
+                if (previousStandard !== null) {
+                    csv += ",,,,,,,\n";
+                    csv += ",,,,,,,\n";
+                }
+                // 🎯 Group header — દરેક ધોરણની ઉપર total બતાવે
+                csv += `,,,"ધોરણ: ${currentStandard}","કુલ વિદ્યાર્થી:",${standardCounts[currentStandard]},,\n`;
                 rankInStandard = 0;
             }
 
