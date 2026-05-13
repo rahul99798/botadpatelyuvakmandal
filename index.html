@@ -3189,128 +3189,7 @@ const currentAcademicYear = (todayMonth > 6 || (todayMonth === 6 && todayDay >= 
   }
 }
 
-	
-		  async function loadDonors() {
-			showLoader(true);
-			const container = document.getElementById("listContainer");
 
-			try {
-			  const res = await fetch(`${SCRIPT_URL}?type=donors`);
-			  const responseData = await res.json();
-
-			  if (
-				responseData.status !== "success" ||
-				!responseData.data ||
-				responseData.data.length === 0
-			  ) {
-				container.innerHTML = "કોઈ દાતાશ્રીઓની માહિતી ઉપલબ્ધ નથી";
-				container.style.display = "block";
-				return;
-			  }
-
-			  const groupedDonors = responseData.data.reduce((acc, item) => {
-				let y = item.year;
-				if (!acc[y]) acc[y] = [];
-				acc[y].push(item);
-				return acc;
-			  }, {});
-
-			  container.innerHTML = "";
-			  container.style.display = "block";
-			  container.style.background = "transparent";
-			  container.style.border = "none";
-
-			  const sortedYears = Object.keys(groupedDonors).sort((a, b) => b - a);
-
-			  // --- loadDonors ફંક્શનમાં આ લાઇન ખાસ ચેક કરો ---
-
-			  sortedYears.forEach((year, idx) => {
-				const yearId = `donor-year-${idx}`;
-				let yearHtml = `
-			<div style="margin-bottom: 20px; width: 340px;"> 
-				
-				<div onclick="toggleGalleryGroup('${yearId}')" style="
-					background: rgba(30, 41, 59, 0.5); 
-					padding: 14px 20px; 
-					border-radius: 14px; 
-					display: flex; 
-					justify-content: space-between; 
-					align-items: center; 
-					cursor: pointer; 
-					border: 1px solid rgba(255, 255, 255, 0.1); 
-					color: white; 
-					width: 100%; 
-					box-sizing: border-box; 
-					margin-bottom: 12px;
-				">
-					<div style="display: flex; align-items: center; gap: 12px;">
-						<i class="fas fa-calendar-alt" style="font-size: 18px; color: #f8fafc;"></i>
-						<span style="font-size: 16px; font-weight: bold;">${year}</span>
-					</div>
-					<i class="fas fa-chevron-down" id="icon-${yearId}" style="font-size: 14px; transition: 0.3s ease;"></i>
-				</div>
-				
-				<div id="${yearId}" style="
-					display: none; 
-					grid-template-columns: repeat(2, 1fr); 
-					gap: 12px; 
-					width: 100%;
-				">
-		`;
-
-				// ... કાર્ડ્સ વાળો ભાગ સેમ રહેશે ...
-
-				groupedDonors[year].forEach((donor) => {
-				  let imgUrl = donor.photo || "";
-				  if (imgUrl.includes("drive.google.com")) {
-					let fileId = imgUrl.match(/[-\w]{25,}/);
-					if (fileId)
-					  imgUrl = `https://lh3.googleusercontent.com/u/0/d/${fileId[0]}`;
-				  }
-
-				  yearHtml += `
-						<div style="
-							background: rgba(15, 23, 42, 0.7); 
-							border: 1px solid rgba(255, 255, 255, 0.1); 
-							border-radius: 18px; 
-							padding: 12px; 
-							text-align: center; 
-							display: flex; 
-							flex-direction: column; 
-							align-items: center;
-							box-sizing: border-box;
-						">
-							<div style="color: #60a5fa; font-weight: bold; font-size: 11px; margin-bottom: 8px; height: 28px; overflow: hidden; line-height: 1.2;">
-								${donor.donate_type}
-							</div>
-							
-							<div style="width: 80px; height: 80px; background: white; border-radius: 50%; margin-bottom: 10px; overflow: hidden; border: 2px solid rgba(255,255,255,0.1);">
-								<img src="${imgUrl}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2910/2910791.png'; this.style.width='30px'; opacity:0.3;" style="width: 100%; height: 100%; object-fit: cover;">
-							</div>
-
-							<div style="color: white; font-size: 12px; font-weight: 600; width: 100%; white-space: pre-wrap; word-wrap: break-word; line-height: 1.4; margin-bottom: 5px; text-align: center;">${donor.name.trim()}</div>
-							<div style="color: #94a3b8; font-size: 10px; margin-bottom: 8px;">
-								${donor.mobile}
-							</div>
-							
-							<div style="color: #3b82f6; font-size: 15px; font-weight: bold; margin-top: auto;">
-								₹ ${donor.money}
-							</div>
-						</div>
-					`;
-				});
-
-				yearHtml += `</div></div>`;
-				container.innerHTML += yearHtml;
-			  });
-
-			  // Toggle logic માં display flex/grid હેન્ડલ કરવા માટે
-			} catch (err) {
-			  console.error(err);
-			} finally {
-			  showLoader(false);
-			}
-		  }
 
 		  // toggleGalleryGroup માં નાનો બદલો grid બતાવવા માટે
 		  function toggleGalleryGroup(id) {
@@ -6246,15 +6125,17 @@ async function loadDonors() {
     }
 
     // --- 📅 15 JUNE ACADEMIC YEAR LOGIC START ---
-    const today = new Date();
-    const currentMonth = today.getMonth() + 1;
-    const currentDate = today.getDate();
-    const currentFullYear = today.getFullYear();
+   const today = new Date();
+const currentMonth = today.getMonth() + 1;   // 1-12
+const currentDate = today.getDate();
+const currentFullYear = today.getFullYear();
 
-    // જો ૧૫ જૂન કે પછીની તારીખ હોય તો "૨૦૨૫-૨૦૨૬" અથવા "૨૦૨૬" ગણાય
-    const currentAcademicYear = (currentMonth > 6 || (currentMonth === 6 && currentDate >= 15)) 
-        ? currentFullYear 
-        : currentFullYear - 1;
+// 10 June થી પછી → આવતું વર્ષ (next year)
+// 10 June પહેલા → ચાલુ વર્ષ (current year)
+const currentAcademicYear = 
+    (currentMonth > 6 || (currentMonth === 6 && currentDate >= 10))
+        ? currentFullYear + 1
+        : currentFullYear;
     // --- ACADEMIC YEAR LOGIC END ---
 
     const groupedDonors = responseData.data.reduce((acc, item) => {
@@ -6310,10 +6191,14 @@ async function loadDonors() {
 
       groupedDonors[year].forEach((donor) => {
         let imgUrl = donor.photo || "";
-        if (imgUrl.includes("drive.google.com")) {
-          let fileId = imgUrl.match(/[-\w]{25,}/);
-          if (fileId) imgUrl = `https://lh3.googleusercontent.com/u/0/d/$${fileId[0]}`;
-        }
+if (imgUrl && imgUrl.includes("drive.google.com")) {
+  let id = "";
+  const parts = imgUrl.match(/\/d\/(.+?)\/(view|edit)?/);
+  const queryParts = imgUrl.match(/id=([^&]+)/);
+  if (parts && parts[1]) id = parts[1];
+  else if (queryParts && queryParts[1]) id = queryParts[1];
+  if (id) imgUrl = `https://lh3.googleusercontent.com/d/${id}`;
+}
 
         yearHtml += `
           <div style="
@@ -6330,9 +6215,13 @@ async function loadDonors() {
             <div style="color: #60a5fa; font-weight: bold; font-size: 11px; margin-bottom: 8px; height: 28px; overflow: hidden; line-height: 1.2;">
               ${donor.donate_type}
             </div>
-            <div style="width: 80px; height: 80px; background: white; border-radius: 50%; margin-bottom: 10px; overflow: hidden; border: 2px solid rgba(255,255,255,0.1);">
-              <img src="${imgUrl}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2910/2910791.png'; this.style.width='30px'; opacity:0.3;" style="width: 100%; height: 100%; object-fit: cover;">
-            </div>
+            <div onclick="openImage('${imgUrl}')" style="width: 110px; height: 130px; background: white; border-radius: 10px; margin-bottom: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.15); cursor: zoom-in; transition: transform 0.2s;" 
+  onmouseover="this.style.transform='scale(1.05)'" 
+  onmouseout="this.style.transform='scale(1)'">
+    <img src="${imgUrl}" 
+         onerror="this.src='https://cdn-icons-png.flaticon.com/512/2910/2910791.png'; this.style.width='40px'; this.style.opacity='0.3';" 
+         style="width: 100%; height: 100%; object-fit: cover;">
+</div>
             <div style="color: white; font-size: 12px; font-weight: 600; width: 100%; white-space: pre-wrap; word-wrap: break-word; line-height: 1.4; margin-bottom: 5px; text-align: center;">${donor.name.trim()}</div>
             <div style="color: #94a3b8; font-size: 10px; margin-bottom: 8px;">${donor.mobile}</div>
             <div style="color: #3b82f6; font-size: 15px; font-weight: bold; margin-top: auto;">₹ ${donor.money}</div>
