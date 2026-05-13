@@ -5721,10 +5721,33 @@ async function loadSpecificMemberAchievements(memberNo) {
   }
 }
 // 🎯 બધા results Excel માં download કરે (Admin only)
+// ==================== HELPER 1: SheetJS Library load (auto) ====================
+function loadSheetJSLibrary() {
+    return new Promise((resolve, reject) => {
+        if (typeof XLSX !== 'undefined') {
+            resolve();
+            return;
+        }
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error('SheetJS library લોડ થઈ શકી નથી'));
+        document.head.appendChild(script);
+    });
+}
+
+// ==================== HELPER 2: ધોરણમાંથી નંબર કાઢો ====================
+function getStandardNumber(stdStr) {
+    const match = String(stdStr || '').match(/\d+/);
+    return match ? parseInt(match[0]) : 0;
+}
+
 async function downloadAllResultsExcel() {
     showLoader(true);
     
     try {
+        await loadSheetJSLibrary();
+        
         const res = await fetch(`${SCRIPT_URL}?action=getAllResultsForExport`);
         const response = await res.json();
 
@@ -5734,22 +5757,17 @@ async function downloadAllResultsExcel() {
             return;
         }
 
-        // 🎯 Standard મુજબ sort + દરેક Standard માં Percentage descending
+        // 🎯 Sort: ધોરણ ascending + ટકાવારી descending
         const sortedData = response.data.sort((a, b) => {
-            const aNum = parseInt(String(a.standard || '').match(/\d+/)?.[0] || 0);
-            const bNum = parseInt(String(b.standard || '').match(/\d+/)?.[0] || 0);
-            
+            const aNum = getStandardNumber(a.standard);
+            const bNum = getStandardNumber(b.standard);
             if (aNum !== bNum) return aNum - bNum;
-            
             const stdCompare = String(a.standard || '').localeCompare(String(b.standard || ''));
             if (stdCompare !== 0) return stdCompare;
-            
-            const aPct = parseFloat(a.percentage || 0);
-            const bPct = parseFloat(b.percentage || 0);
-            return bPct - aPct;
+            return parseFloat(b.percentage || 0) - parseFloat(a.percentage || 0);
         });
 
-        // 🎯 દરેક ધોરણમાં કેટલા વિદ્યાર્થી છે તે count કરો
+        // 🎯 દરેક ધોરણમાં વિદ્યાર્થી count
         const standardCounts = {};
         const standardsInOrder = [];
         const seenStandards = new Set();
@@ -5763,82 +5781,133 @@ async function downloadAllResultsExcel() {
             }
         });
 
-        // 🎯 CSV બનાવો
-        let csv = "\uFEFF";
+        // 🎯 Range-wise count
+        const countInRange = (min, max) => {
+            return sortedData.filter(item => {
+                const num = getStandardNumber(item.standard);
+                return num >= min && num <= max;
+            }).length;
+        };
 
-        // ========== ધોરણવાર સારાંશ (TOP માં) ==========
-        csv += "ધોરણવાર સારાંશ (Standard-wise Total)\n";
-        csv += "ધોરણ/અભ્યાસ,કુલ વિદ્યાર્થી\n";
-        
+        // 🆕 Pre-primary count (Nur, Jr.KG, Sr.KG, Balvatika)
+        const countPrePrimary = () => {
+            return sortedData.filter(item => {
+                const std = String(item.standard || '').toLowerCase();
+                return std.includes('kg') || std.includes('nur') || std.includes('balvatika');
+            }).length;
+        };
+
+        const stdPre     = countPrePrimary();
+        const std1to4    = countInRange(1, 4);
+        const std5to7    = countInRange(5, 7);
+        const std8to12   = countInRange(8, 12);
+
+        // ========== Workbook ==========
+        const wb = XLSX.utils.book_new();
+
+        // ────────── SHEET 1: Results ──────────
+        const sheet1Rows = [];
+        sheet1Rows.push(["ધોરણવાર સારાંશ (Standard-wise Total)"]);
+        sheet1Rows.push(["ધોરણ/અભ્યાસ", "કુલ વિદ્યાર્થી"]);
         standardsInOrder.forEach(std => {
-            csv += `"${std}",${standardCounts[std]}\n`;
+            sheet1Rows.push([std, standardCounts[std]]);
         });
-        
-        csv += `"કુલ TOTAL",${sortedData.length}\n`;
-        csv += ",\n";
-        csv += ",\n";
-
-        // ========== વિગતવાર Data ==========
-        csv += "ક્રમ,ક્રમાંક,સભ્ય નંબર,વિદ્યાર્થીનું નામ,ધોરણ/અભ્યાસ,ટકાવારી,વર્ષ,મોબાઈલ\n";
+        sheet1Rows.push(["કુલ TOTAL", sortedData.length]);
+        sheet1Rows.push([]);
+        sheet1Rows.push([]);
+        sheet1Rows.push(["ક્રમ", "ક્રમાંક", "સભ્ય નંબર", "વિદ્યાર્થીનું નામ", "ધોરણ/અભ્યાસ", "ટકાવારી", "વર્ષ", "મોબાઈલ"]);
 
         let previousStandard = null;
         let serialNo = 0;
         let rankInStandard = 0;
 
-        sortedData.forEach((item) => {
+        sortedData.forEach(item => {
             const currentStandard = String(item.standard || '').trim();
-
-            // Standard બદલાય તો 2 ખાલી row + group header
             if (previousStandard !== currentStandard) {
                 if (previousStandard !== null) {
-                    csv += ",,,,,,,\n";
-                    csv += ",,,,,,,\n";
+                    sheet1Rows.push([]);
+                    sheet1Rows.push([]);
                 }
-                // 🎯 Group header — દરેક ધોરણની ઉપર total બતાવે
-                csv += `,,,"ધોરણ: ${currentStandard}","કુલ વિદ્યાર્થી:",${standardCounts[currentStandard]},,\n`;
+                sheet1Rows.push(["", "", "", `ધોરણ: ${currentStandard}`, "કુલ વિદ્યાર્થી:", standardCounts[currentStandard], "", ""]);
                 rankInStandard = 0;
             }
-
             serialNo++;
             rankInStandard++;
-
-            const row = [
-                serialNo,
-                rankInStandard,
-                `"${item.memberNo || ''}"`,
-                `"${(item.studentName || '').replace(/"/g, '""')}"`,
-                `"${currentStandard}"`,
-                `"${item.percentage || ''}"`,
-                `"${item.year || ''}"`,
-                `"${item.mobile || ''}"`
-            ].join(",");
-            csv += row + "\n";
-
+            sheet1Rows.push([
+                serialNo, rankInStandard,
+                item.memberNo || '', item.studentName || '',
+                currentStandard, item.percentage || '',
+                item.year || '', item.mobile || ''
+            ]);
             previousStandard = currentStandard;
         });
 
-        // File download
-        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        
+        const ws1 = XLSX.utils.aoa_to_sheet(sheet1Rows);
+        ws1['!cols'] = [
+            { wch: 8 }, { wch: 8 }, { wch: 14 }, { wch: 28 },
+            { wch: 22 }, { wch: 12 }, { wch: 10 }, { wch: 14 }
+        ];
+        XLSX.utils.book_append_sheet(wb, ws1, "Results");
+
+        // ────────── SHEET 2: સામગ્રીની જરૂરિયાત ──────────
+        const sheet2Rows = [
+    ["સામગ્રીની જરૂરિયાત"],
+    [],
+    ["ધોરણ", "કુલ વિદ્યાર્થી", "વસ્તુ", "પ્રતિ વિદ્યાર્થી", "કુલ જથ્થો"],
+    
+    // 🆕 નર્સરી / જુ. કેજી / સિ. કેજી / બાળવાટિકા
+    ["નર્સરી / જુ. કેજી / સિ. કેજી / બાળવાટિકા", stdPre, "નાસ્તાનો ડબ્બો અથવા પાણીની બોટલ", stdPre],
+    [],
+    
+    // ધોરણ 1 થી 4
+    ["ધોરણ 1 થી 4", std1to4, "ચોપડી", 6, std1to4 * 6],
+    ["", "", "પેન્સિલ બોક્સ", 1, std1to4],
+    ["", "", "સ્કેચ પેન", 1, std1to4],
+    [],
+    
+    // ધોરણ 5 થી 7
+    ["ધોરણ 5 થી 7", std5to7, "ચોપડી", 6, std5to7 * 6],
+    ["", "", "પેન બોક્સ", 1, std5to7],
+    ["", "", "વોટર કલર", 1, std5to7],
+    [],
+    
+    // ધોરણ 8 થી 12
+    ["ધોરણ 8 થી 12", std8to12, "ચોપડી", 6, std8to12 * 6],
+    ["", "", "પેન બોક્સ", 1, std8to12],
+    ["", "", "સ્કેલ", 1, std8to12],
+    [],
+    [],
+    
+    // કુલ સારાંશ
+    ["═══ કુલ સારાંશ ═══"],
+    ["વસ્તુ", "જથ્થો"],
+    ["કુલ ચોપડી", (std1to4 + std5to7 + std8to12) * 6],
+    ["પેન્સિલ બોક્સ", std1to4],
+    ["પેન બોક્સ", std5to7 + std8to12],
+    ["સ્કેચ પેન", std1to4],
+    ["વોટર કલર", std5to7],
+    ["સ્કેલ", std8to12],
+    ["નાસ્તાનો ડબ્બો અથવા પાણીની બોટલ (કોઈ પણ એક)", stdPre]
+];
+
+        const ws2 = XLSX.utils.aoa_to_sheet(sheet2Rows);
+        ws2['!cols'] = [
+            { wch: 30 }, { wch: 16 }, { wch: 22 }, { wch: 18 }, { wch: 14 }
+        ];
+        XLSX.utils.book_append_sheet(wb, ws2, "સામગ્રી જરૂરિયાત");
+
+        // 📥 Download
         const today = new Date();
         const dateStr = `${today.getDate()}-${today.getMonth()+1}-${today.getFullYear()}`;
-        
-        link.href = url;
-        link.download = `Results_${dateStr}.csv`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
+        XLSX.writeFile(wb, `Results_${dateStr}.xlsx`);
 
         showLoader(false);
-        alert(`✅ ${sortedData.length} રિઝલ્ટ ડાઉનલોડ થયું!`);
+        alert(`✅ ${sortedData.length} રિઝલ્ટ + સામગ્રી વિગતો સાથે Excel ડાઉનલોડ થયું!`);
 
     } catch (err) {
         showLoader(false);
         console.error("Download error:", err);
-        alert("ડાઉનલોડ કરવામાં ભૂલ આવી.");
+        alert("ડાઉનલોડ કરવામાં ભૂલ આવી: " + (err.message || ""));
     }
 }
 // 🎯 બધી Achievements Excel માં download કરે (Admin only)
