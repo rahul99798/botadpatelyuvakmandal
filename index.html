@@ -5807,14 +5807,6 @@ async function downloadAllResultsExcel() {
 
         // ────────── SHEET 1: Results ──────────
         const sheet1Rows = [];
-        sheet1Rows.push(["ધોરણવાર સારાંશ (Standard-wise Total)"]);
-        sheet1Rows.push(["ધોરણ/અભ્યાસ", "કુલ વિદ્યાર્થી"]);
-        standardsInOrder.forEach(std => {
-            sheet1Rows.push([std, standardCounts[std]]);
-        });
-        sheet1Rows.push(["કુલ TOTAL", sortedData.length]);
-        sheet1Rows.push([]);
-        sheet1Rows.push([]);
         sheet1Rows.push(["ક્રમ", "ક્રમાંક", "સભ્ય નંબર", "વિદ્યાર્થીનું નામ", "ધોરણ/અભ્યાસ", "ટકાવારી", "વર્ષ", "મોબાઈલ"]);
 
         let previousStandard = null;
@@ -5853,10 +5845,20 @@ async function downloadAllResultsExcel() {
         const sheet2Rows = [
     ["સામગ્રીની જરૂરિયાત"],
     [],
+    
+    // 🆕 ધોરણવાર સારાંશ (Standard-wise Breakdown)
+    ["ધોરણવાર સારાંશ (Standard-wise Total)"],
+    ["ધોરણ/અભ્યાસ", "કુલ વિદ્યાર્થી"],
+    ...standardsInOrder.map(std => [std, standardCounts[std]]),
+    ["કુલ TOTAL", sortedData.length],
+    [],
+    [],
+    
+    // 🟢 સામગ્રીની વિગતો
     ["ધોરણ", "કુલ વિદ્યાર્થી", "વસ્તુ", "પ્રતિ વિદ્યાર્થી", "કુલ જથ્થો"],
     
-    // 🆕 નર્સરી / જુ. કેજી / સિ. કેજી / બાળવાટિકા
-    ["નર્સરી / જુ. કેજી / સિ. કેજી / બાળવાટિકા", stdPre, "નાસ્તાનો ડબ્બો અથવા પાણીની બોટલ", stdPre],
+    // નર્સરી / જુ. કેજી / સિ. કેજી / બાળવાટિકા
+    ["નર્સરી / જુ. કેજી / સિ. કેજી / બાળવાટિકા", stdPre, "નાસ્તાનો ડબ્બો અથવા પાણીની બોટલ", "કોઈ પણ એક", stdPre],
     [],
     
     // ધોરણ 1 થી 4
