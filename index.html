@@ -769,143 +769,6 @@ body.is-admin button.admin-only {
   cursor: pointer;
 }
 
-/* ==================== MOBILE RESPONSIVE (≤ 768px) — MERGED ==================== */
-@media (max-width: 768px) {
-  body {
-    padding-top: 60px;
-  }
-
-  .top-header {
-    flex-direction: row ;
-    height: 60px;
-    padding: 0 8px;
-    gap: 0;
-}
-
-.top-header > div:nth-child(2) span {
-    font-size: 13.5px ;
-}
-
-.top-header > div:nth-child(3) span {
-    font-size: 13px ;
-}
-
-  .header-logo span {
-    font-size: 15px;
-  }
-
-  .header-actions {
-    position: static;
-    width: auto;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  #memberDisplay {
-    font-size: 13px;
-    font-weight: 700;
-    color: #60a5fa;
-    order: 1;
-  }
-
-  #currentDate {
-    font-size: 13px;
-    color: #94a3b8;
-    order: 2;
-  }
-
- .sidebar {
-    position: fixed;
-    top: 60px;
-    left: -300px;
-    width: 260px;
-    height: calc(100vh - 60px);
-    background: var(--panel-bg);
-    backdrop-filter: blur(20px);
-    border-right: 1px solid var(--border-color);
-    border-radius: 0 20px 20px 0;
-    transition: left 0.4s ease;
-    z-index: 1500;
-    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.5);
-}
-
-  .sidebar.active {
-    left: 0;
-  }
-
-  .sidebar.collapsed {
-    width: 260px;
-    left: -260px;
-  }
-
-  .content-area {
-    margin-left: 0 ;
-    padding: 15px 12px;
-    width: 100%;
-  }
-
-  .nav-item {
-    padding: 14px 16px;
-    font-size: 15px;
-  }
-
-  .nav-item i {
-    width: 38px;
-    height: 38px;
-    font-size: 18px;
-  }
-
-  .sabhy-card,
-#resultListContainer > div,
-.news-header-card {
-    width: 100% ;
-    margin: 0 auto;
-}
-
-/* 🔥 News & Event cards full width - Mobile */
-#listContainer > div {
-    width: 100% ;
-    max-width: 100% ;
-    margin: 0 ;
-    box-sizing: border-box ;
-}
-
-#listContainer {
-    display: grid ;
-    grid-template-columns: 1fr ;
-    gap: 15px ;
-    width: 100%;
-}
-
-  #listContainer {
-    grid-template-columns: 1fr ;
-    gap: 15px;
-  }
-
-  .modal-box {
-    width: 95% ;
-    margin: 20px auto ;
-    padding: 20px;
-    max-height: 90vh;
-  }
-
-  .login-card {
-    width: 92% ;
-    padding: 25px 20px ;
-  }
-
-  .add-btn, .btn-save, .btn-cancel {
-    width: 100%;
-    margin-top: 8px;
-  }
-
-  .form-actions {
-    flex-direction: column;
-    gap: 10px;
-  }
-}
-
 /* ==================== SMALL MOBILE (≤ 480px) ==================== */
 @media (max-width: 480px) {
   .top-header {
@@ -921,44 +784,6 @@ body.is-admin button.admin-only {
   .add-btn {
     width: 100%;
   }
-}
-
-/* ==================== DESKTOP (≥ 769px) ==================== */
-/* ==================== DESKTOP (≥ 769px) ==================== */
-@media (min-width: 769px) {
-  .content-area {
-    margin-left: 0 ;
-    padding: 12px 10px ;
-    width: 100% ;
-    max-width: 100vw ;
-    box-sizing: border-box ;
-    overflow-x: hidden ;
-}
-
-.news-header-card {
-    width: 100% ;
-    padding: 12px 15px ;
-    box-sizing: border-box ;
-    margin: 0 ;
-}
-
-#listContainer {
-    width: 100% ;
-    max-width: 100% ;
-    padding: 0 ;
-    margin: 0 ;
-    box-sizing: border-box ;
-    display: grid ;
-    grid-template-columns: 1fr ;
-    gap: 15px ;
-}
-
-#listContainer > div {
-    width: 100% ;
-    max-width: 100% ;
-    margin: 0 ;
-    box-sizing: border-box ;
-}
 }
 
 /* ==================== RESULT PAGE - DROPDOWN & ON/OFF BUTTON SMALLER ==================== */
@@ -1531,56 +1356,6 @@ function generateYearDropdown() {
 
 		  // 1. મેનુ પર ક્લિક કરવાથી પેજ દેખાડવાનું ફંક્શન
 		  async function showContent(type) {
-  if (type === "result") {
-  const userRole = localStorage.getItem("userRole") || "public";
-  
-  // Public user માટે server થી live status check કરો
-  if (userRole !== "admin") {
-    const contentArea = document.getElementById("mainContent");
-    contentArea.innerHTML = `<div style="text-align:center; padding:40px; color:#94a3b8;">લોડ થઈ રહ્યું છે...</div>`;
-    
-    try {
-      const res = await fetch(`${SCRIPT_URL}?action=getResultStatus`);
-      const data = await res.json();
-      const isEnabled = data.status === "success" ? (data.enabled !== false) : true;
-      localStorage.setItem("resultEnabled", isEnabled ? "true" : "false");
-      
-      if (!isEnabled) {
-        contentArea.innerHTML = `
-  <div style="padding:40px 20px 40px 0; max-width:420px;">
-    <div style="text-align:center; padding:35px 25px; background:rgba(15,23,42,0.5); border:1px solid rgba(239,68,68,0.2); border-radius:20px;">
-      <div style="width:75px; height:75px; margin:0 auto 18px; background:rgba(239,68,68,0.1); border:2px solid rgba(239,68,68,0.3); border-radius:50%; display:flex; align-items:center; justify-content:center;">
-        <i class="fa-solid fa-lock" style="font-size:32px; color:#ef4444;"></i>
-      </div>
-      <h2 style="color:#f8fafc; margin:0 0 8px 0; font-size:17px; font-weight:bold;">
-        રિઝલ્ટ હાલમાં ઉપલબ્ધ નથી
-      </h2>
-      <p style="color:#94a3b8; font-size:12px; line-height:1.5; margin:0;">
-        એડમિન દ્વારા આ વિભાગ હાલ પૂરતો બંધ કરવામાં આવ્યો છે.<br>
-        કૃપા કરીને થોડા સમય પછી ફરી પ્રયાસ કરો.
-      </p>
-    </div>
-  </div>
-`;
-        return;
-      }
-    } catch(err) {
-      console.error("Result status check error:", err);
-      // Error પર fallback: localStorage માંથી check કરો
-      if (localStorage.getItem("resultEnabled") === "false") {
-        contentArea.innerHTML = `
-          <div style="text-align:center; padding:80px 30px;">
-            <i class="fa-solid fa-lock" style="font-size:60px; color:#ef4444; opacity:0.6; margin-bottom:20px;"></i>
-            <h2 style="color:#f8fafc;">રિઝલ્ટ હાલમાં ઉપલબ્ધ નથી</h2>
-          </div>
-        `;
-        return;
-      }
-    }
-  }
-}
-  
-  // ⬇️⬇️⬇️ અહીંયા નવો code પેસ્ટ કરો ⬇️⬇️⬇️
   
   // 🔒 ACHIEVEMENT LOCK CHECK (Public user માટે)
   if (type === "achievements") {
@@ -2321,6 +2096,7 @@ return;
 				// 🎯 Birth Date Auto-Format (DD-MM-YYYY)
 setTimeout(() => {
     setupBirthDateField("sBirth");
+	document.querySelector(".btn-save").onclick = handleSave;
 }, 100);
 			 } else if (type === "business") {
   const userMemberNo = localStorage.getItem("userMemberNo") || "";
@@ -2542,15 +2318,6 @@ setTimeout(() => {
 			}
 		  }
 		  
-		  // લોડર બતાવવા કે છુપાવવા માટેનું ફંક્શન
-		  function showLoader(status) {
-			const loader = document.getElementById("globalLoader");
-			if (status) {
-			  loader.style.display = "flex";
-			} else {
-			  loader.style.display = "none";
-			}
-		  }
 		  function showLoader(show) {
   const loader = document.getElementById("globalLoader");
   if (show) {
@@ -3537,17 +3304,22 @@ if (data.familyMembers && data.familyMembers.length > 0) {
 			  const result = await res.json();
 			  showLoader(false);
 
-		  if (result.status === "success") {
-		  alert(result.message || "વિગત ઉમેરાઈ ગઈ ✅");
-		  closeModal();
-		  
-		  // 🔥 List આપોઆપ refresh થશે
-		  if (document.getElementById("resultListContainer")) {
-			loadResults();
-		  }
-		} else {
-		  alert("ભૂલ: " + (result.message || "સેવ થઈ શક્યું નથી"));
-		}
+		 if (result.status === "success") {
+  alert(result.message || "વિગત ઉમેરાઈ ગઈ ✅");
+  closeModal();
+  
+  // 🔄 નવો સુધારો: સભ્યની વિગતો ઓટોમેટિક રિફ્રેશ કરવા માટે 
+  if (typeof loadMemberData === "function") {
+    loadMemberData(); 
+  }
+
+  // 🔥 List આપોઆપ refresh થશે
+  if (document.getElementById("resultListContainer")) {
+    loadResults();
+  }
+} else {
+  alert("ભૂલ: " + (result.message || "સેવ થઈ શક્યું નથી"));
+}
 			} catch (err) {
 			  showLoader(false);
 			  console.error(err);
@@ -6943,6 +6715,11 @@ async function openEditMemberForm() {
 
   // Loader ચાલુ કરો
   showLoader(true);
+  const saveBtn = document.querySelector(".btn-save");
+  if (saveBtn) {
+      saveBtn.innerText = "અપડેટ કરો";
+      saveBtn.onclick = handleSave;
+  }
 
   try {
     // Server પરથી હાલની વિગતો લાવો
@@ -6976,6 +6753,7 @@ async function openEditMemberForm() {
     showLoader(false);
   }
 }
+
 		</script>
 	  </body>
 	</html>
