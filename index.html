@@ -1168,72 +1168,7 @@ body.is-admin button.admin-only {
 			"https://script.google.com/macros/s/AKfycbwqfrafAhycKcAyluBnC-UrYC_wJxM8hF3w-s6rFVwlyfSfj_XTVko9C65MpOVtlIFj/exec";
 			
 
-		  async function login() {
-			const mobileInput = document.getElementById("loginMobile");
-			const passInput = document.getElementById("loginPass");
-
-			const mobile = mobileInput.value.trim();
-			const pass = passInput.value.trim();
-
-			// ૧. વેલિડેશન: મોબાઈલ અને પાસવર્ડ ખાલી નથી ને તે ચેક કરો
-			if (mobile.length !== 10 || pass === "") {
-			  alert("મહેરબાની કરીને ૧૦ અંકનો મોબાઈલ નંબર અને પાસવર્ડ નાખો.");
-			  return;
-			}
-
-			// ૨. લોડર ચાલુ કરો (યુઝર બીજે ક્યાંય ટચ ન કરી શકે)
-			showLoader(true);
-
-			try {
-			  // ૩. સર્વરને વિનંતી મોકલો
-			  const response = await fetch(
-				`${SCRIPT_URL}?mobile=${mobile}&pass=${pass}`,
-			  );
-
-			  if (!response.ok) {
-				throw new Error("Network response was not ok");
-			  }
-
-			  const data = await response.json();
-
-			  // ૪. સર્વરના સ્ટેટસ મુજબ નિર્ણય લો
-			  if (data.status === "success") {
-				// સફળ લોગિન: ડેટા સેવ કરો
-				localStorage.setItem("userMobile", mobile);
-				localStorage.setItem("userMemberNo", data.MemberNo);
-				localStorage.setItem("userRole", data.Role || "public");
-
-				// UI બદલો (લોગિન સ્ક્રીન કાઢી કન્ટેન્ટ બતાવો)
-				document.body.classList.remove("logged-out");
-				document.body.classList.add("logged-in");
-				preloadAllImportantData();
-				// ડિફોલ્ટ સમાચાર પેજ બતાવો
-				showContent("news");
-
-				// લોડર બંધ કરો
-				showLoader(false);
-			  } else if (data.status === "wrong_pass") {
-				// પાસવર્ડ ખોટો હોય ત્યારે
-				showLoader(false);
-				alert("તમારો પાસવર્ડ ખોટો છે! ❌");
-			  } else if (data.status === "not_registered") {
-				// મોબાઈલ નંબર રજીસ્ટર ન હોય ત્યારે
-				showLoader(false);
-				alert("આ મોબાઈલ નંબર રજીસ્ટર નથી! ❌");
-			  } else {
-				// અન્ય કોઈ એરર માટે
-				showLoader(false);
-				alert("મોબાઈલ નંબર અથવા પાસવર્ડમાં ભૂલ છે ❌");
-			  }
-			} catch (err) {
-			  // ૫. સર્વર કનેક્શન એરર વખતે લોડર બંધ કરો
-			  showLoader(false);
-			  console.error("Error:", err);
-			  alert(
-				"સર્વર સાથે સંપર્ક થઈ શક્યો નથી. તમારી ઈન્ટરનેટ કનેક્શન અને Script URL ચેક કરો.",
-			  );
-			}
-		  }
+		  
 		  // --- ૨. લોગઆઉટ ફંક્શન ---
 		  function logout() {
 			localStorage.clear();
@@ -3139,82 +3074,82 @@ if (data.familyMembers && data.familyMembers.length > 0) {
 						  }
 						}
 
-						allCardsHtml += `
+						// 🎯 બદલાવ: અહીંથી `!window._isViewingOtherMember` શરત કાઢી નાખી છે 
+// જેથી એડમિનને પણ હંમેશા Edit અને Delete બટન દેખાય.
+
+allCardsHtml += `
     <div style="background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 18px; padding: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); margin-bottom: 20px;">
         
-        <!-- 🎯 Header: Photo + Name -->
         <div style="display: flex; align-items: center; gap: 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 12px; margin-bottom: 15px;">
             
             ${member.fPhoto && member.fPhoto.trim() !== '' ? `
-    <div onclick="openImage('${member.fPhoto}')" style="
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        overflow: hidden;
-        flex-shrink: 0;
-        border: 2px solid #3b82f6;
-        cursor: zoom-in;
-        background: #0f172a;
-    ">
-        <img src="${member.fPhoto}" 
-             style="width: 100%; height: 100%; object-fit: cover;"
-             onerror="this.parentElement.innerHTML='<div style=\\'width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#64748b;\\'><i class=\\'fa-solid fa-user\\' style=\\'font-size:24px;\\'></i></div>';">
-    </div>
-` : `
-		<div onclick="openFamilyPhotoUpload('${member.fMobile}', '${(member.fName + ' ' + member.fSecondName + ' ' + member.fSurname).replace(/'/g, "\\'")}', ${familyIndex})"
-         style="
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: rgba(59, 130, 246, 0.08);
-            border: 2px dashed rgba(59, 130, 246, 0.5);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            color: #60a5fa;
-            cursor: pointer;
-            transition: 0.3s;
-            gap: 1px;
-         "
-         onmouseover="this.style.background='rgba(59, 130, 246, 0.15)'; this.style.borderColor='#3b82f6';"
-         onmouseout="this.style.background='rgba(59, 130, 246, 0.08)'; this.style.borderColor='rgba(59, 130, 246, 0.5)';"
-         title="ફોટો ઉમેરો">
-        <i class="fa-solid fa-plus" style="font-size: 16px;"></i>
-        <span style="font-size: 9px;">ફોટો</span>
-    </div>
-`}
+                <div onclick="openImage('${member.fPhoto}')" style="
+                    width: 60px;
+                    height: 60px;
+                    border-radius: 50%;
+                    overflow: hidden;
+                    flex-shrink: 0;
+                    border: 2px solid #3b82f6;
+                    cursor: zoom-in;
+                    background: #0f172a;
+                ">
+                    <img src="${member.fPhoto}" 
+                         style="width: 100%; height: 100%; object-fit: cover;"
+                         onerror="this.parentElement.innerHTML='<div style=\\'width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#64748b;\\'><i class=\\'fa-solid fa-user\\' style=\\'font-size:24px;\\'></i></div>';">
+                </div>
+            ` : `
+                <div onclick="openFamilyPhotoUpload('${member.fMobile}', '${(member.fName + ' ' + member.fSecondName + ' ' + member.fSurname).replace(/'/g, "\\'")}', ${familyIndex})"
+                 style="
+                    width: 60px;
+                    height: 60px;
+                    border-radius: 50%;
+                    background: rgba(59, 130, 246, 0.08);
+                    border: 2px dashed rgba(59, 130, 246, 0.5);
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
+                    color: #60a5fa;
+                    cursor: pointer;
+                    transition: 0.3s;
+                    gap: 1px;
+                 "
+                 onmouseover="this.style.background='rgba(59, 130, 246, 0.15)'; this.style.borderColor='#3b82f6';"
+                 onmouseout="this.style.background='rgba(59, 130, 246, 0.08)'; this.style.borderColor='rgba(59, 130, 246, 0.5)';"
+                 title="ફોટો ઉમેરો">
+                    <i class="fa-solid fa-plus" style="font-size: 16px;"></i>
+                    <span style="font-size: 9px;">ફોટો</span>
+                </div>
+            `}
             
             <h3 style="color: #60a5fa; margin: 0; font-size: 16px; font-weight: bold; flex: 1;">
                 <i class="fa-solid fa-user-check"></i> ${member.fName} ${member.fSecondName} ${member.fSurname}
             </h3>
-			 ${!window._isViewingOtherMember ? `
-        <div style="display: flex; gap: 6px; flex-shrink: 0;">
-            <button onclick="openEditFamilyForm(${familyIndex})" 
-                style="background: rgba(59,130,246,0.15); border: 1px solid rgba(59,130,246,0.4); color: #60a5fa; width: 34px; height: 34px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;"
-                onmouseover="this.style.background='rgba(59,130,246,0.3)'" 
-                onmouseout="this.style.background='rgba(59,130,246,0.15)'"
-                title="વિગત બદલો">
-                <i class="fa-solid fa-pen-to-square" style="font-size: 13px;"></i>
-            </button>
-            <button onclick="deleteFamilyMember(${familyIndex})" 
-                style="background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); color: #ef4444; width: 34px; height: 34px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;"
-                onmouseover="this.style.background='rgba(239,68,68,0.3)'" 
-                onmouseout="this.style.background='rgba(239,68,68,0.15)'"
-                title="સભ્ય દૂર કરો">
-                <i class="fa-solid fa-trash" style="font-size: 13px;"></i>
-            </button>
-        </div>
-    ` : ''}
+            
+            <div style="display: flex; gap: 6px; flex-shrink: 0;">
+                <button onclick="openEditFamilyForm(${familyIndex})" 
+                    style="background: rgba(59,130,246,0.15); border: 1px solid rgba(59,130,246,0.4); color: #60a5fa; width: 34px; height: 34px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;"
+                    onmouseover="this.style.background='rgba(59,130,246,0.3)'" 
+                    onmouseout="this.style.background='rgba(59,130,246,0.15)'"
+                    title="વિગત બદલો">
+                    <i class="fa-solid fa-pen-to-square" style="font-size: 13px;"></i>
+                </button>
+                <button onclick="deleteFamilyMember(${familyIndex})" 
+                    style="background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); color: #ef4444; width: 34px; height: 34px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;"
+                    onmouseover="this.style.background='rgba(239,68,68,0.3)'" 
+                    onmouseout="this.style.background='rgba(239,68,68,0.15)'"
+                    title="સભ્ય દૂર કરો">
+                    <i class="fa-solid fa-trash" style="font-size: 13px;"></i>
+                </button>
+            </div>
+            
         </div>
         
         <div style="display: flex; flex-direction: column; gap: 12px; font-size: 13px; color: #cbd5e1;">
             <p style="margin: 0; display: flex; align-items: center; gap: 10px;"><b style="color:#94a3b8; width: 18px; text-align: center;"><i class="fa-solid fa-phone"></i></b> મોબાઈલ: <span style="color: #fff;">${member.fMobile}</span></p>
-            
-<p style="margin: 0; display: flex; align-items: center; gap: 10px;"><b style="color:#94a3b8; width: 18px; text-align: center;"><i class="fa-solid fa-briefcase"></i></b> ${occLabel}: <span style="color: #fff;">${occValue}</span></p>
+            <p style="margin: 0; display: flex; align-items: center; gap: 10px;"><b style="color:#94a3b8; width: 18px; text-align: center;"><i class="fa-solid fa-briefcase"></i></b> ${occLabel}: <span style="color: #fff;">${occValue}</span></p>
             ${educationDetail ? `<p style="margin: 0; display: flex; align-items: center; gap: 10px;"><b style="color:#94a3b8; width: 18px; text-align: center;"><i class="fa-solid fa-graduation-cap"></i></b> અભ્યાસ: <span style="color: #fff;">${educationDetail}</span></p>` : ''}
-            
             <p style="margin: 0; display: flex; align-items: center; gap: 10px;"><b style="color:#94a3b8; width: 18px; text-align: center;"><i class="fa-solid fa-cake-candles"></i></b> જન્મ તારીખ: <span style="color: #fff;">${member.fBirth && member.fBirth.includes("NaN") ? "-" : member.fBirth}</span></p>
             <p style="margin: 0; display: flex; align-items: center; gap: 10px;"><b style="color:#94a3b8; width: 18px; text-align: center;"><i class="fa-solid fa-venus-mars"></i></b> જાતિ: <span style="color: #fff;">${member.fGender}</span></p>
             <p style="margin: 0; display: flex; align-items: center; gap: 10px;"><b style="color:#ef4444; width: 18px; text-align: center;"><i class="fa-solid fa-droplet"></i></b> બ્લડ ગ્રુપ: <span style="color: #fff;">${member.fBlood}</span></p>
@@ -3239,93 +3174,98 @@ if (data.familyMembers && data.familyMembers.length > 0) {
 			}
 		  }
 		  async function handleSave() {
-				   const mobile = localStorage.getItem("userMobile");
+    // 🎯 બદલાવ: એડમિન કોઈ સભ્ય પસંદ કરે ત્યારે તેનો જ મોબાઈલ નંબર સેવ કરવા માટે લેવો
+    const displayMobile = document.getElementById("mobile") ? document.getElementById("mobile").innerText.trim() : "";
+    const mobile = displayMobile && displayMobile !== "-" ? displayMobile : localStorage.getItem("userMobile");
 
-			if (!mobile) {
-			  alert("તમે લોગિન નથી.");
-			  return;
-			}
+    if (!mobile) {
+      alert("તમે લોગિન નથી અથવા મોબાઈલ નંબર મળતો નથી.");
+      return;
+    }
 
-			// 📦 બધા જ ઈનપુટ એલિમેન્ટ્સ મેળવો
-			const emailField = document.getElementById("sEmail");
-			const educationField = document.getElementById("sEducation");
-			const businessField = document.getElementById("sBusiness");
-			const birthField = document.getElementById("sBirth");
-			const genderField = document.getElementById("sGender");
-			const bloodField = document.getElementById("sBlood");
-			const houseField = document.getElementById("sHouse");
-			const addressField = document.getElementById("sAddress");
+    // 📦 બધા જ ઈનપુટ એલિમેન્ટ્સ મેળવો
+    const emailField = document.getElementById("sEmail");
+    const educationField = document.getElementById("sEducation");
+    const businessField = document.getElementById("sBusiness");
+    const birthField = document.getElementById("sBirth");
+    const genderField = document.getElementById("sGender");
+    const bloodField = document.getElementById("sBlood");
+    const houseField = document.getElementById("sHouse");
+    const addressField = document.getElementById("sAddress");
 
-			// 🛑 VALIDATION: જો એક પણ વસ્તુ ખાલી હોય તો અહીં જ અટકાવી દો
-			if (
-			  !emailField.value.trim() ||
-			  !educationField.value.trim() ||
-			  !businessField.value.trim() ||
-			  !birthField.value.trim() ||
-			  !genderField.value.trim() ||
-			  !bloodField.value.trim() ||
-			  !houseField.value.trim() ||
-			  !addressField.value.trim()
-			) {
-			  alert(
-				"મહેરબાની કરીને બધી જ વિગતો ભરો. કોઈ પણ ખાનું ખાલી રાખશો નહીં. ❌",
-			  );
-			  return;
-			}
+    // 🛑 VALIDATION: જો એક પણ વસ્તુ ખાલી હોય તો અહીં જ અટકાવી દો
+    if (
+      !emailField.value.trim() ||
+      !educationField.value.trim() ||
+      !businessField.value.trim() ||
+      !birthField.value.trim() ||
+      !genderField.value.trim() ||
+      !bloodField.value.trim() ||
+      !houseField.value.trim() ||
+      !addressField.value.trim()
+    ) {
+      alert("મહેરબાની કરીને બધી જ વિગતો ભરો. કોઈ પણ ખાનું ખાલી રાખશો નહીં. ❌");
+      return;
+    }
 
-			// 📧 Email Format Validation (વધારાનું ચેક)
-			const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-			if (!emailPattern.test(emailField.value.trim())) {
-			  alert("મહેરબાની કરીને સાચું ઈમેઈલ આઈડી લખો. 📧");
-			  return;
-			}
+    // 📧 Email Format Validation
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(emailField.value.trim())) {
+      alert("મહેરબાની કરીને સાચું ઈમેઈલ આઈડી લખો. 📧");
+      return;
+    }
 
-			// 📦 બધો ડેટા ઓબ્જેક્ટમાં ભેગો કરો
-			const data = {
-			  mobile: mobile,
-			  email: emailField.value.trim(),
-			  education: educationField.value.trim(),
-			  business: businessField.value.trim(),
-			  birthdate: birthField.value.trim(),
-			  gender: genderField.value.trim(),
-			  blood: bloodField.value.trim(),
-			  house: houseField.value.trim(),
-			  address: addressField.value.trim(),
-			};
+    // 📦 બધો ડેટા ઓબ્જેક્ટમાં ભેગો કરો
+    const data = {
+      mobile: mobile, // 🎯 અહી સિલેક્ટ કરેલા સભ્યનો જ મોબાઈલ જશે
+      email: emailField.value.trim(),
+      education: educationField.value.trim(),
+      business: businessField.value.trim(),
+      birthdate: birthField.value.trim(),
+      gender: genderField.value.trim(),
+      blood: bloodField.value.trim(),
+      house: houseField.value.trim(),
+      address: addressField.value.trim(),
+    };
 
-			try {
-			  showLoader(true);
+    try {
+      showLoader(true);
 
-			  const res = await fetch(SCRIPT_URL, {
-				method: "POST",
-				body: JSON.stringify(data),
-			  });
+      const res = await fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
 
-			  const result = await res.json();
-			  showLoader(false);
+      const result = await res.json();
+      showLoader(false);
 
-		 if (result.status === "success") {
-  alert(result.message || "વિગત ઉમેરાઈ ગઈ ✅");
-  closeModal();
-  
-  // 🔄 નવો સુધારો: સભ્યની વિગતો ઓટોમેટિક રિફ્રેશ કરવા માટે 
-  if (typeof loadMemberData === "function") {
-    loadMemberData(); 
-  }
+      if (result.status === "success") {
+        alert(result.message || "વિગત સફળતાપૂર્વક અપડેટ થઈ ગઈ ✅");
+        closeModal();
+        
+        // 🔄 🎯 સુધારો: એડમિને જે સભ્યનું ફોર્મ ભર્યું હોય એનું જ કાર્ડ રિફ્રેશ કરો
+        if (typeof loadMemberData === "function") {
+          const adminDropdown = document.getElementById("adminMemberDropdown");
+          if (adminDropdown && adminDropdown.value) {
+              loadMemberData(adminDropdown.value); 
+          } else {
+              loadMemberData(); 
+          }
+        }
 
-  // 🔥 List આપોઆપ refresh થશે
-  if (document.getElementById("resultListContainer")) {
-    loadResults();
-  }
-} else {
-  alert("ભૂલ: " + (result.message || "સેવ થઈ શક્યું નથી"));
+        // 🔥 List આપોઆપ refresh થશે
+        if (document.getElementById("resultListContainer")) {
+          loadResults();
+        }
+      } else {
+        alert("ભૂલ: " + (result.message || "સેવ થઈ શક્યું નથી"));
+      }
+    } catch (err) {
+      showLoader(false);
+      console.error(err);
+      alert("Server error ❌ ડેટા સેવ થઈ શક્યો નથી.");
+    }
 }
-			} catch (err) {
-			  showLoader(false);
-			  console.error(err);
-			  alert("Server error ❌ ડેટા સેવ થઈ શક્યો નથી.");
-			}
-		  }
 		  async function handleResultSave() {
 	  const mobile = localStorage.getItem("userMobile");
 	  const memberNo = localStorage.getItem("userMemberNo") || "";
@@ -3437,157 +3377,158 @@ if (data.familyMembers && data.familyMembers.length > 0) {
 			alert("Data Updated Successfully");
 		  }
 		  function openFamilyForm() {
-			document.getElementById("modalTitle").innerHTML =
-			  `<i class="fa-solid fa-users"></i> નવો સભ્ય ઉમેરો`;
-			const formBody = document.querySelector(".form-body");
+    document.getElementById("modalTitle").innerHTML =
+        `<i class="fa-solid fa-users"></i> નવો સભ્ય ઉમેરો`;
+    const formBody = document.querySelector(".form-body");
 
-			// લોગિન થયેલા મુખ્ય સભ્યની અટક મેળવો
-			const userSurname = document.getElementById("surname")
-			  ? document.getElementById("surname").innerText
-			  : "";
+    // 🎯 બદલાવ: સ્ક્રીન પર જે સભ્ય દેખાઈ રહ્યો છે તેની જ અટક મેળવો
+    const displaySurname = document.getElementById("surname") ? document.getElementById("surname").innerText.trim() : "";
+    const userSurname = displaySurname && displaySurname !== "-" ? displaySurname : "";
 
-			formBody.innerHTML = `
-			<div class="form-row">
-				<input type="text" id="fName" placeholder="નામ">
-			</div>
-			<div class="form-row">
-				<input type="text" id="fSecondName" placeholder="બીજું નામ">
-			</div>
-			
-			<div class="form-row">
-				<label style="color: #94a3b8; font-size: 13px; margin-left: 5px;">અટક:</label>
-				<input type="text" id="fSurname" value="${userSurname}" readonly style="background: rgba(255,255,255,0.05) ; color: #94a3b8 ; cursor: not-allowed;">
-			</div>
+    formBody.innerHTML = `
+    <div class="form-row">
+        <input type="text" id="fName" placeholder="નામ">
+    </div>
+    <div class="form-row">
+        <input type="text" id="fSecondName" placeholder="બીજું નામ">
+    </div>
+    
+    <div class="form-row">
+        <label style="color: #94a3b8; font-size: 13px; margin-left: 5px;">અટક:</label>
+        <input type="text" id="fSurname" value="${userSurname}" readonly style="background: rgba(255,255,255,0.05) ; color: #94a3b8 ; cursor: not-allowed;">
+    </div>
 
-			<div class="form-row">
-				<input type="text" id="fMobile" placeholder="મોબાઇલ નંબર" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-				
-			</div>
+    <div class="form-row">
+        <input type="text" id="fMobile" placeholder="મોબાઇલ નંબર" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+        
+    </div>
 
-			<div class="form-row">
-				<label style="color: #94a3b8; font-size: 14px; margin-bottom: 5px;">વ્યવસાય:</label>
-				<select id="fBusiness" onchange="handleOccupationChange(this.value)">
-					<option value="">પસંદ કરો</option>
-					<option value="અભ્યાસ">અભ્યાસ</option>
-					<option value="નોકરી">નોકરી</option>
-					<option value="વ્યવસાય">વ્યવસાય</option>
-					<option value="ગૃહિણી">ગૃહિણી</option>
-					<option value="બાળક ">બાળક </option>
-					<option value="ખેતીવાડી">ખેતીવાડી</option>
-					<option value="અન્ય">અન્ય</option>
-				</select>
-			</div>
+    <div class="form-row">
+        <label style="color: #94a3b8; font-size: 14px; margin-bottom: 5px;">વ્યવસાય:</label>
+        <select id="fBusiness" onchange="handleOccupationChange(this.value)">
+            <option value="">પસંદ કરો</option>
+            <option value="અભ્યાસ">અભ્યાસ</option>
+            <option value="નોકરી">નોકરી</option>
+            <option value="વ્યવસાય">વ્યવસાય</option>
+            <option value="ગૃહિણી">ગૃહિણી</option>
+            <option value="બાળક ">બાળક </option>
+            <option value="ખેતીવાડી">ખેતીવાડી</option>
+            <option value="અન્ય">અન્ય</option>
+        </select>
+    </div>
 
-			<div id="dynamicOccupationField"></div>
+    <div id="dynamicOccupationField"></div>
 
-			<div class="form-row">
-    <label style="color: #94a3b8; font-size: 14px; margin-bottom: 5px;">જન્મ તારીખ:</label>
-    <input type="text" id="fBirth" placeholder="DD-MM-YYYY" maxlength="10" inputmode="numeric"
-        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-</div>
+    <div class="form-row">
+        <label style="color: #94a3b8; font-size: 14px; margin-bottom: 5px;">જન્મ તારીખ:</label>
+        <input type="text" id="fBirth" placeholder="DD-MM-YYYY" maxlength="10" inputmode="numeric"
+            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    </div>
 
-			<div class="form-row">
-				<label style="color: #94a3b8; font-size: 14px; margin-bottom: 5px;">જાતિ:</label>
-				<select id="fGender">
-					<option value="">પસંદ કરો</option>
-					<option value="Male">પુરૂષ</option>
-					<option value="Female">સ્ત્રી</option>
-				</select>
-			</div>
+    <div class="form-row">
+        <label style="color: #94a3b8; font-size: 14px; margin-bottom: 5px;">જાતિ:</label>
+        <select id="fGender">
+            <option value="">પસંદ કરો</option>
+            <option value="Male">પુરૂષ</option>
+            <option value="Female">સ્ત્રી</option>
+        </select>
+    </div>
 
-			<div class="form-row">
-				<label style="color: #94a3b8; font-size: 14px; margin-bottom: 5px;">બ્લડ ગ્રુપ:</label>
-				<select id="fBlood">
-					<option value="">પસંદ કરો</option>
-					<option value="A+">A+</option><option value="A-">A-</option>
-					<option value="B+">B+</option><option value="B-">B-</option>
-					<option value="O+">O+</option><option value="O-">O-</option>
-					<option value="AB+">AB+</option><option value="AB-">AB-</option>
-					<option value="Unknown">ખબર નથી</option>
-				</select>
-			</div>
+    <div class="form-row">
+        <label style="color: #94a3b8; font-size: 14px; margin-bottom: 5px;">બ્લડ ગ્રુપ:</label>
+        <select id="fBlood">
+            <option value="">પસંદ કરો</option>
+            <option value="A+">A+</option><option value="A-">A-</option>
+            <option value="B+">B+</option><option value="B-">B-</option>
+            <option value="O+">O+</option><option value="O-">O-</option>
+            <option value="AB+">AB+</option><option value="AB-">AB-</option>
+            <option value="Unknown">ખબર નથી</option>
+        </select>
+    </div>
 
-			<div class="form-row">
-				<label style="color: #94a3b8; font-size: 14px; margin-bottom: 5px;">મુખ્ય સભ્ય સાથેનો સંબંધ:</label>
-				<select id="fRelation">
-					<option value="">સંબંધ પસંદ કરો</option>
-					<option value="દાદા">દાદા</option>
-					<option value="દાદી">દાદી</option>
-					<option value="પિતા">પિતા</option>
-					<option value="માતા">માતા</option>
-					<option value="મોટા પપ્પા">મોટા પપ્પા</option>
-					<option value="મોટા મમ્મી">મોટા મમ્મી</option>
-					<option value="પત્ની">પત્ની</option>
-					<option value="કાકા">કાકા</option>
-					<option value="કાકી">કાકી</option>
-					<option value="ભાઈ">ભાઈ</option>
-					<option value="ભાભી">ભાભી</option>
-					<option value="ભત્રીજો">ભત્રીજો</option>
-					<option value="ભત્રીજી">ભત્રીજી</option>
-					<option value="બહેન">બહેન</option>
-					<option value="દીકરો">દીકરો</option>
-					<option value="દીકરી">દીકરી</option>
-					<option value="પુત્ર વધુ ">પુત્ર વધુ </option>
-					<option value="પૌત્ર">પૌત્ર</option>
-					<option value="પૌત્રી">પૌત્રી</option>
-				</select>
-			</div>
-			<div class="form-row">
-    <label style="color: #94a3b8; font-size: 14px; margin-bottom: 5px;">સભ્યનો ફોટો:</label>
-    <input type="file" id="fPhoto" accept="image/*" style="width: 100%; background: #111827; border: 1px solid #1f2937; color: white; padding: 12px; border-radius: 8px;">
-</div>
-		`;
+    <div class="form-row">
+        <label style="color: #94a3b8; font-size: 14px; margin-bottom: 5px;">મુખ્ય સભ્ય સાથેનો સંબંધ:</label>
+        <select id="fRelation">
+            <option value="">સંબંધ પસંદ કરો</option>
+            <option value="દાદા">દાદા</option>
+            <option value="દાદી">દાદી</option>
+            <option value="પિતા">પિતા</option>
+            <option value="માતા">માતા</option>
+            <option value="મોટા પપ્પા">મોટા પપ્પા</option>
+            <option value="મોટા મમ્મી">મોટા મમ્મી</option>
+            <option value="પત્ની">પત્ની</option>
+            <option value="કાકા">કાકા</option>
+            <option value="કાકી">કાકી</option>
+            <option value="ભાઈ">ભાઈ</option>
+            <option value="ભાભી">ભાભી</option>
+            <option value="ભત્રીજો">ભત્રીજો</option>
+            <option value="ભત્રીજી">ભત્રીજી</option>
+            <option value="બહેન">બહેન</option>
+            <option value="દીકરો">દીકરો</option>
+            <option value="દીકરી">દીકરી</option>
+            <option value="પુત્ર વધુ ">પુત્ર વધુ </option>
+            <option value="પૌત્ર">પૌત્ર</option>
+            <option value="પૌત્રી">પૌત્રી</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label style="color: #94a3b8; font-size: 14px; margin-bottom: 5px;">સભ્યનો ફોટો:</label>
+        <input type="file" id="fPhoto" accept="image/*" style="width: 100%; background: #111827; border: 1px solid #1f2937; color: white; padding: 12px; border-radius: 8px;">
+    </div>
+    `;
 
-			// થીમ મુજબ સ્ટાઇલ આપવી
-			const inputs = formBody.querySelectorAll("input, select");
-			inputs.forEach((el) => {
-			  el.style.width = "100%";
-			  el.style.background = "#111827";
-			  el.style.border = "1px solid #1f2937";
-			  el.style.color = "white";
-			  el.style.padding = "12px";
-			  el.style.borderRadius = "8px";
-			  el.style.marginBottom = "10px";
-			  el.style.boxSizing = "border-box";
-			  el.style.outline = "none";
-			  el.style.fontSize = "14px";
-			});
+    // થીમ મુજબ સ્ટાઇલ આપવી
+    const inputs = formBody.querySelectorAll("input, select");
+    inputs.forEach((el) => {
+        el.style.width = "100%";
+        el.style.background = "#111827";
+        el.style.border = "1px solid #1f2937";
+        el.style.color = "white";
+        el.style.padding = "12px";
+        el.style.borderRadius = "8px";
+        el.style.marginBottom = "10px";
+        el.style.boxSizing = "border-box";
+        el.style.outline = "none";
+        el.style.fontSize = "14px";
+    });
 
-			const saveBtn = document.querySelector(".btn-save");
-			saveBtn.innerText = "સેવ કરો"; // "સાચવો" ને બદલે "સેવ કરો"
-			saveBtn.style.background = "#1e3a5f"; // બ્લુ બેકગ્રાઉન્ડ
-			saveBtn.style.color = "white";
-			saveBtn.style.border = "1px solid rgba(59, 130, 246, 0.4)";
-			saveBtn.style.color = "#3b82f6";
-			saveBtn.style.fontWeight = "bold";
-			saveBtn.onclick = handleFamilySave;
-	// Real-time Full Uppercase for Name Fields
-	setTimeout(() => {
-	  const nameInput = document.getElementById("fName");
-	  const secondNameInput = document.getElementById("fSecondName");
+    const saveBtn = document.querySelector(".btn-save");
+    saveBtn.innerText = "સેવ કરો"; 
+    saveBtn.style.background = "#1e3a5f"; 
+    saveBtn.style.color = "white";
+    saveBtn.style.border = "1px solid rgba(59, 130, 246, 0.4)";
+    saveBtn.style.color = "#3b82f6";
+    saveBtn.style.fontWeight = "bold";
+    saveBtn.onclick = handleFamilySave;
 
-	  function makeUpper(e) {
-		const cursorPos = e.target.selectionStart;
-		e.target.value = e.target.value.toUpperCase();
-		e.target.setSelectionRange(cursorPos, cursorPos);
-	  }
+    // Real-time Full Uppercase for Name Fields
+    setTimeout(() => {
+        const nameInput = document.getElementById("fName");
+        const secondNameInput = document.getElementById("fSecondName");
 
-	  if (nameInput) {
-		nameInput.addEventListener("input", makeUpper);
-		nameInput.addEventListener("blur", () => {
-		  nameInput.value = nameInput.value.toUpperCase();
-		});
-	  }
-	  if (secondNameInput) {
-		secondNameInput.addEventListener("input", makeUpper);
-		secondNameInput.addEventListener("blur", () => {
-		  secondNameInput.value = secondNameInput.value.toUpperCase();
-		});
-	  }
-setupBirthDateField("fBirth");
-}, 300);
-			document.getElementById("commonModal").style.display = "flex";
-		  }
+        function makeUpper(e) {
+            const cursorPos = e.target.selectionStart;
+            e.target.value = e.target.value.toUpperCase();
+            e.target.setSelectionRange(cursorPos, cursorPos);
+        }
+
+        if (nameInput) {
+            nameInput.addEventListener("input", makeUpper);
+            nameInput.addEventListener("blur", () => {
+                nameInput.value = nameInput.value.toUpperCase();
+            });
+        }
+        if (secondNameInput) {
+            secondNameInput.addEventListener("input", makeUpper);
+            secondNameInput.addEventListener("blur", () => {
+                secondNameInput.value = secondNameInput.value.toUpperCase();
+            });
+        }
+        setupBirthDateField("fBirth");
+    }, 300);
+
+    document.getElementById("commonModal").style.display = "flex";
+}
 
 		  // ૨. વ્યવસાય મુજબ ફીલ્ડ્સ બદલવાનું ફંક્શન
 		  function handleOccupationChange(val) {
@@ -3654,7 +3595,10 @@ setupBirthDateField("fBirth");
 		  // પરિવારનો ડેટા સેવ કરવા માટેનું ફંક્શન (બધી વિગતો ફરજિયાત સાથે)
 		  // પરિવારનો ડેટા સેવ કરવા માટેનું ફંક્શન
 		  async function handleFamilySave() {
-    const mobile = localStorage.getItem("userMobile");
+    // 🎯 બદલાવ ૧: કાર્ડ પર દેખાતા સભ્યનો મોબાઈલ નંબર લેવો
+    const displayMobile = document.getElementById("mobile") ? document.getElementById("mobile").innerText.trim() : "";
+    const mobile = displayMobile && displayMobile !== "-" ? displayMobile : localStorage.getItem("userMobile");
+
     // સભ્ય નંબર મેળવો જેનો ઉપયોગ ફોટોના નામકરણમાં થશે
     const sabhyaNo = document.getElementById("sabhyNo") ? document.getElementById("sabhyNo").innerText.trim() : "";
 
@@ -3731,7 +3675,7 @@ setupBirthDateField("fBirth");
         const familyData = {
             action: "addFamilyMember",
             type: "addFamilyMember", 
-            mainMemberMobile: mobile,
+            mainMemberMobile: mobile, // 🎯 અહીં સિલેક્ટ કરેલા સભ્યનો જ મોબાઈલ જશે
             name: fName,
             secondName: fSecondName,
             surname: fSurname,
@@ -3742,7 +3686,7 @@ setupBirthDateField("fBirth");
             gender: fGender,
             blood: fBlood,
             relation: fRelation,
-            photo: photoData // આ ડેટા Apps Script માં જશે જ્યાં Drive URL ક્રિએટ થશે
+            photo: photoData 
         };
 
         // ૬. સર્વર (Google Apps Script) પર ડેટા મોકલવો
@@ -3757,8 +3701,16 @@ setupBirthDateField("fBirth");
         if (result.status === "success") {
             alert("પરિવારના સભ્યની વિગત અને ફોટો ડ્રાઇવ લિંક સાથે સફળતાપૂર્વક સેવ થઈ ગયા! ✅");
             closeModal();
-            // મેમ્બર ડેટા રિફ્રેશ કરવો જેથી નવો સભ્ય લિસ્ટમાં દેખાય
-            if (typeof loadMemberData === "function") loadMemberData(); 
+            
+            // 🎯 બદલાવ ૨: મેમ્બર ડેટા રિફ્રેશ કરવો (જે સભ્ય સિલેક્ટ કરેલો હોય એનો જ ડેટા પાછો લાવશે)
+            if (typeof loadMemberData === "function") {
+                const adminDropdown = document.getElementById("adminMemberDropdown");
+                if (adminDropdown && adminDropdown.value) {
+                    loadMemberData(adminDropdown.value);
+                } else {
+                    loadMemberData(); 
+                }
+            }
         } else {
             alert("સેવ કરવામાં ભૂલ આવી: " + result.message);
         }
@@ -6228,7 +6180,9 @@ function openEditFamilyForm(familyIndex) {
 
 // ==================== HANDLE FAMILY UPDATE ====================
 async function handleFamilyUpdate(familyIndex) {
-    const mobile = localStorage.getItem("userMobile");
+  
+const displayMobile = document.getElementById("mobile") ? document.getElementById("mobile").innerText.trim() : "";
+const mobile = displayMobile && displayMobile !== "-" ? displayMobile : localStorage.getItem("userMobile");
     if (!mobile) {
         alert("તમે લોગિન નથી.");
         return;
@@ -6331,7 +6285,9 @@ async function deleteFamilyMember(familyIndex) {
     );
     if (!confirmed) return;
 
-    const mobile = localStorage.getItem("userMobile");
+    // Function ni andar aa line muki devi
+const displayMobile = document.getElementById("mobile") ? document.getElementById("mobile").innerText.trim() : "";
+const mobile = displayMobile && displayMobile !== "-" ? displayMobile : localStorage.getItem("userMobile");
     if (!mobile) {
         alert("તમે લોગિન નથી.");
         return;
@@ -6699,10 +6655,14 @@ async function confirmDeleteAchievement(idx) {
   }
 }
 // ==================== EDIT MEMBER DETAILS (Pre-fill form) ====================
+// ==================== EDIT MEMBER DETAILS (Pre-fill form) ====================
 async function openEditMemberForm() {
-  const mobile = localStorage.getItem("userMobile");
+  // 🎯 બદલાવ: એડમિન કોઈ સભ્ય પસંદ કરે ત્યારે તેનો જ મોબાઈલ નંબર લેવા
+  const displayMobile = document.getElementById("mobile") ? document.getElementById("mobile").innerText.trim() : "";
+  const mobile = displayMobile && displayMobile !== "-" ? displayMobile : localStorage.getItem("userMobile");
+
   if (!mobile) {
-    alert("તમે લોગિન નથી.");
+    alert("સભ્યનો મોબાઈલ નંબર મળતો નથી.");
     return;
   }
 
@@ -6722,12 +6682,12 @@ async function openEditMemberForm() {
   }
 
   try {
-    // Server પરથી હાલની વિગતો લાવો
+    // 🎯 Server પરથી હાલની વિગતો લાવો (સિલેક્ટ કરેલા સભ્યની)
     const res = await fetch(`${SCRIPT_URL}?type=memberData&mobile=${mobile}`);
     const data = await res.json();
 
     if (data.status === "success") {
-      // 🎯 બધા fields માં existing values ભરો
+      // બધા fields માં existing values ભરો
       const emailField = document.getElementById("sEmail");
       const educationField = document.getElementById("sEducation");
       const businessField = document.getElementById("sBusiness");
