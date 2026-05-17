@@ -1583,6 +1583,84 @@ setTimeout(() => {
 }
 	else if (type === "result") {
     const userRole = localStorage.getItem("userRole") || "public";
+	  if (userRole !== "admin") {
+
+        try {
+            const res = await fetch(`${SCRIPT_URL}?action=getResultStatus`);
+            const data = await res.json();
+
+            const isEnabled =
+                data.status === "success"
+                    ? (data.enabled !== false)
+                    : true;
+
+            localStorage.setItem(
+                "resultEnabled",
+                isEnabled ? "true" : "false"
+            );
+
+            // 🔒 RESULT OFF હોય તો LOCK UI
+            if (!isEnabled) {
+
+                const contentArea =
+                    document.getElementById("mainContent");
+
+                contentArea.innerHTML = `
+                    <div style="padding:40px 20px 40px 0; max-width:420px;">
+                        <div style="
+                            text-align:center;
+                            padding:35px 25px;
+                            background:rgba(15,23,42,0.5);
+                            border:1px solid rgba(239,68,68,0.2);
+                            border-radius:20px;
+                        ">
+                            
+                            <div style="
+                                width:75px;
+                                height:75px;
+                                margin:0 auto 18px;
+                                background:rgba(239,68,68,0.1);
+                                border:2px solid rgba(239,68,68,0.3);
+                                border-radius:50%;
+                                display:flex;
+                                align-items:center;
+                                justify-content:center;
+                            ">
+                                <i class="fa-solid fa-lock"
+                                   style="font-size:32px; color:#ef4444;">
+                                </i>
+                            </div>
+
+                            <h2 style="
+                                color:#f8fafc;
+                                margin:0 0 8px 0;
+                                font-size:17px;
+                                font-weight:bold;
+                            ">
+                                રિઝલ્ટ હાલમાં ઉપલબ્ધ નથી
+                            </h2>
+
+                            <p style="
+                                color:#94a3b8;
+                                font-size:12px;
+                                line-height:1.5;
+                                margin:0;
+                            ">
+                                એડમિન દ્વારા રિઝલ્ટ હાલ પૂરતો બંધ કરવામાં આવ્યો છે.<br>
+                                કૃપા કરીને થોડા સમય પછી ફરી પ્રયાસ કરો.
+                            </p>
+
+                        </div>
+                    </div>
+                `;
+
+                return;
+            }
+
+        } catch(err) {
+            console.error("Result status check error:", err);
+        }
+    }
     const resultEnabled = localStorage.getItem("resultEnabled") !== "false";
 
     const contentArea = document.getElementById("mainContent");
