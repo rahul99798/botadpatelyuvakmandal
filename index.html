@@ -1473,43 +1473,25 @@ setTimeout(() => {
 }
 	else if (type === "result") {
         const userRole = localStorage.getItem("userRole") || "public";
-        const contentArea = document.getElementById("mainContent");
-
-        // 🔒 પબ્લિક યુઝર માટે LIVE સર્વર ચેક
-        if (userRole !== "admin") {
-            // પહેલા લોડિંગ બતાવો જેથી જૂનો ડેટા ન દેખાય
-            contentArea.innerHTML = `<div style="text-align:center; padding:50px; color:#94a3b8;"><i class="fa-solid fa-spinner fa-spin"></i> લાઈવ સ્ટેટસ ચેક થઈ રહ્યું છે...</div>`;
-            
-            try {
-                const res = await fetch(`${SCRIPT_URL}?action=getResultStatus`);
-                const data = await res.json();
-                
-                const isEnabled = data.status === "success" ? (data.enabled !== false) : true;
-                localStorage.setItem("resultEnabled", isEnabled ? "true" : "false");
-
-                // જો બંધ હોય તો તરત જ લોક સ્ક્રીન બતાવી દો
-                if (!isEnabled) {
-                    contentArea.innerHTML = `
-                        <div style="padding:40px 20px 40px 0; max-width:420px;">
-                            <div style="text-align:center; padding:35px 25px; background:rgba(15,23,42,0.5); border:1px solid rgba(239,68,68,0.2); border-radius:20px;">
-                                <div style="width:75px; height:75px; margin:0 auto 18px; background:rgba(239,68,68,0.1); border:2px solid rgba(239,68,68,0.3); border-radius:50%; display:flex; align-items:center; justify-content:center;">
-                                    <i class="fa-solid fa-lock" style="font-size:32px; color:#ef4444;"></i>
-                                </div>
-                                <h2 style="color:#f8fafc; margin:0 0 8px 0; font-size:17px; font-weight:bold;">રિઝલ્ટ હાલમાં ઉપલબ્ધ નથી</h2>
-                                <p style="color:#94a3b8; font-size:12px; line-height:1.5; margin:0;">એડમિન દ્વારા રિઝલ્ટ હાલ પૂરતો બંધ કરવામાં આવ્યો છે.<br>કૃપા કરીને થોડા સમય પછી ફરી પ્રયાસ કરો.</p>
-                            </div>
+        const resultEnabled = localStorage.getItem("resultEnabled") !== "false";
+        
+        // 🔒 જો રિઝલ્ટ બંધ હોય તો તરત જ લોક સ્ક્રીન બતાવો (લોડિંગ વગર)
+        if (userRole !== "admin" && !resultEnabled) {
+            contentArea.innerHTML = `
+                <div style="padding:40px 20px 40px 0; max-width:420px;">
+                    <div style="text-align:center; padding:35px 25px; background:rgba(15,23,42,0.5); border:1px solid rgba(239,68,68,0.2); border-radius:20px;">
+                        <div style="width:75px; height:75px; margin:0 auto 18px; background:rgba(239,68,68,0.1); border:2px solid rgba(239,68,68,0.3); border-radius:50%; display:flex; align-items:center; justify-content:center;">
+                            <i class="fa-solid fa-lock" style="font-size:32px; color:#ef4444;"></i>
                         </div>
-                    `;
-                    return; // 🛑 અહીંથી જ અટકી જાવ, આગળ ન વધો
-                }
-            } catch(err) {
-                console.error("Result status check error:", err);
-            }
+                        <h2 style="color:#f8fafc; margin:0 0 8px 0; font-size:17px; font-weight:bold;">રિઝલ્ટ હાલમાં ઉપલબ્ધ નથી</h2>
+                        <p style="color:#94a3b8; font-size:12px; line-height:1.5; margin:0;">એડમિન દ્વારા રિઝલ્ટ હાલ પૂરતો બંધ કરવામાં આવ્યો છે.<br>કૃપા કરીને થોડા સમય પછી ફરી પ્રયાસ કરો.</p>
+                    </div>
+                </div>
+            `;
+            return; // અહીંથી જ અટકી જાઓ
         }
 
-        // 🟢 જો એડમિન હોય અથવા પબ્લિક માટે ચાલુ હોય તો જ નીચેનો કોડ રન થશે
-        const resultEnabled = localStorage.getItem("resultEnabled") !== "false";
-
+        // 🟢 જો ચાલુ હોય તો સામાન્ય રિઝલ્ટ UI
         contentArea.innerHTML = `
             <div class="news-header-card" style="padding: 12px 15px; gap: 12px; align-items: center;">
                 <div class="news-title" style="font-size: 17px; white-space: nowrap;">
@@ -1543,10 +1525,8 @@ setTimeout(() => {
         setTimeout(() => {
             const addBtn = document.getElementById("addResultBtn");
             if (addBtn) addBtn.onclick = openResultForm;
-
             const downloadBtn = document.getElementById("downloadResultBtn");
             if (downloadBtn) downloadBtn.onclick = (e) => { e.preventDefault(); downloadAllResultsExcel(); };
-
             const toggleResultBtn = document.getElementById("toggleResultBtn");
             if (toggleResultBtn) toggleResultBtn.onclick = (e) => { e.preventDefault(); toggleResultForAll(); };
 
@@ -1566,52 +1546,31 @@ setTimeout(() => {
         return;
     }
 
-else if (type === "achievements") {
+    else if (type === "achievements") {
         const userRole = localStorage.getItem("userRole") || "public";
-        const contentArea = document.getElementById("mainContent");
+        let achievementEnabled = localStorage.getItem("achievementEnabled") !== "false";
+        const resultEnabled = localStorage.getItem("resultEnabled") !== "false";
 
-        // 🔒 પબ્લિક યુઝર માટે LIVE સર્વર ચેક
-        if (userRole !== "admin") {
-            contentArea.innerHTML = `<div style="text-align:center; padding:50px; color:#94a3b8;"><i class="fa-solid fa-spinner fa-spin"></i> લાઈવ સ્ટેટસ ચેક થઈ રહ્યું છે...</div>`;
-            
-            try {
-                const [achRes, resRes] = await Promise.all([
-                    fetch(`${SCRIPT_URL}?action=getAchievementStatus`),
-                    fetch(`${SCRIPT_URL}?action=getResultStatus`)
-                ]);
-                const achData = await achRes.json();
-                const resData = await resRes.json();
-                
-                const achEnabled = achData.status === "success" ? (achData.enabled !== false) : true;
-                const resEnabled = resData.status === "success" ? (resData.enabled !== false) : true;
-                
-                localStorage.setItem("achievementEnabled", achEnabled ? "true" : "false");
-                localStorage.setItem("resultEnabled", resEnabled ? "true" : "false");
+        // રિઝલ્ટ બંધ હોય તો એચિવમેન્ટ પણ બંધ ગણાય
+        if (!resultEnabled) achievementEnabled = false;
 
-                // રિઝલ્ટ બંધ હોય તો એચિવમેન્ટ પણ બંધ ગણાય
-                const finalEnabled = achEnabled && resEnabled;
-
-                // જો બંધ હોય તો તરત જ લોક સ્ક્રીન બતાવી દો
-                if (!finalEnabled) {
-                    contentArea.innerHTML = `
-                        <div style="padding:40px 20px 40px 0; max-width:420px;">
-                            <div style="text-align:center; padding:35px 25px; background:rgba(15,23,42,0.5); border:1px solid rgba(239,68,68,0.2); border-radius:20px;">
-                                <div style="width:75px; height:75px; margin:0 auto 18px; background:rgba(239,68,68,0.1); border:2px solid rgba(239,68,68,0.3); border-radius:50%; display:flex; align-items:center; justify-content:center;">
-                                    <i class="fa-solid fa-lock" style="font-size:32px; color:#ef4444;"></i>
-                                </div>
-                                <h2 style="color:#f8fafc; margin:0 0 8px 0; font-size:17px; font-weight:bold;">વિશિષ્ટ સિદ્ધિઓ હાલમાં ઉપલબ્ધ નથી</h2>
-                                <p style="color:#94a3b8; font-size:12px; line-height:1.5; margin:0;">એડમિન દ્વારા આ વિભાગ હાલ પૂરતો બંધ કરવામાં આવ્યો છે.<br>કૃપા કરીને થોડા સમય પછી ફરી પ્રયાસ કરો.</p>
-                            </div>
+        // 🔒 જો સિદ્ધિઓ બંધ હોય તો તરત જ લોક સ્ક્રીન બતાવો (લોડિંગ વગર)
+        if (userRole !== "admin" && !achievementEnabled) {
+            contentArea.innerHTML = `
+                <div style="padding:40px 20px 40px 0; max-width:420px;">
+                    <div style="text-align:center; padding:35px 25px; background:rgba(15,23,42,0.5); border:1px solid rgba(239,68,68,0.2); border-radius:20px;">
+                        <div style="width:75px; height:75px; margin:0 auto 18px; background:rgba(239,68,68,0.1); border:2px solid rgba(239,68,68,0.3); border-radius:50%; display:flex; align-items:center; justify-content:center;">
+                            <i class="fa-solid fa-lock" style="font-size:32px; color:#ef4444;"></i>
                         </div>
-                    `;
-                    return; // 🛑 અહીંથી જ અટકી જાવ
-                }
-            } catch(e) {
-                console.error("Status fetch error:", e);
-            }
+                        <h2 style="color:#f8fafc; margin:0 0 8px 0; font-size:17px; font-weight:bold;">વિશિષ્ટ સિદ્ધિઓ હાલમાં ઉપલબ્ધ નથી</h2>
+                        <p style="color:#94a3b8; font-size:12px; line-height:1.5; margin:0;">એડમિન દ્વારા આ વિભાગ હાલ પૂરતો બંધ કરવામાં આવ્યો છે.<br>કૃપા કરીને થોડા સમય પછી ફરી પ્રયાસ કરો.</p>
+                    </div>
+                </div>
+            `;
+            return;
         }
 
-        // 🟢 જો એડમિન હોય અથવા પબ્લિક માટે ચાલુ હોય તો જ નીચેનો કોડ રન થશે
+        // 🟢 જો ચાલુ હોય તો સામાન્ય UI
         contentArea.innerHTML = `
             <div class="news-header-card" style="flex-wrap:wrap; gap:15px; padding:12px 20px;">
                 <div class="news-title" style="display:flex; align-items:center; gap:10px;">
@@ -1634,7 +1593,7 @@ else if (type === "achievements") {
                 </div>
             </div>
             <div id="achievementsContainer" style="width:100%; margin-top:20px; display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:20px;">
-                <div style="text-align:center; padding:40px; color:#94a3b8;"><div class="loader-container" style="margin: 0 auto;"><div class="ring"></div><div class="ring"></div><div class="ring"></div><div class="ring"></div></div><div class="loader-text" style="margin-top: 25px;">લોડ થઈ રહ્યું છે...</div></div>
+                <div style="text-align:center; padding:40px; color:#94a3b8;">લોડ થઈ રહ્યું છે...</div>
             </div>
         `;
 
