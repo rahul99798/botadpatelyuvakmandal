@@ -73,10 +73,10 @@ body {
 }
 /* ==================== DASHBOARD GRID ==================== */
 .dashboard-grid {
-  display: none; /* JS દ્વારા કંટ્રોલ થશે */
+  display: none;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  padding: 30px 20px;
+  gap: 12px;
+  padding: 20px 15px;
   width: 100%;
   max-width: 600px;
   margin: 0 auto;
@@ -98,28 +98,43 @@ body {
 }
 
 .dash-icon-box {
-  width: 75px;
-  height: 75px;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 22px;
+  width: 85px;
+  height: 85px;
+  background: rgba(40, 40, 40, 0.85);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28px;
-  margin-bottom: 10px;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  font-size: 44px;
+  margin-bottom: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 .dash-item span {
   color: #f8fafc;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   text-align: center;
-  letter-spacing: 0.5px;
 }
 
+@media (max-width: 480px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    padding: 15px 10px;
+  }
+  .dash-icon-box {
+    width: 78px;
+    height: 78px;
+    font-size: 40px;
+    border-radius: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+  }
+  .dash-item span {
+    font-size: 12px;
+  }
+}
 /* અલગ-અલગ આઇકોન માટે કલર */
 .c-news { color: #3b82f6; } /* Blue */
 .c-events { color: #f59e0b; } /* Orange */
@@ -134,19 +149,7 @@ body {
 /* મુખ્ય કન્ટેન્ટ એરિયા જે છુપાવવા/બતાવવા માટે */
 .content-area.hidden { display: none !important; }
 
-@media (max-width: 480px) {
-  .dashboard-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-  }
-  .dash-icon-box {
-    width: 65px;
-    height: 65px;
-    font-size: 24px;
-    border-radius: 18px;
-  }
-  .dash-item span { font-size: 11.5px; }
-}
+
 /* ==================== CONTENT AREA (Merged) ==================== */
 .content-area {
   flex: 1;
@@ -883,43 +886,45 @@ body.is-admin button.admin-only {
   </div>
 
 </div>
-<div id="dashboardGrid" class="dashboard-grid">
+<!-- Dashboard Grid (Home) -->
+<div id="dashboardGrid" class="dashboard-grid" style="display: grid; margin-top: 20px;">
   <div class="dash-item" onclick="showContent('news')">
-    <div class="dash-icon-box"><i class="fas fa-newspaper c-news"></i></div>
+    <div class="dash-icon-box">📰</div>
     <span>સમાચાર</span>
   </div>
   <div class="dash-item" onclick="showContent('events')">
-    <div class="dash-icon-box"><i class="fas fa-calendar-alt c-events"></i></div>
+    <div class="dash-icon-box">📅</div>
     <span>ઇવેન્ટ્સ</span>
   </div>
   <div class="dash-item" onclick="showContent('gallery')">
-    <div class="dash-icon-box"><i class="fas fa-images c-gallery"></i></div>
+    <div class="dash-icon-box">🖼️</div>
     <span>ગેલેરી</span>
   </div>
   <div class="dash-item" onclick="showContent('committee')">
-    <div class="dash-icon-box"><i class="fas fa-users c-committee"></i></div>
+    <div class="dash-icon-box">👥</div>
     <span>કમિટી</span>
   </div>
   <div class="dash-item" onclick="showContent('donors')">
-    <div class="dash-icon-box"><i class="fas fa-hand-holding-heart c-donors"></i></div>
+    <div class="dash-icon-box">🤲</div>
     <span>દાતાશ્રીઓ</span>
   </div>
   <div class="dash-item" onclick="showContent('members')">
-    <div class="dash-icon-box"><i class="fas fa-user-friends c-members"></i></div>
+    <div class="dash-icon-box">👨‍👩‍👧‍👦</div>
     <span>સભ્યો</span>
   </div>
   <div class="dash-item" onclick="showContent('business')">
-    <div class="dash-icon-box"><i class="fas fa-briefcase c-business"></i></div>
+    <div class="dash-icon-box">💼</div>
     <span>વ્યવસાય</span>
   </div>
   <div class="dash-item" onclick="showContent('result')">
-    <div class="dash-icon-box"><i class="fas fa-chart-line c-result"></i></div>
+    <div class="dash-icon-box">📊</div>
     <span>રિઝલ્ટ</span>
   </div>
   <div class="dash-item" onclick="showContent('achievements')">
-    <div class="dash-icon-box"><i class="fas fa-award c-achieve"></i></div>
+    <div class="dash-icon-box">🏆</div>
     <span>સિદ્ધિઓ</span>
   </div>
+</div>
 </div>
 
 		<div class="content-area" id="mainContent">
@@ -1246,7 +1251,19 @@ function generateYearDropdown() {
 			// LocalStorage માંથી રોલ મેળવો જે Apps Script એ મોકલ્યો હતો
 			const userRole = localStorage.getItem("userRole");
 
-			
+			contentArea.innerHTML = `
+    <div class="news-header-card" style="padding:18px 20px; gap:15px; align-items:center;">
+      <div style="font-size:42px; line-height:1;">${getBigIcon(type)}</div>
+      <div style="font-size:20px; font-weight:700; color:white;">${data.title}</div>
+      
+      ${data.btn ? `
+      <button class="add-btn" onclick="openAddForm('${type}')" style="margin-left:auto;">
+        <i class="fas fa-plus"></i> ${data.btn}
+      </button>` : ''}
+    </div>
+
+    <div id="listContainer" class="empty-news-box">લોડ થઈ રહ્યું છે...</div>
+  `;
 
 				if (type === "news") {
 		contentArea.innerHTML = `
@@ -6403,7 +6420,20 @@ async function openEditMemberForm() {
     showLoader(false);
   }
 }
-
+function getBigIcon(type) {
+  const icons = {
+    news: "📰",
+    events: "📅",
+    gallery: "🖼️",
+    committee: "👥",
+    donors: "🤲",
+    members: "👨‍👩‍👧‍👦",
+    business: "💼",
+    result: "📊",
+    achievements: "🏆"
+  };
+  return icons[type] || "📌";
+}
 		</script>
 	  </body>
 	</html>
