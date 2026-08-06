@@ -71,84 +71,126 @@ body {
   font-size: 14px;
   color: #94a3b8;
 }
-/* ==================== DASHBOARD GRID ==================== */
-.dashboard-grid {
-  display: none;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  padding: 20px 15px;
-  width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
-  align-content: flex-start;
-  height: 100%;
-}
 
-.dash-item {
+/* ==================== SIDEBAR (Merged — 3 rules combined) ==================== */
+.sidebar {
+  position: fixed;
+  top: 60px;
+  left: -280px;
+  width: 260px;
+  height: calc(100vh - 60px);
+  margin: 0;
+  padding: 20px;
+  background: var(--panel-bg);
+  backdrop-filter: blur(20px);
+  border-right: 1px solid var(--border-color);
+  border-radius: 0 20px 20px 0;
   display: flex;
   flex-direction: column;
+  z-index: 1500;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.5);
+  transition: left 0.4s ease;
+}
+
+.sidebar.active {
+  left: 0;
+}
+
+.menu-header {
+  display: none ;
+  justify-content: flex-end;
   align-items: center;
-  justify-content: center;
+  margin-bottom: 25px;
+  padding-right: 10px;
+}
+
+.menu-header span {
+  display: none;
+}
+
+#toggleIcon {
+  font-size: 22px;
+  opacity: 0.8;
   cursor: pointer;
-  transition: transform 0.2s ease;
+  padding: 8px;
+  color: #94a3b8;
 }
 
-.dash-item:hover {
-  transform: translateY(-5px);
+.sidebar.collapsed #toggleIcon {
+  transform: rotate(180deg);
 }
 
-.dash-icon-box {
-  width: 85px;
-  height: 85px;
-  background: rgba(40, 40, 40, 0.85);
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-radius: 20px;
+.menu-items {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  overflow-y: auto;
+}
+
+.menu-items::-webkit-scrollbar {
+  width: 5px;
+}
+
+.menu-items::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+  color: #94a3b8;
+}
+
+.nav-item i {
+  width: 35px;
+  height: 35px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 44px;
-  margin-bottom: 8px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  margin-right: 12px;
+  font-size: 16px;
 }
 
-.dash-item span {
-  color: #f8fafc;
-  font-size: 13px;
-  font-weight: 600;
-  text-align: center;
+.nav-item.active {
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid var(--active-blue);
+  color: white;
 }
 
-@media (max-width: 480px) {
-  .dashboard-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    padding: 15px 10px;
-  }
-  .dash-icon-box {
-    width: 78px;
-    height: 78px;
-    font-size: 40px;
-    border-radius: 18px;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-  }
-  .dash-item span {
-    font-size: 12px;
-  }
+/* ==================== SIDEBAR COLLAPSED ==================== */
+.sidebar.collapsed {
+  width: 80px;
+  padding: 20px 10px;
 }
-/* અલગ-અલગ આઇકોન માટે કલર */
-.c-news { color: #3b82f6; } /* Blue */
-.c-events { color: #f59e0b; } /* Orange */
-.c-gallery { color: #ec4899; } /* Pink */
-.c-committee { color: #10b981; } /* Green */
-.c-donors { color: #ef4444; } /* Red */
-.c-members { color: #8b5cf6; } /* Purple */
-.c-business { color: #eab308; } /* Yellow */
-.c-result { color: #06b6d4; } /* Cyan */
-.c-achieve { color: #f43f5e; } /* Rose */
 
-/* મુખ્ય કન્ટેન્ટ એરિયા જે છુપાવવા/બતાવવા માટે */
-.content-area.hidden { display: none !important; }
+.sidebar.collapsed .menu-header span,
+.sidebar.collapsed .nav-item span,
+.sidebar.collapsed .logout-btn span {
+  display: none;
+}
 
+.sidebar.collapsed .menu-header {
+  justify-content: center;
+}
+
+.sidebar.collapsed .nav-item,
+.sidebar.collapsed .logout-btn {
+  justify-content: center;
+  padding: 10px;
+}
+
+.sidebar.collapsed .nav-item i,
+.sidebar.collapsed .logout-btn i {
+  margin-right: 0;
+}
 
 /* ==================== CONTENT AREA (Merged) ==================== */
 .content-area {
@@ -786,7 +828,21 @@ body.is-admin button.admin-only {
   height: 100%;
   object-fit: cover;
 }
+#overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.55); /* dark effect */
+  backdrop-filter: blur(3px);   /* optional blur */
+  z-index: 1400;
+  display: none;
+}
 
+#overlay.active {
+  display: block;
+}
 		</style>
 	  </head>
 
@@ -841,10 +897,10 @@ body.is-admin button.admin-only {
 
   <!-- Left -->
   <div>
-    <button onclick="showContent('home')" 
-  style="background:rgba(255,255,255,0.1); padding: 8px 12px; border-radius: 10px; border:none; color:white; font-size:18px; cursor:pointer;">
-  <i class="fas fa-home"></i>
-</button>
+    <button onclick="toggleMobileSidebar()" 
+      style="background:none; border:none; color:white; font-size:24px; cursor:pointer;">
+      <i class="fas fa-bars"></i>
+    </button>
   </div>
 
   <!-- Center (perfect center fix) -->
@@ -886,46 +942,52 @@ body.is-admin button.admin-only {
   </div>
 
 </div>
-<!-- Dashboard Grid (Home) -->
-<div id="dashboardGrid" class="dashboard-grid" style="display: grid; margin-top: 20px;">
-  <div class="dash-item" onclick="showContent('news')">
-    <div class="dash-icon-box">📰</div>
-    <span>સમાચાર</span>
-  </div>
-  <div class="dash-item" onclick="showContent('events')">
-    <div class="dash-icon-box">📅</div>
-    <span>ઇવેન્ટ્સ</span>
-  </div>
-  <div class="dash-item" onclick="showContent('gallery')">
-    <div class="dash-icon-box">🖼️</div>
-    <span>ગેલેરી</span>
-  </div>
-  <div class="dash-item" onclick="showContent('committee')">
-    <div class="dash-icon-box">👥</div>
-    <span>કમિટી</span>
-  </div>
-  <div class="dash-item" onclick="showContent('donors')">
-    <div class="dash-icon-box">🤲</div>
-    <span>દાતાશ્રીઓ</span>
-  </div>
-  <div class="dash-item" onclick="showContent('members')">
-    <div class="dash-icon-box">👨‍👩‍👧‍👦</div>
-    <span>સભ્યો</span>
-  </div>
-  <div class="dash-item" onclick="showContent('business')">
-    <div class="dash-icon-box">💼</div>
-    <span>વ્યવસાય</span>
-  </div>
-  <div class="dash-item" onclick="showContent('result')">
-    <div class="dash-icon-box">📊</div>
-    <span>રિઝલ્ટ</span>
-  </div>
-  <div class="dash-item" onclick="showContent('achievements')">
-    <div class="dash-icon-box">🏆</div>
-    <span>સિદ્ધિઓ</span>
-  </div>
+		<div class="sidebar" id="sidebar">
+		  <div class="menu-header">
+			<span style="font-size: 18px; font-weight: bold">Menu</span>
+			<i
+			  class="fas fa-angle-double-left"
+			  id="toggleIcon"
+			  style="opacity: 0.5; cursor: pointer; padding: 5px"
+			  onclick="toggleSidebar()"
+			></i>
+		  </div>
+
+		  <div class="menu-items">
+			<div class="nav-item active" onclick="showContent('news')">
+			  <i><i class="fas fa-newspaper"></i></i><span>સમાચાર</span>
+			</div>
+			<div class="nav-item" onclick="showContent('events')">
+			  <i><i class="fas fa-calendar-alt"></i></i><span>ઇવેન્ટ્સ</span>
+			</div>
+			<div class="nav-item" onclick="showContent('gallery')">
+			  <i><i class="fas fa-images"></i></i><span>ગેલેરી</span>
+			</div>
+			<div class="nav-item" onclick="showContent('committee')">
+			  <i><i class="fas fa-users"></i></i><span>કમિટી</span>
+			</div>
+			<div class="nav-item" onclick="showContent('donors')">
+			  <i><i class="fas fa-hand-holding-heart"></i></i><span>દાતાશ્રીઓ</span>
+			</div>
+			<div class="nav-item" onclick="showContent('members')">
+			  <i><i class="fas fa-user-friends"></i></i><span>સભ્યો</span>
+			</div>
+			<div class="nav-item" onclick="showContent('business')">
+			  <i><i class="fas fa-briefcase"></i></i><span>વ્યવસાય</span>
+			</div>
+			<div class="nav-item" onclick="showContent('result')">
+			  <i><i class="fas fa-chart-line"></i></i><span>રિઝલ્ટ</span>
+			</div>
+			<div class="nav-item" onclick="showContent('achievements')">
+			  <i><i class="fas fa-award"></i></i><span>વિશિષ્ટ સિદ્ધિઓ</span>
+			</div>
+			<div class="nav-item" style="visibility: hidden;">
+  <i><i class="fas fa-circle"></i></i><span>Placeholder</span>
 </div>
-</div>
+		  </div>
+
+		  
+		</div>
 
 		<div class="content-area" id="mainContent">
 		  <div class="news-header-card">
@@ -1100,9 +1162,10 @@ body.is-admin button.admin-only {
 			</div>
 		  </div>
 		</div>
+<div id="overlay" onclick="toggleMobileSidebar()"></div>
 		<script>
 		  const SCRIPT_URL =
-			"https://script.google.com/macros/s/AKfycbwqfrafAhycKcAyluBnC-UrYC_wJxM8hF3w-s6rFVwlyfSfj_XTVko9C65MpOVtlIFj/exec";
+			"https://script.google.com/macros/s/AKfycbzNma9qkPVAeFTZktjsfa8zmpyQsV3rrinNllG3pWxDnetc-ehH60g5HCKa1ZBNBK7M/exec";
 			
 
 		  
@@ -1114,33 +1177,32 @@ body.is-admin button.admin-only {
 
 		  // --- ૩. પેજ લોડ ચેક ---
 		  window.addEventListener("load", () => {
-    const savedMobile = localStorage.getItem("userMobile");
-    const savedRole = localStorage.getItem("userRole");
-    const savedMemberNo = localStorage.getItem("userMemberNo");
+			const savedMobile = localStorage.getItem("userMobile");
+			const savedRole = localStorage.getItem("userRole");
+			const savedMemberNo = localStorage.getItem("userMemberNo"); // નંબર મેળવો
 
-    if (savedMobile) {
-        document.body.classList.remove("logged-out");
-        document.body.classList.add("logged-in");
+			if (savedMobile) {
+			  document.body.classList.remove("logged-out");
+			  document.body.classList.add("logged-in");
 
-        if (savedMemberNo) {
-            document.getElementById("memberDisplay").innerText = savedMemberNo;
-        }
+			  // જો સભ્ય નંબર હોય તો હેડરમાં બતાવો
+			  if (savedMemberNo) {
+    document.getElementById("memberDisplay").innerText = savedMemberNo;
+}
 
-        if (savedRole === "admin") {
-            document.body.classList.add("is-admin");
-        } else {
-            // 🎯 પબ્લિક યુઝર માટે લોડ થતા જ બેકગ્રાઉન્ડમાં લોક સ્ટેટસ ચેક કરી લો
-            checkResultStatus();
-            checkAchievementStatus();
-        }
+			  if (savedRole === "admin") {
+				document.body.classList.add("is-admin");
+			  }
+			  // પેજ લોડ થાય ત્યારે સીધા ન્યૂઝ બતાવો
+			  showContent("news");
+			} else {
+			  document.body.classList.add("logged-out");
+			  document.body.classList.remove("logged-in");
+			  document.body.classList.remove("is-admin");
+			}
 
-        showContent("home");
-    } else {
-        document.body.classList.add("logged-out");
-        document.body.classList.remove("logged-in");
-        document.body.classList.remove("is-admin");
-    }
-});
+			
+		  });
 		  // 🔥 Custom Year Function (Donors dropdown માટે)
 function getCustomYear(date = new Date()) {
   const d = new Date(date);
@@ -1229,41 +1291,72 @@ function generateYearDropdown() {
 
 		  // 1. મેનુ પર ક્લિક કરવાથી પેજ દેખાડવાનું ફંક્શન
 		  async function showContent(type) {
-		  
-		  const dashGrid = document.getElementById("dashboardGrid");
-  const contentArea = document.getElementById("mainContent");
-
-  // 1. જો યુઝરે 'home' પર ક્લિક કર્યું હોય
-  if (type === "home") {
-    dashGrid.style.display = "grid";
-    contentArea.classList.add("hidden");
-    return; // અહીંથી જ પાછા ફરી જાવ
+  
+  // 🔒 ACHIEVEMENT LOCK CHECK (Public user માટે)
+  if (type === "achievements") {
+    const userRole = localStorage.getItem("userRole") || "public";
+    
+    if (userRole !== "admin") {
+      const contentArea = document.getElementById("mainContent");
+      contentArea.innerHTML = `<div style="text-align:center; padding:40px; color:#94a3b8;">લોડ થઈ રહ્યું છે...</div>`;
+      
+      try {
+        const res = await fetch(`${SCRIPT_URL}?action=getAchievementStatus`);
+        const data = await res.json();
+        const isEnabled = data.status === "success" ? (data.enabled !== false) : true;
+        localStorage.setItem("achievementEnabled", isEnabled ? "true" : "false");
+        
+        if (!isEnabled) {
+          contentArea.innerHTML = `
+            <div style="padding:40px 20px 40px 0; max-width:420px;">
+              <div style="text-align:center; padding:35px 25px; background:rgba(15,23,42,0.5); border:1px solid rgba(239,68,68,0.2); border-radius:20px;">
+                <div style="width:75px; height:75px; margin:0 auto 18px; background:rgba(239,68,68,0.1); border:2px solid rgba(239,68,68,0.3); border-radius:50%; display:flex; align-items:center; justify-content:center;">
+                  <i class="fa-solid fa-lock" style="font-size:32px; color:#ef4444;"></i>
+                </div>
+                <h2 style="color:#f8fafc; margin:0 0 8px 0; font-size:17px; font-weight:bold;">
+                  વિશિષ્ટ સિદ્ધિઓ હાલમાં ઉપલબ્ધ નથી
+                </h2>
+                <p style="color:#94a3b8; font-size:12px; line-height:1.5; margin:0;">
+                  એડમિન દ્વારા આ વિભાગ હાલ પૂરતો બંધ કરવામાં આવ્યો છે.<br>
+                  કૃપા કરીને થોડા સમય પછી ફરી પ્રયાસ કરો.
+                </p>
+              </div>
+            </div>
+          `;
+          return;
+        }
+      } catch(err) {
+        console.error("Achievement status check error:", err);
+        if (localStorage.getItem("achievementEnabled") === "false") {
+          contentArea.innerHTML = `
+            <div style="padding:40px 20px 40px 0; max-width:420px;">
+              <div style="text-align:center; padding:35px 25px; background:rgba(15,23,42,0.5); border:1px solid rgba(239,68,68,0.2); border-radius:20px;">
+                <div style="width:75px; height:75px; margin:0 auto 18px; background:rgba(239,68,68,0.1); border:2px solid rgba(239,68,68,0.3); border-radius:50%; display:flex; align-items:center; justify-content:center;">
+                  <i class="fa-solid fa-lock" style="font-size:32px; color:#ef4444;"></i>
+                </div>
+                <h2 style="color:#f8fafc; margin:0 0 8px 0; font-size:17px; font-weight:bold;">
+                  વિશિષ્ટ સિદ્ધિઓ હાલમાં ઉપલબ્ધ નથી
+                </h2>
+              </div>
+            </div>
+          `;
+          return;
+        }
+      }
+    }
   }
-
-  // 2. નહિંતર, Dashboard છુપાવો અને Main Content બતાવો
-  dashGrid.style.display = "none";
-  contentArea.classList.remove("hidden");
-  
-  
-
-
+			const contentArea = document.getElementById("mainContent");
 			const data = contentData[type];
 			// LocalStorage માંથી રોલ મેળવો જે Apps Script એ મોકલ્યો હતો
 			const userRole = localStorage.getItem("userRole");
 
-			contentArea.innerHTML = `
-    <div class="news-header-card" style="padding:18px 20px; gap:15px; align-items:center;">
-      <div style="font-size:42px; line-height:1;">${getBigIcon(type)}</div>
-      <div style="font-size:20px; font-weight:700; color:white;">${data.title}</div>
-      
-      ${data.btn ? `
-      <button class="add-btn" onclick="openAddForm('${type}')" style="margin-left:auto;">
-        <i class="fas fa-plus"></i> ${data.btn}
-      </button>` : ''}
-    </div>
-
-    <div id="listContainer" class="empty-news-box">લોડ થઈ રહ્યું છે...</div>
-  `;
+			// મેનુ એક્ટિવ ક્લાસ સેટ કરવો
+			document.querySelectorAll(".nav-item").forEach((item) => {
+			  item.classList.remove("active");
+			  if (item.querySelector("span").innerText === data.title) {
+				item.classList.add("active");
+			  }
+			});
 
 				if (type === "news") {
 		contentArea.innerHTML = `
@@ -1489,151 +1582,234 @@ setTimeout(() => {
   return;
 }
 	else if (type === "result") {
-        const userRole = localStorage.getItem("userRole") || "public";
-        const resultEnabled = localStorage.getItem("resultEnabled") !== "false";
-        
-        // 🔒 જો રિઝલ્ટ બંધ હોય તો તરત જ લોક સ્ક્રીન બતાવો (લોડિંગ વગર)
-        if (userRole !== "admin" && !resultEnabled) {
-            contentArea.innerHTML = `
-                <div style="padding:40px 20px 40px 0; max-width:420px;">
-                    <div style="text-align:center; padding:35px 25px; background:rgba(15,23,42,0.5); border:1px solid rgba(239,68,68,0.2); border-radius:20px;">
-                        <div style="width:75px; height:75px; margin:0 auto 18px; background:rgba(239,68,68,0.1); border:2px solid rgba(239,68,68,0.3); border-radius:50%; display:flex; align-items:center; justify-content:center;">
-                            <i class="fa-solid fa-lock" style="font-size:32px; color:#ef4444;"></i>
+    const userRole = localStorage.getItem("userRole") || "public";
+	  if (userRole !== "admin") {
+
+        try {
+            const res = await fetch(`${SCRIPT_URL}?action=getResultStatus`);
+            const data = await res.json();
+
+            const isEnabled =
+                data.status === "success"
+                    ? (data.enabled !== false)
+                    : true;
+
+            localStorage.setItem(
+                "resultEnabled",
+                isEnabled ? "true" : "false"
+            );
+
+            // 🔒 RESULT OFF હોય તો LOCK UI
+            if (!isEnabled) {
+
+                const contentArea =
+                    document.getElementById("mainContent");
+
+                contentArea.innerHTML = `
+                    <div style="padding:40px 20px 40px 0; max-width:420px;">
+                        <div style="
+                            text-align:center;
+                            padding:35px 25px;
+                            background:rgba(15,23,42,0.5);
+                            border:1px solid rgba(239,68,68,0.2);
+                            border-radius:20px;
+                        ">
+                            
+                            <div style="
+                                width:75px;
+                                height:75px;
+                                margin:0 auto 18px;
+                                background:rgba(239,68,68,0.1);
+                                border:2px solid rgba(239,68,68,0.3);
+                                border-radius:50%;
+                                display:flex;
+                                align-items:center;
+                                justify-content:center;
+                            ">
+                                <i class="fa-solid fa-lock"
+                                   style="font-size:32px; color:#ef4444;">
+                                </i>
+                            </div>
+
+                            <h2 style="
+                                color:#f8fafc;
+                                margin:0 0 8px 0;
+                                font-size:17px;
+                                font-weight:bold;
+                            ">
+                                રિઝલ્ટ હાલમાં ઉપલબ્ધ નથી
+                            </h2>
+
+                            <p style="
+                                color:#94a3b8;
+                                font-size:12px;
+                                line-height:1.5;
+                                margin:0;
+                            ">
+                                એડમિન દ્વારા રિઝલ્ટ હાલ પૂરતો બંધ કરવામાં આવ્યો છે.<br>
+                                કૃપા કરીને થોડા સમય પછી ફરી પ્રયાસ કરો.
+                            </p>
+
                         </div>
-                        <h2 style="color:#f8fafc; margin:0 0 8px 0; font-size:17px; font-weight:bold;">રિઝલ્ટ હાલમાં ઉપલબ્ધ નથી</h2>
-                        <p style="color:#94a3b8; font-size:12px; line-height:1.5; margin:0;">એડમિન દ્વારા રિઝલ્ટ હાલ પૂરતો બંધ કરવામાં આવ્યો છે.<br>કૃપા કરીને થોડા સમય પછી ફરી પ્રયાસ કરો.</p>
                     </div>
-                </div>
-            `;
-            return; // અહીંથી જ અટકી જાઓ
-        }
+                `;
 
-        // 🟢 જો ચાલુ હોય તો સામાન્ય રિઝલ્ટ UI
-        contentArea.innerHTML = `
-            <div class="news-header-card" style="padding: 12px 15px; gap: 12px; align-items: center;">
-                <div class="news-title" style="font-size: 17px; white-space: nowrap;">
-                    <i class="fa-solid fa-chart-simple"></i> રિઝલ્ટ
-                </div>
-                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-left: auto;">
-                    <button type="button" class="add-btn" id="addResultBtn" style="padding: 7px 14px; font-size: 13px; height: 38px; display: flex; align-items: center; gap: 5px;">
-                        <i class="fa-solid fa-plus"></i> રિઝલ્ટ ઉમેરો
-                    </button>
-                    ${userRole === "admin" ? `
-                        <select id="adminResultMemberDropdown" style="font-size: 13px; padding: 7px 10px; height: 38px; min-width: 190px; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.25); color: white;">
-                            <option value="">-- સભ્ય પસંદ કરો --</option>
-                        </select>
-                        <button type="button" id="downloadResultBtn" style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.4); color: white; padding: 7px 12px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 12.5px; height: 38px;">
-                            <i class="fa-solid fa-file-excel" style="color: #22c55e;"></i> <span>Excel Download</span>
-                        </button>
-                        <button type="button" id="toggleResultBtn" style="background: ${resultEnabled ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)'}; border: 1px solid ${resultEnabled ? 'rgba(239, 68, 68, 0.4)' : 'rgba(34, 197, 94, 0.4)'}; color: white; padding: 7px 12px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 12.5px; height: 38px;">
-                            <i class="fa-solid ${resultEnabled ? 'fa-xmark' : 'fa-check'}" style="color: ${resultEnabled ? '#ef4444' : '#22c55e'};"></i> <span>રિઝલ્ટ ${resultEnabled ? 'ઑફ' : 'ઑન'}</span>
-                        </button>
-                    ` : ""}
-                </div>
-            </div>
-            <div id="resultListContainer" style="width: 100%; margin-top: 20px;">
-                <div style="text-align: center; color: #94a3b8; padding: 60px 20px;">
-                    <div class="loader-container" style="margin: 0 auto;"><div class="ring"></div><div class="ring"></div><div class="ring"></div><div class="ring"></div></div>
-                    <div class="loader-text" style="margin-top: 25px;">રિઝલ્ટ લોડ થઈ રહ્યું છે...</div>
-                </div>
-            </div>
-        `;
-
-        setTimeout(() => {
-            const addBtn = document.getElementById("addResultBtn");
-            if (addBtn) addBtn.onclick = openResultForm;
-            const downloadBtn = document.getElementById("downloadResultBtn");
-            if (downloadBtn) downloadBtn.onclick = (e) => { e.preventDefault(); downloadAllResultsExcel(); };
-            const toggleResultBtn = document.getElementById("toggleResultBtn");
-            if (toggleResultBtn) toggleResultBtn.onclick = (e) => { e.preventDefault(); toggleResultForAll(); };
-
-            if (userRole === "admin") {
-                const dropdown = document.getElementById("adminResultMemberDropdown");
-                if (dropdown) {
-                    loadMembersWithResultsDropdown(dropdown);
-                    dropdown.onchange = function() {
-                        const memberNo = this.value;
-                        if (!memberNo) loadResults();
-                        else loadSpecificMemberResults(memberNo);
-                    };
-                }
+                return;
             }
-            loadResults().finally(() => showLoader(false));
-        }, 100);
-        return;
-    }
 
-    else if (type === "achievements") {
-        const userRole = localStorage.getItem("userRole") || "public";
-        let achievementEnabled = localStorage.getItem("achievementEnabled") !== "false";
-        const resultEnabled = localStorage.getItem("resultEnabled") !== "false";
-
-        // રિઝલ્ટ બંધ હોય તો એચિવમેન્ટ પણ બંધ ગણાય
-        if (!resultEnabled) achievementEnabled = false;
-
-        // 🔒 જો સિદ્ધિઓ બંધ હોય તો તરત જ લોક સ્ક્રીન બતાવો (લોડિંગ વગર)
-        if (userRole !== "admin" && !achievementEnabled) {
-            contentArea.innerHTML = `
-                <div style="padding:40px 20px 40px 0; max-width:420px;">
-                    <div style="text-align:center; padding:35px 25px; background:rgba(15,23,42,0.5); border:1px solid rgba(239,68,68,0.2); border-radius:20px;">
-                        <div style="width:75px; height:75px; margin:0 auto 18px; background:rgba(239,68,68,0.1); border:2px solid rgba(239,68,68,0.3); border-radius:50%; display:flex; align-items:center; justify-content:center;">
-                            <i class="fa-solid fa-lock" style="font-size:32px; color:#ef4444;"></i>
-                        </div>
-                        <h2 style="color:#f8fafc; margin:0 0 8px 0; font-size:17px; font-weight:bold;">વિશિષ્ટ સિદ્ધિઓ હાલમાં ઉપલબ્ધ નથી</h2>
-                        <p style="color:#94a3b8; font-size:12px; line-height:1.5; margin:0;">એડમિન દ્વારા આ વિભાગ હાલ પૂરતો બંધ કરવામાં આવ્યો છે.<br>કૃપા કરીને થોડા સમય પછી ફરી પ્રયાસ કરો.</p>
-                    </div>
-                </div>
-            `;
-            return;
+        } catch(err) {
+            console.error("Result status check error:", err);
         }
+    }
+    const resultEnabled = localStorage.getItem("resultEnabled") !== "false";
 
-        // 🟢 જો ચાલુ હોય તો સામાન્ય UI
-        contentArea.innerHTML = `
-            <div class="news-header-card" style="flex-wrap:wrap; gap:15px; padding:12px 20px;">
-                <div class="news-title" style="display:flex; align-items:center; gap:10px;">
-                    <i class="fa-solid fa-award"></i> વિશિષ્ટ સિદ્ધિઓ
-                </div>
+    const contentArea = document.getElementById("mainContent");
+
+    contentArea.innerHTML = `
+        <div class="news-header-card" style="padding: 12px 15px; gap: 12px; align-items: center;">
+            
+            <!-- ડાબી બાજુ: માત્ર Title -->
+            <div class="news-title" style="font-size: 17px; white-space: nowrap;">
+                <i class="fa-solid fa-chart-simple"></i> રિઝલ્ટ
+            </div>
+
+            <!-- જમણી બાજુ: બધા બટન અને ડ્રોપડાઉન -->
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-left: auto;">
+                
+                <!-- રિઝલ્ટ ઉમેરો બટન -->
+                <button type="button" class="add-btn" id="addResultBtn" style="
+                    padding: 7px 14px; 
+                    font-size: 13px; 
+                    height: 38px; 
+                    display: flex; 
+                    align-items: center; 
+                    gap: 5px;
+                ">
+                    <i class="fa-solid fa-plus"></i> 
+                    રિઝલ્ટ ઉમેરો
+                </button>
+
+                <!-- સભ્ય પસંદ કરો Dropdown -->
                 ${userRole === "admin" ? `
-                <select id="adminAchievementDropdown" style="font-size: 13px; padding: 7px 10px; height: 38px; min-width: 190px; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.25); color: white;">
-                    <option value="">-- સભ્ય પસંદ કરો --</option>
-                </select>
+                    <select id="adminResultMemberDropdown" style="
+                        font-size: 13px; 
+                        padding: 7px 10px; 
+                        height: 38px; 
+                        min-width: 190px; 
+                        border-radius: 10px; 
+                        background: rgba(255,255,255,0.05); 
+                        border: 1px solid rgba(255,255,255,0.25); 
+                        color: white;
+                    ">
+                        <option value="">-- સભ્ય પસંદ કરો --</option>
+                    </select>
                 ` : ""}
-                <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
-                    ${userRole === "admin" ? `
-                    <button type="button" id="downloadAchievementBtn" style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.4); color: white; padding: 8px 15px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 13px;">
-                        <i class="fa-solid fa-file-excel" style="color: #22c55e; font-size: 16px;"></i> <span>Excel<br>Download</span>
+					<!-- Excel Download બટન -->
+                ${userRole === "admin" ? `
+                    <button type="button" id="downloadResultBtn" style="
+                        background: rgba(34, 197, 94, 0.1);
+                        border: 1px solid rgba(34, 197, 94, 0.4);
+                        color: white;
+                        padding: 7px 12px;
+                        border-radius: 10px;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        gap: 6px;
+                        font-size: 12.5px;
+                        height: 38px;
+                    ">
+                        <i class="fa-solid fa-file-excel" style="color: #22c55e;"></i>
+                        <span>Excel Download</span>
                     </button>
-                    ` : ""}
-                    <button class="add-btn" onclick="openAddForm('achievements')" style="padding:8px 18px; border-radius:12px; display:flex; align-items:center; gap:8px;">
-                        <i class="fa-solid fa-plus"></i> વિશિષ્ટ સિદ્ધિઓ ઉમેરો
+                ` : ""}
+                <!-- On/Off બટન -->
+                ${userRole === "admin" ? `
+                    <button type="button" id="toggleResultBtn" style="
+                        background: ${resultEnabled ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)'};
+                        border: 1px solid ${resultEnabled ? 'rgba(239, 68, 68, 0.4)' : 'rgba(34, 197, 94, 0.4)'};
+                        color: white;
+                        padding: 7px 12px;
+                        border-radius: 10px;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        gap: 6px;
+                        font-size: 12.5px;
+                        height: 38px;
+                    ">
+                        <i class="fa-solid ${resultEnabled ? 'fa-xmark' : 'fa-check'}" 
+                           style="color: ${resultEnabled ? '#ef4444' : '#22c55e'};"></i>
+                        <span>રિઝલ્ટ ${resultEnabled ? 'ઑફ' : 'ઑન'}</span>
                     </button>
+                ` : ""}
+            </div>
+        </div>
+       
+        <!-- લોડર -->
+        <div id="resultListContainer" style="width: 100%; margin-top: 20px;">
+            <div style="text-align: center; color: #94a3b8; padding: 60px 20px;">
+                <div class="loader-container" style="margin: 0 auto;">
+                    <div class="ring"></div>
+                    <div class="ring"></div>
+                    <div class="ring"></div>
+                    <div class="ring"></div>
                 </div>
+                <div class="loader-text" style="margin-top: 25px;">રિઝલ્ટ લોડ થઈ રહ્યું છે...</div>
             </div>
-            <div id="achievementsContainer" style="width:100%; margin-top:20px; display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:20px;">
-                <div style="text-align:center; padding:40px; color:#94a3b8;">લોડ થઈ રહ્યું છે...</div>
-            </div>
-        `;
+        </div>
+    `;
 
-        setTimeout(() => {
-            const downloadAchBtn = document.getElementById("downloadAchievementBtn");
-            if (downloadAchBtn) downloadAchBtn.onclick = (e) => { e.preventDefault(); downloadAllAchievementsExcel(); };
+    // ફંક્શન જોડવા
+    setTimeout(() => {
+        const addBtn = document.getElementById("addResultBtn");
+        if (addBtn) addBtn.onclick = openResultForm;
 
-            if (userRole === "admin") {
-                const dropdown = document.getElementById("adminAchievementDropdown");
-                if (dropdown) {
-                    loadMembersWithAchievementsDropdown(dropdown);
-                    dropdown.onchange = function() {
-                        const memberNo = this.value;
-                        if (!memberNo) loadAchievements();
-                        else loadSpecificMemberAchievements(memberNo);
-                    };
-                }
+        // 🎯 Excel Download Button
+        const downloadBtn = document.getElementById("downloadResultBtn");
+        if (downloadBtn) {
+            downloadBtn.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                downloadAllResultsExcel();
+            };
+        }
+
+// 🎯 Toggle Result On/Off Button
+        const toggleResultBtn = document.getElementById("toggleResultBtn");
+        if (toggleResultBtn) {
+            toggleResultBtn.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleResultForAll();
+            };
+        }
+        if (userRole === "admin") {
+            const dropdown = document.getElementById("adminResultMemberDropdown");
+            if (dropdown) {
+                loadMembersWithResultsDropdown(dropdown);
+                dropdown.onchange = function() {
+                    const memberNo = this.value;
+                    if (!memberNo) {
+                        loadResults();
+                    } else {
+                        loadSpecificMemberResults(memberNo);
+                    }
+                };
             }
-        }, 100);
+        }
 
-        loadAchievements().finally(() => { showLoader(false); });
-        return;
-    }
+        loadResults().finally(() => {
+        showLoader(false);   // ← આ લાઇન ઉમેરો
+    });
+}, 100);
+
+    return;
+}
+			// ----- BUSINESS PAGE LOGIC -----
+			// ----- BUSINESS PAGE LOGIC -----
+			// ----- BUSINESS PAGE LOGIC -----
+			// ----- BUSINESS PAGE LOGIC -----
 			if (type === "business") {
   const userRole = localStorage.getItem("userRole");
 
@@ -1662,7 +1838,154 @@ setTimeout(() => {
   if (userRole === "admin") loadPendingCount();
   return;
 }
-			 
+			  else if (type === "achievements") {
+  const userRole = localStorage.getItem("userRole") || "public";
+  
+  // 🎯 સર્વર પરથી live status fetch કરો (parallel માં)
+  try {
+    const [achRes, resRes] = await Promise.all([
+      fetch(`${SCRIPT_URL}?action=getAchievementStatus`),
+      fetch(`${SCRIPT_URL}?action=getResultStatus`)
+    ]);
+    const achData = await achRes.json();
+    const resData = await resRes.json();
+    
+    const achEnabled = achData.status === "success" ? (achData.enabled !== false) : true;
+    const resEnabled = resData.status === "success" ? (resData.enabled !== false) : true;
+    
+    localStorage.setItem("achievementEnabled", achEnabled ? "true" : "false");
+    localStorage.setItem("resultEnabled", resEnabled ? "true" : "false");
+  } catch(e) {
+    console.error("Status fetch error:", e);
+  }
+  
+  // 🔥 Result ની સ્થિતિ પણ ચેક કરો (કારણ કે હવે Result Master છે)
+  let achievementEnabled = localStorage.getItem("achievementEnabled") !== "false";
+  
+  // જો Result બંધ હોય તો Achievements પણ બંધ રાખવા
+  const resultEnabled = localStorage.getItem("resultEnabled") !== "false";
+  if (!resultEnabled) {
+    achievementEnabled = false;
+  }
+
+  contentArea.innerHTML = `
+    <div class="news-header-card" style="flex-wrap:wrap; gap:15px; padding:12px 20px;">
+      <div class="news-title" style="display:flex; align-items:center; gap:10px;">
+        <i class="fa-solid fa-award"></i> વિશિષ્ટ સિદ્ધિઓ
+      </div>
+	  ${userRole === "admin" ? `
+  <select id="adminAchievementDropdown" style="
+    font-size: 13px;
+    padding: 7px 10px;
+    height: 38px;
+    min-width: 190px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: white;
+  ">
+    <option value="">-- સભ્ય પસંદ કરો --</option>
+  </select>
+` : ""}
+      <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+        ${userRole === "admin" ? `
+  <button type="button" id="downloadAchievementBtn" style="
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.4);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+  ">
+    <i class="fa-solid fa-file-excel" style="color: #22c55e; font-size: 16px;"></i>
+    <span>Excel<br>Download</span>
+  </button>
+` : ""}
+       
+
+        <button class="add-btn" onclick="openAddForm('achievements')" style="padding:8px 18px; border-radius:12px; display:flex; align-items:center; gap:8px;">
+          <i class="fa-solid fa-plus"></i> વિશિષ્ટ સિદ્ધિઓ ઉમેરો
+        </button>
+      </div>
+    </div>
+    <div id="achievementsContainer" style="width:100%; margin-top:20px; display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:20px;">
+      <div style="text-align:center; padding:40px; color:#94a3b8;">લોડ થઈ રહ્યું છે...</div>
+    </div>
+  `;
+
+
+// જો Achievements બંધ હોય તો Lock Screen બતાવો (header પણ હટાવી દો)
+  if (!achievementEnabled && userRole !== "admin") {
+    contentArea.innerHTML = `
+      <div style="padding:40px 20px 40px 0; max-width:420px;">
+        <div style="text-align:center; padding:35px 25px; background:rgba(15,23,42,0.5); border:1px solid rgba(239,68,68,0.2); border-radius:20px;">
+          <div style="width:75px; height:75px; margin:0 auto 18px; background:rgba(239,68,68,0.1); border:2px solid rgba(239,68,68,0.3); border-radius:50%; display:flex; align-items:center; justify-content:center;">
+            <i class="fa-solid fa-lock" style="font-size:32px; color:#ef4444;"></i>
+          </div>
+          <h2 style="color:#f8fafc; margin:0 0 8px 0; font-size:17px; font-weight:bold;">
+            વિશિષ્ટ સિદ્ધિઓ હાલમાં ઉપલબ્ધ નથી
+          </h2>
+          <p style="color:#94a3b8; font-size:12px; line-height:1.5; margin:0;">
+            એડમિન દ્વારા આ વિભાગ હાલ પૂરતો બંધ કરવામાં આવ્યો છે.<br>
+            કૃપા કરીને થોડા સમય પછી ફરી પ્રયાસ કરો.
+          </p>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  // Toggle button event
+  // Toggle button event + Admin dropdown
+  // 🎯 Excel Download Button
+// Toggle button event + Admin dropdown + Excel Download
+  setTimeout(() => {
+    // 🎯 Toggle Button
+    const toggleBtn = document.getElementById("toggleAchievementBtn");
+    if (toggleBtn) {
+      toggleBtn.onclick = function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleAchievementForAll();
+      };
+    }
+
+    // 🎯 Excel Download Button
+    const downloadAchBtn = document.getElementById("downloadAchievementBtn");
+    if (downloadAchBtn) {
+      downloadAchBtn.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        downloadAllAchievementsExcel();
+      };
+    }
+
+    // 🎯 ADMIN DROPDOWN LOGIC
+    if (userRole === "admin") {
+      const dropdown = document.getElementById("adminAchievementDropdown");
+      if (dropdown) {
+        loadMembersWithAchievementsDropdown(dropdown);
+        dropdown.onchange = function() {
+          const memberNo = this.value;
+          if (!memberNo) {
+            loadAchievements();   // dropdown ખાલી → પોતાનું
+          } else {
+            loadSpecificMemberAchievements(memberNo);
+          }
+        };
+      }
+    }
+  }, 100);
+
+  loadAchievements().finally(() => {
+    showLoader(false);
+});
+return;
+}
 
 			// ----- OTHER PAGES DEFAULT LOGIC -----
 			// ----- OTHER PAGES DEFAULT LOGIC -----
@@ -1989,7 +2312,24 @@ setTimeout(() => {
 			document.getElementById("commonModal").style.display = "none";
 		  }
 
-		  
+		  // સાઇડબારને નાની-મોટી કરવા માટેનું ફંક્શન
+		  function toggleSidebar() {
+			const sidebar = document.getElementById("sidebar");
+			const toggleIcon = document.getElementById("toggleIcon");
+
+			// સાઇડબારમાં 'collapsed' ક્લાસ ઉમેરશે કે હટાવશે
+			sidebar.classList.toggle("collapsed");
+
+			// જો સાઇડબાર નાની થાય તો એરોની દિશા બદલવી
+			if (sidebar.classList.contains("collapsed")) {
+			  toggleIcon.classList.remove("fa-angle-double-left");
+			  toggleIcon.classList.add("fa-angle-double-right");
+			} else {
+			  // જો સાઇડબાર મોટી થાય તો એરો પાછો જૂની દિશામાં
+			  toggleIcon.classList.remove("fa-angle-double-right");
+			  toggleIcon.classList.add("fa-angle-double-left");
+			}
+		  }
 		  
 		  function showLoader(show) {
   const loader = document.getElementById("globalLoader");
@@ -4843,7 +5183,38 @@ async function loadSpecificMemberResults(memberNo) {
     container.innerHTML = `<div style="color:#ef4444; text-align:center; padding:40px;">ભૂલ આવી.</div>`;
   }
 }
+// મોબાઈલ માટે Hamburger Menu
+function toggleMobileSidebar() {
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("overlay");
 
+  sidebar.classList.toggle("active");
+  overlay.classList.toggle("active");
+}
+
+// Desktop toggle ને મોબાઈલમાં બદલો
+// Hamburger click — બધા devices પર એક જ રીતે કામ કરશે
+
+
+// Sidebar ની બહાર click થાય ત્યારે બંધ કરો
+document.addEventListener("click", function(e) {
+  const sidebar = document.getElementById("sidebar");
+  const hamburgerBtn = e.target.closest("button[onclick*='toggleMobileSidebar']");
+  
+  if (sidebar.classList.contains("active") && 
+      !sidebar.contains(e.target) && 
+      !hamburgerBtn) {
+    sidebar.classList.remove("active");
+  }
+});
+
+// કોઈ menu item click થાય ત્યારે sidebar બંધ કરો
+document.querySelectorAll(".nav-item").forEach(item => {
+  item.addEventListener("click", () => {
+    document.getElementById("sidebar").classList.remove("active");
+	document.getElementById("overlay").classList.remove("active");
+  });
+});
 function createSquareCommitteeCard(name, hodo, photo) {
   return `
     <div style="background: rgba(15,23,42,0.95); 
@@ -6420,20 +6791,7 @@ async function openEditMemberForm() {
     showLoader(false);
   }
 }
-function getBigIcon(type) {
-  const icons = {
-    news: "📰",
-    events: "📅",
-    gallery: "🖼️",
-    committee: "👥",
-    donors: "🤲",
-    members: "👨‍👩‍👧‍👦",
-    business: "💼",
-    result: "📊",
-    achievements: "🏆"
-  };
-  return icons[type] || "📌";
-}
+
 		</script>
 	  </body>
 	</html>
