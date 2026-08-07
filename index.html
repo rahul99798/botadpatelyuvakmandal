@@ -9,24 +9,15 @@
 		  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
 		/>
 		<style>
-		  :root {
-  --bg-color: #020617;
-  --panel-bg: rgba(15, 23, 42, 0.7);
-  --border-color: rgba(255, 255, 255, 0.1);
-  --active-blue: #1d4ed8;
-  --text-main: #f8fafc;
-  --modal-bg: #111418;
-}
+		  
 
 /* ==================== BODY (Merged) ==================== */
 body {
   margin: 0;
   padding-top: 70px;
-  background: radial-gradient(circle at top right, #1e1b4b, #020617);
   font-family: "Segoe UI", sans-serif;
   display: flex;
   height: calc(100vh - 70px);
-  color: var(--text-main);
   overflow-x: hidden;
   overflow-y: auto;
 }
@@ -43,9 +34,7 @@ body {
   right: 0;
   height: 68px;
 
-  background: rgba(15, 23, 42, 0.8);
-  backdrop-filter: blur(15px);
-  border-bottom: 1px solid var(--border-color);
+
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -208,8 +197,6 @@ body {
 
 /* ==================== CARDS / HEADERS ==================== */
 .news-header-card {
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid var(--border-color);
   border-radius: 20px;
   padding: 15px 25px;
   display: flex;
@@ -218,9 +205,6 @@ body {
 }
 
 .add-btn {
-  background: rgba(59, 130, 246, 0.1);
-  border: 1px solid var(--active-blue);
-  color: white;
   padding: 8px 18px;
   border-radius: 12px;
   cursor: pointer;
@@ -235,9 +219,6 @@ body {
 }
 
 .tab-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border-color);
-  color: #94a3b8;
   padding: 8px 18px;
   border-radius: 12px;
   cursor: pointer;
@@ -245,18 +226,10 @@ body {
   transition: 0.3s;
 }
 
-.tab-btn.active {
-  background: rgba(59, 130, 246, 0.1);
-  border-color: var(--active-blue);
-  color: white;
-}
 
 .empty-news-box {
-  background: rgba(15, 23, 42, 0.4);
-  border: 1px solid var(--border-color);
   border-radius: 18px;
   padding: 15px 25px;
-  color: #94a3b8;
   font-size: 14px;
   width: fit-content;
 }
@@ -269,21 +242,16 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(10px);
   z-index: 2000;
   justify-content: center;
   align-items: center;
 }
 
 .modal-box {
-  background: var(--modal-bg);
   width: 90%;
   max-width: 650px;
   padding: 30px;
   border-radius: 28px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: white;
   max-height: 85vh;
   overflow-y: auto;
   margin-top: 40px;
@@ -297,9 +265,6 @@ body {
 }
 
 .btn-close {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: white;
   width: 35px;
   height: 35px;
   border-radius: 10px;
@@ -321,11 +286,8 @@ body {
 input,
 textarea {
   width: 100%;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 15px;
   padding: 12px 15px;
-  color: white;
   outline: none;
 }
 
@@ -334,9 +296,6 @@ select {
   width: 100%;
   padding: 12px 15px;
   border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: rgba(255, 255, 255, 0.05);
-  color: #ffffff;
   font-size: 15px;
   outline: none;
   cursor: pointer;
@@ -350,8 +309,6 @@ select {
 }
 
 select option {
-  background-color: #0f172a;
-  color: #ffffff;
   padding: 12px;
 }
 
@@ -392,8 +349,6 @@ select:focus {
 }
 
 .btn-cancel {
-  background: #2d2d2d;
-  color: white;
   border: none;
   padding: 12px 28px;
   border-radius: 14px;
@@ -408,16 +363,12 @@ select:focus {
 }
 
 .btn-save {
-  background: #1e3a5f;
-  color: white;
-  border: 1px solid rgba(59, 130, 246, 0.4);
   padding: 12px 28px;
   border-radius: 14px;
   cursor: pointer;
   font-size: 15px;
   font-weight: 500;
   transition: 0.3s;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .btn-save:hover {
@@ -447,16 +398,13 @@ select:focus {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(circle at top right, #1e1b4b, #020617);
   z-index: 9999;
 }
 
 .login-card {
-  background: var(--panel-bg);
   backdrop-filter: blur(20px);
   padding: 40px;
   border-radius: 28px;
-  border: 1px solid var(--border-color);
   text-align: center;
   width: 90%;
   max-width: 400px;
@@ -464,11 +412,8 @@ select:focus {
 
 .login-input {
   width: 100%;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border-color);
   padding: 15px;
   border-radius: 14px;
-  color: white;
   margin-bottom: 15px;
   outline: none;
   text-align: center;
@@ -494,7 +439,6 @@ body.logged-in #loginScreen {
 
 .input-container label {
   display: block;
-  color: #cbd5e1;
   font-size: 13px;
   margin-bottom: 5px;
   margin-left: 2px;
@@ -526,8 +470,6 @@ body.logged-in #loginScreen {
   margin: 15px auto 0 auto;
   padding: 14px;
   background: transparent;
-  border: 2px solid #2563eb;
-  color: #2563eb;
   border-radius: 12px;
   font-size: 14px;
   font-weight: 600;
@@ -580,7 +522,6 @@ body.is-admin button.admin-only {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(2, 6, 23, 0.8);
   backdrop-filter: blur(12px);
   z-index: 10000;
   flex-direction: column;
@@ -638,7 +579,6 @@ body.is-admin button.admin-only {
 
 .loader-text {
   margin-top: 30px;
-  color: white;
   font-size: 15px;
   font-weight: 500;
   font-family: "Segoe UI", sans-serif;
@@ -660,10 +600,7 @@ body.is-admin button.admin-only {
   padding: 35px 25px 30px 25px;
   padding-top: 90px;               /* ફોટો માટે પુરતી જગ્યા */
   border-radius: 24px;
-  background: linear-gradient(135deg, #1e293b, #0f172a);
-  color: white;
   position: relative;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.45);
   box-sizing: border-box;
 }
 
@@ -747,12 +684,8 @@ body.is-admin button.admin-only {
 .sabhy-details b {
   width: 140px;
   display: inline-block;
-  color: #cbd5e1;
 }
 
-.sabhy-details span {
-  color: white;
-}
 
 #memberPhotoModal.modal {
   align-items: center;
@@ -843,6 +776,285 @@ body.is-admin button.admin-only {
 
 #overlay.active {
   display: block;
+}
+/* ========== PREMIUM WHITE GLASS THEME ========== */
+:root {
+  --bg-color: #f0f4f8;
+  --panel-bg: rgba(255, 255, 255, 0.55);
+  --border-color: rgba(255, 255, 255, 0.45);
+  --active-blue: #3b82f6;
+  --text-main: #1e293b;
+  --modal-bg: rgba(255, 255, 255, 0.85);
+}
+
+body {
+  background: linear-gradient(135deg, #e0e7ff 0%, #f0f4f8 40%, #fdf2f8 100%) !important;
+  color: #1e293b !important;
+}
+
+/* Header */
+.top-header {
+  background: rgba(255, 255, 255, 0.45) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5) !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06) !important;
+}
+
+#headerTitle span {
+  color: #1e293b !important;
+}
+
+#memberDisplay {
+  color: #3b82f6 !important;
+}
+
+/* Home button - glass */
+#headerHomeBtn {
+  background: rgba(255, 255, 255, 0.5) !important;
+  backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.6) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.7) !important;
+  color: #3b82f6 !important;
+  border-radius: 12px !important;
+  width: 38px !important;
+  height: 38px !important;
+  font-size: 17px !important;
+  padding: 0 !important;
+}
+
+/* Logout button */
+.top-header button[onclick="logout()"] {
+  background: rgba(239, 68, 68, 0.1) !important;
+  border: 1px solid rgba(239, 68, 68, 0.25) !important;
+  color: #ef4444 !important;
+}
+
+/* Cards */
+.news-header-card,
+.empty-news-box,
+.sabhy-card {
+  background: rgba(255, 255, 255, 0.5) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.6) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06) !important;
+  color: #1e293b !important;
+}
+
+.sabhy-card {
+  background: linear-gradient(135deg, rgba(255,255,255,0.7), rgba(241,245,249,0.6)) !important;
+}
+
+.sabhy-details b { color: #64748b !important; }
+.sabhy-details span { color: #1e293b !important; }
+
+/* Buttons */
+.add-btn, .btn-save {
+  background: rgba(59, 130, 246, 0.12) !important;
+  border: 1px solid rgba(59, 130, 246, 0.35) !important;
+  color: #1e40af !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+.btn-cancel {
+  background: rgba(148, 163, 184, 0.2) !important;
+  color: #475569 !important;
+  border: 1px solid rgba(148, 163, 184, 0.3) !important;
+}
+
+/* Tabs */
+.tab-btn {
+  background: rgba(255, 255, 255, 0.4) !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  color: #64748b !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+
+
+/* Modal */
+.modal {
+  background: rgba(15, 23, 42, 0.4) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+.modal-box {
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.7) !important;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.12) !important;
+  color: #1e293b !important;
+}
+
+.btn-close {
+  background: rgba(148, 163, 184, 0.15) !important;
+  border: 1px solid rgba(148, 163, 184, 0.25) !important;
+  color: #475569 !important;
+}
+
+/* Inputs */
+input, textarea, select {
+  background: rgba(255, 255, 255, 0.6) !important;
+  border: 1px solid rgba(148, 163, 184, 0.3) !important;
+  color: #1e293b !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+input::placeholder, textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+select option {
+  background: #ffffff !important;
+  color: #1e293b !important;
+}
+
+/* Login */
+#loginScreen {
+  background: linear-gradient(135deg, #e0e7ff 0%, #f0f4f8 40%, #fdf2f8 100%) !important;
+}
+
+.login-card {
+  background: rgba(255, 255, 255, 0.55) !important;
+  backdrop-filter: blur(24px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.6) !important;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.08) !important;
+}
+
+.login-card h2 { color: #1e293b !important; }
+
+.login-input-small {
+  background: rgba(255, 255, 255, 0.7) !important;
+  border: 1px solid rgba(148, 163, 184, 0.3) !important;
+  color: #1e293b !important;
+}
+
+.input-container label { color: #64748b !important; }
+
+.login-btn {
+  border-color: #3b82f6 !important;
+  color: #3b82f6 !important;
+}
+
+/* Loader */
+#globalLoader {
+  background: rgba(240, 244, 248, 0.85) !important;
+}
+
+.loader-text { color: #1e293b !important; }
+
+/* Home page cards (inline styles override via JS hard — soft fix) */
+.content-area {
+  color: #1e293b !important;
+}
+/* ========== INNER PAGES — GLASS THEME FORCE ========== */
+
+/* Content area text */
+#mainContent, .content-area {
+  color: #1e293b !important;
+}
+
+/* Dark cards → glass white (JS inline override) */
+#mainContent div[style*="background: rgba(15"],
+#mainContent div[style*="background:rgba(15"],
+#mainContent div[style*="background: rgba(30"],
+#mainContent div[style*="background:rgba(30"],
+#mainContent div[style*="background:#1e293b"],
+#mainContent div[style*="background: #1e293b"],
+#mainContent div[style*="background:linear-gradient(135deg, #1e293b"],
+#mainContent div[style*="background: linear-gradient(135deg, #1e293b"] {
+  background: rgba(255, 255, 255, 0.5) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border-color: rgba(255, 255, 255, 0.6) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06) !important;
+  color: #1e293b !important;
+}
+
+/* White / light text → dark */
+#mainContent [style*="color: white"],
+#mainContent [style*="color:white"],
+#mainContent [style*="color: #f8fafc"],
+#mainContent [style*="color:#f8fafc"],
+#mainContent [style*="color: #fff"],
+#mainContent [style*="color:#fff"] {
+  color: #1e293b !important;
+}
+
+/* Muted grey text — readable on glass */
+#mainContent [style*="color: #94a3b8"],
+#mainContent [style*="color:#94a3b8"],
+#mainContent [style*="color: #64748b"],
+#mainContent [style*="color:#64748b"],
+#mainContent [style*="color: #cbd5e1"],
+#mainContent [style*="color:#cbd5e1"] {
+  color: #64748b !important;
+}
+
+/* Blue accent text — keep visible */
+#mainContent [style*="color: #60a5fa"],
+#mainContent [style*="color:#60a5fa"],
+#mainContent [style*="color: #3b82f6"],
+#mainContent [style*="color:#3b82f6"] {
+  color: #2563eb !important;
+}
+
+/* Green success text */
+#mainContent [style*="color: #22c55e"],
+#mainContent [style*="color:#22c55e"] {
+  color: #16a34a !important;
+}
+
+/* Red / error */
+#mainContent [style*="color: #ef4444"],
+#mainContent [style*="color:#ef4444"],
+#mainContent [style*="color: #f87171"],
+#mainContent [style*="color:#f87171"] {
+  color: #dc2626 !important;
+}
+
+/* Headers inside pages */
+.news-title {
+  color: #1e293b !important;
+}
+
+/* Secondary containers */
+#secondaryDetailsContainer,
+#listContainer,
+#resultListContainer,
+#achievementsContainer {
+  color: #1e293b !important;
+}
+
+/* Inline dark buttons → glass soft */
+#mainContent button[style*="background:rgba(59"],
+#mainContent button[style*="background: rgba(59"] {
+  background: rgba(59, 130, 246, 0.12) !important;
+  color: #1e40af !important;
+  border-color: rgba(59, 130, 246, 0.35) !important;
+}
+
+#mainContent button[style*="background:rgba(239"],
+#mainContent button[style*="background: rgba(239"] {
+  background: rgba(239, 68, 68, 0.1) !important;
+  color: #dc2626 !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+}
+
+#mainContent button[style*="background:rgba(34"],
+#mainContent button[style*="background: rgba(34"] {
+  background: rgba(34, 197, 94, 0.1) !important;
+  color: #16a34a !important;
+  border-color: rgba(34, 197, 94, 0.3) !important;
+}
+
+/* Select / dropdowns inside pages */
+#mainContent select {
+  background: rgba(255, 255, 255, 0.65) !important;
+  border: 1px solid rgba(148, 163, 184, 0.35) !important;
+  color: #1e293b !important;
 }
 		</style>
 	  </head>
@@ -1324,33 +1536,36 @@ function generateYearDropdown() {
     ];
 
     let cardsHtml = homeItems.map((item) => `
-      <div onclick="showContent('${item.key}')" style="
-        background: rgba(15, 23, 42, 0.65);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 18px;
-        padding: 22px 16px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 12px;
-        cursor: pointer;
-        transition: all 0.25s ease;
-        min-height: 120px;
-        text-align: center;
-      " onmouseover="this.style.borderColor='${item.color}'; this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.3)';"
-         onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.transform='none'; this.style.boxShadow='none';">
-        <div style="
-          width: 52px; height: 52px; border-radius: 14px;
-          background: ${item.color}22;
-          border: 1px solid ${item.color}55;
-          display: flex; align-items: center; justify-content: center;
-        ">
-          <i class="fas ${item.icon}" style="font-size: 22px; color: ${item.color};"></i>
-        </div>
-        <span style="color: #f8fafc; font-size: 14px; font-weight: 600; line-height: 1.3;">${item.title}</span>
-      </div>
-    `).join("");
+  <div onclick="showContent('${item.key}')" style="
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 18px;
+    padding: 22px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    min-height: 120px;
+    text-align: center;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  " onmouseover="this.style.borderColor='${item.color}'; this.style.transform='translateY(-3px)'; this.style.boxShadow='0 12px 28px rgba(0,0,0,0.1)'; this.style.background='rgba(255,255,255,0.65)';"
+     onmouseout="this.style.borderColor='rgba(255,255,255,0.6)'; this.style.transform='none'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.06)'; this.style.background='rgba(255,255,255,0.45)';">
+    <div style="
+      width: 52px; height: 52px; border-radius: 14px;
+      background: ${item.color}18;
+      border: 1px solid ${item.color}44;
+      display: flex; align-items: center; justify-content: center;
+    ">
+      <i class="fas ${item.icon}" style="font-size: 22px; color: ${item.color};"></i>
+    </div>
+    <span style="color: #1e293b; font-size: 14px; font-weight: 600; line-height: 1.3;">${item.title}</span>
+  </div>
+`).join("");
 
     contentArea.innerHTML = `
       <div style="
