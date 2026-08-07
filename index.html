@@ -42,6 +42,7 @@ body {
   left: 0;
   right: 0;
   height: 68px;
+
   background: rgba(15, 23, 42, 0.8);
   backdrop-filter: blur(15px);
   border-bottom: 1px solid var(--border-color);
@@ -892,40 +893,33 @@ body.is-admin button.admin-only {
 		  </div>
 		  <div class="loader-text">ડેટા લોડ થઈ રહ્યો છે...</div>
 		</div>
-		<!-- Top Header -->
+<!-- Top Header -->
 <div class="top-header" style="display:flex; align-items:center; padding:0 15px;">
 
-  <!-- Left -->
-  <div>
-    <button onclick="toggleMobileSidebar()" 
-      style="background:none; border:none; color:white; font-size:24px; cursor:pointer;">
-      <i class="fas fa-bars"></i>
+  <!-- Left: Home button -->
+  <div id="headerHomeWrap">
+    <button id="headerHomeBtn" onclick="showContent('home')"
+      title="હોમ"
+      style="background:none; border:none; color:white; font-size:22px; cursor:pointer; display:flex; align-items:center; justify-content:center; padding:6px 8px;">
+      <i class="fas fa-home"></i>
     </button>
   </div>
 
-  <!-- Center (perfect center fix) -->
-  <div style="
+  <!-- Title -->
+  <div id="headerTitle" style="
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
     text-align: center;
   ">
-    <span style="font-size:16.5px; font-weight:700; color:white;">
+    <span style="font-size:16.5px; font-weight:700; color:white; white-space:nowrap;">
       શ્રી બોટાદ પટેલ યુવક મંડળ સુરત
     </span>
   </div>
 
-  <!-- Right (IMPORTANT) -->
-  <div style="
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  ">
-    <span id="memberDisplay"
-      style="color:#3b82f6; font-weight:bold; font-size:14px;">
-    </span>
-
+  <!-- Right -->
+  <div style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
+    <span id="memberDisplay" style="color:#3b82f6; font-weight:bold; font-size:14px;"></span>
     <button onclick="logout()" style="
       background: rgba(220, 38, 38, 0.1);
       border: 1px solid rgba(220, 38, 38, 0.4);
@@ -1194,7 +1188,7 @@ body.is-admin button.admin-only {
 				document.body.classList.add("is-admin");
 			  }
 			  // પેજ લોડ થાય ત્યારે સીધા ન્યૂઝ બતાવો
-			  showContent("news");
+			  showContent("home");
 			} else {
 			  document.body.classList.add("logged-out");
 			  document.body.classList.remove("logged-in");
@@ -1291,6 +1285,101 @@ function generateYearDropdown() {
 
 		  // 1. મેનુ પર ક્લિક કરવાથી પેજ દેખાડવાનું ફંક્શન
 		  async function showContent(type) {
+		    // ========== HOME PAGE (Dashboard) ==========
+  if (type === "home") {
+    // Home page: icon છુપાવો + title ડાબી બાજુ
+    const homeWrap = document.getElementById("headerHomeWrap");
+    if (homeWrap) homeWrap.style.display = "none";
+    const homeBtn = document.getElementById("headerHomeBtn");
+    if (homeBtn) homeBtn.style.display = "none";
+    const headerTitle = document.getElementById("headerTitle");
+    if (headerTitle) {
+      headerTitle.style.left = "15px";
+      headerTitle.style.transform = "none";
+      headerTitle.style.textAlign = "left";
+    }
+
+    // સાઇડબાર બંધ રાખો
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlay");
+    if (sidebar) sidebar.classList.remove("active");
+    if (overlay) overlay.classList.remove("active");
+
+    // કોઈ nav-item active ન રાખો
+    document.querySelectorAll(".nav-item").forEach((item) => {
+      item.classList.remove("active");
+    });
+
+    const contentArea = document.getElementById("mainContent");
+    const homeItems = [
+      { key: "news", title: "સમાચાર", icon: "fa-newspaper", color: "#3b82f6" },
+      { key: "events", title: "ઇવેન્ટ્સ", icon: "fa-calendar-alt", color: "#8b5cf6" },
+      { key: "gallery", title: "ગેલેરી", icon: "fa-images", color: "#ec4899" },
+      { key: "committee", title: "કમિટી", icon: "fa-users", color: "#06b6d4" },
+      { key: "donors", title: "દાતાશ્રીઓ", icon: "fa-hand-holding-heart", color: "#f43f5e" },
+      { key: "members", title: "સભ્યો", icon: "fa-user-friends", color: "#22c55e" },
+      { key: "business", title: "વ્યવસાય", icon: "fa-briefcase", color: "#eab308" },
+      { key: "result", title: "રિઝલ્ટ", icon: "fa-chart-line", color: "#f97316" },
+      { key: "achievements", title: "વિશિષ્ટ સિદ્ધિઓ", icon: "fa-award", color: "#a855f7" },
+    ];
+
+    let cardsHtml = homeItems.map((item) => `
+      <div onclick="showContent('${item.key}')" style="
+        background: rgba(15, 23, 42, 0.65);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 18px;
+        padding: 22px 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        min-height: 120px;
+        text-align: center;
+      " onmouseover="this.style.borderColor='${item.color}'; this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.3)';"
+         onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.transform='none'; this.style.boxShadow='none';">
+        <div style="
+          width: 52px; height: 52px; border-radius: 14px;
+          background: ${item.color}22;
+          border: 1px solid ${item.color}55;
+          display: flex; align-items: center; justify-content: center;
+        ">
+          <i class="fas ${item.icon}" style="font-size: 22px; color: ${item.color};"></i>
+        </div>
+        <span style="color: #f8fafc; font-size: 14px; font-weight: 600; line-height: 1.3;">${item.title}</span>
+      </div>
+    `).join("");
+
+    contentArea.innerHTML = `
+      <div style="
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 14px;
+        padding: 8px 0 30px 0;
+      ">
+        ${cardsHtml}
+      </div>
+    `;
+    return;
+	
+  }
+  // બીજા pages: home icon દેખાડો + title center
+const homeWrap2 = document.getElementById("headerHomeWrap");
+if (homeWrap2) homeWrap2.style.display = "block";
+const homeBtn2 = document.getElementById("headerHomeBtn");
+if (homeBtn2) homeBtn2.style.display = "flex";
+const headerTitle2 = document.getElementById("headerTitle");
+if (headerTitle2) {
+  headerTitle2.style.left = "50%";
+  headerTitle2.style.transform = "translateX(-50%)";
+  headerTitle2.style.textAlign = "center";
+}
+
+  // બીજા pages પર home icon દેખાડો
+  const homeBtn = document.getElementById("headerHomeBtn");
+  if (homeBtn) homeBtn.style.display = "flex";
   
   // 🔒 ACHIEVEMENT LOCK CHECK (Public user માટે)
   if (type === "achievements") {
