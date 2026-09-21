@@ -116,6 +116,82 @@ if (e.parameter.action === "getBusinessRequests") {
   })).setMimeType(ContentService.MimeType.JSON);
 }
 
+// ==================== SLIP (નવા સભ્યનું વાઉચર) ====================
+if (e.parameter.action === "getSlip" || e.parameter.type === "slip") {
+  var query = (e.parameter.q || e.parameter.mobile || e.parameter.memberNo || "").toString().trim();
+  var result = { success: false, message: "ડેટા મળ્યો નથી." };
+
+  try {
+    if (!query) {
+      result.message = "મોબાઈલ / સભ્ય નંબર મોકલો.";
+      return ContentService.createTextOutput(JSON.stringify(result))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    var slipSheet = ss.getSheetByName("Slip");
+    if (!slipSheet) {
+      result.message = "Slip શીટ મળી નથી.";
+      return ContentService.createTextOutput(JSON.stringify(result))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    var slipData = slipSheet.getDataRange().getValues();
+    // A=Mobile, B=SabhyaNo, C=Name, D=Father, E=GrandFather, F=Surname, G=Rupiya, H=Date, I=Sign
+    var cleanQuery = query.replace(/\D/g, "");
+
+    for (var i = 1; i < slipData.length; i++) {
+      var rowMobile = (slipData[i][0] || "").toString().trim();
+      var rowSabhya = (slipData[i][1] || "").toString().trim();
+      var rowMobileDigits = rowMobile.replace(/\D/g, "");
+      var rowSabhyaDigits = rowSabhya.replace(/\D/g, "");
+
+      if (
+        rowMobile === query ||
+        rowSabhya === query ||
+        (cleanQuery && rowMobileDigits === cleanQuery) ||
+        (cleanQuery && rowSabhyaDigits === cleanQuery)
+      ) {
+        var dateVal = slipData[i][7];
+        var dateStr = "";
+        if (dateVal instanceof Date) {
+          dateStr = Utilities.formatDate(dateVal, Session.getScriptTimeZone(), "dd-MM-yyyy");
+        } else {
+          dateStr = (dateVal || "").toString().trim();
+        }
+
+        var rupiyaVal = slipData[i][6];
+                var nameParts = [
+          (slipData[i][2] || "").toString().trim(), // C Name
+          (slipData[i][3] || "").toString().trim(), // D Father
+          (slipData[i][4] || "").toString().trim(), // E GrandFather
+          (slipData[i][5] || "").toString().trim()  // F Surname
+        ].filter(function (p) { return p; });
+
+        var rupiyaVal = slipData[i][6];
+        result = {
+          success: true,
+          sabhyaNo: rowSabhya,
+          name: nameParts.join(" "),   // C + D + E + F
+          mobile: rowMobile,
+          date: dateStr,
+          rupiya: rupiyaVal !== "" && rupiyaVal != null ? String(rupiyaVal) : "",
+          sign: (slipData[i][8] || "").toString().trim()
+        };
+        break;
+      }
+    }
+
+    if (!result.success) {
+      result.message = "આ સભ્ય માટે Slip શીટમાં ડેટા નથી.";
+    }
+  } catch (err) {
+    result.message = "Error: " + err.message;
+  }
+
+  return ContentService.createTextOutput(JSON.stringify(result))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
 // 🎯 Admin: MemberNo થી કોઈપણ સભ્યની વિગત
 if (type === 'memberDataByNo' && e.parameter.memberNo) {
   return getMemberDataByMemberNo(e.parameter.memberNo);
