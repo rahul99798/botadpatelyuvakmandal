@@ -1371,7 +1371,7 @@ select option {
 <div id="overlay" onclick="toggleMobileSidebar()"></div>
 		<script>
 		  const SCRIPT_URL =
-			"https://script.google.com/macros/s/AKfycbzNma9qkPVAeFTZktjsfa8zmpyQsV3rrinNllG3pWxDnetc-ehH60g5HCKa1ZBNBK7M/exec";
+			"https://script.google.com/macros/s/AKfycbx_zQt-fIhKcF5l0E7Y2lay2ptb27ZNQR-XVjHUb3wQ5M73BL7-XKQy6m-IbB9NknBV/exec";
 			
 
 		  
@@ -1380,6 +1380,144 @@ select option {
 			localStorage.clear();
 			location.reload();
 		  }
+		    // --- સભ્ય સ્લિપ: Fetch member voucher data ---
+ // --- રૂપિયા → ગુજરાતી અંકે ---
+function numberToGujaratiWords(num) {
+  num = parseInt(String(num).replace(/[^\d]/g, ""), 10);
+  if (isNaN(num) || num < 0) return "";
+  if (num === 0) return "શૂન્ય";
+
+  var ones = ["", "એક", "બે", "ત્રણ", "ચાર", "પાંચ", "છ", "સાત", "આઠ", "નવ",
+    "દસ", "અગિયાર", "બાર", "તેર", "ચૌદ", "પંદર", "સોળ", "સત્તર", "અઢાર", "ઓગણીસ"];
+  var tens = ["", "", "વીસ", "ત્રીસ", "ચાલીસ", "પચાસ", "સાઠ", "સિત્તેર", "એંસી", "નેવું"];
+  var specials = {
+    20: "વીસ", 21: "એકવીસ", 22: "બાવીસ", 23: "ત્રેવીસ", 24: "ચોવીસ", 25: "પચ્ચીસ",
+    26: "છવ્વીસ", 27: "સત્તાવીસ", 28: "અઠ્ઠાવીસ", 29: "ઓગણત્રીસ",
+    30: "ત્રીસ", 31: "એકત્રીસ", 32: "બત્રીસ", 33: "તેત્રીસ", 34: "ચોત્રીસ", 35: "પાંત્રીસ",
+    36: "છત્રીસ", 37: "સડત્રીસ", 38: "અડત્રીસ", 39: "ઓગણચાલીસ",
+    40: "ચાલીસ", 41: "એકતાલીસ", 42: "બેતાલીસ", 43: "ત્રેતાલીસ", 44: "ચુંમાલીસ", 45: "પિસ્તાલીસ",
+    46: "છેતાલીસ", 47: "સુડતાલીસ", 48: "અડતાલીસ", 49: "ઓગણપચાસ",
+    50: "પચાસ", 51: "એકાવન", 52: "બાવન", 53: "ત્રેપન", 54: "ચોપન", 55: "પંચાવન",
+    56: "છપ્પન", 57: "સત્તાવન", 58: "અઠ્ઠાવન", 59: "ઓગણસાઠ",
+    60: "સાઠ", 61: "એકસઠ", 62: "બાસઠ", 63: "ત્રેસઠ", 64: "ચોસઠ", 65: "પાંસઠ",
+    66: "છાસઠ", 67: "સડસઠ", 68: "અડસઠ", 69: "અગણોસિત્તેર",
+    70: "સિત્તેર", 71: "એકોતેર", 72: "બોતેર", 73: "તોતેર", 74: "ચુમોતેર", 75: "પંચોતેર",
+    76: "છોતેર", 77: "સિત્યોતેર", 78: "ઇઠ્યોતેર", 79: "ઓગણાએંસી",
+    80: "એંસી", 81: "એક્યાસી", 82: "બ્યાસી", 83: "ત્યાસી", 84: "ચોર્યાસી", 85: "પંચાસી",
+    86: "છ્યાસી", 87: "સિત્યાસી", 88: "ઈઠ્યાસી", 89: "નેવ્યાસી",
+    90: "નેવું", 91: "એકાણું", 92: "બાણું", 93: "ત્રાણું", 94: "ચોરાણું", 95: "પંચાણું",
+    96: "છન્નું", 97: "સત્તાણું", 98: "અઠ્ઠાણું", 99: "નવ્વાણું"
+  };
+
+  function underHundred(n) {
+    if (n < 20) return ones[n];
+    if (specials[n]) return specials[n];
+    var t = Math.floor(n / 10);
+    var o = n % 10;
+    return tens[t] + (o ? " " + ones[o] : "");
+  }
+
+  function underThousand(n) {
+    if (n < 100) return underHundred(n);
+    var h = Math.floor(n / 100);
+    var rest = n % 100;
+    var s = ones[h] + " સો";
+    if (rest) s += " " + underHundred(rest);
+    return s;
+  }
+
+  var parts = [];
+  var crore = Math.floor(num / 10000000);
+  num %= 10000000;
+  var lakh = Math.floor(num / 100000);
+  num %= 100000;
+  var hazar = Math.floor(num / 1000);
+  num %= 1000;
+
+  if (crore) parts.push(underThousand(crore) + " કરોડ");
+  if (lakh) parts.push(underThousand(lakh) + " લાખ");
+  if (hazar) parts.push(underThousand(hazar) + " હજાર");
+  if (num) parts.push(underThousand(num));
+
+  return parts.join(" ");
+}
+
+function fetchSlipMemberData() {
+  var query =
+    (localStorage.getItem("userMobile") || "").trim() ||
+    (localStorage.getItem("userMemberNo") || "").trim();
+
+  if (!query) {
+    alert("લોગિન વિગત મળી નથી. ફરી લોગિન કરો.");
+    return;
+  }
+
+  var url =
+    "https://script.google.com/macros/s/AKfycbx_zQt-fIhKcF5l0E7Y2lay2ptb27ZNQR-XVjHUb3wQ5M73BL7-XKQy6m-IbB9NknBV/exec" +
+    "?action=getSlip&mobile=" +
+    encodeURIComponent(query);
+
+  fetch(url)
+    .then(function (res) {
+      return res.json();
+    })
+    .then(function (response) {
+      console.log("SLIP RESPONSE:", response);
+
+      if (response.success) {
+        var set = function (id, val) {
+          var el = document.getElementById(id);
+          if (el) el.innerText = val != null ? val : "";
+        };
+
+        set("slipLblNo", response.sabhyaNo);
+        set("slipValSabhyaNo", response.sabhyaNo);
+       var fullName = (response.name || "").trim();
+var maxFirst = 32;
+var name1 = fullName;
+var name2 = "";
+if (fullName.length > maxFirst) {
+  var cut = fullName.lastIndexOf(" ", maxFirst);
+  if (cut < 12) cut = maxFirst;
+  name1 = fullName.substring(0, cut).trim();
+  name2 = fullName.substring(cut).trim();
+}
+set("slipValName", name1);
+set("slipValName2", name2);
+var mob = String(response.mobile || "").replace(/\D/g, "");
+set("slipValMobile", mob.length === 10 ? (mob.slice(0, 5) + " " + mob.slice(5)) : (response.mobile || ""));
+        set("slipValDate", response.date);
+
+        var amt = response.rupiya || "";
+        set("slipValRupiyaBox", amt ? ("₹ " + amt) : "");
+        var words = numberToGujaratiWords(amt);
+        set("slipValRupiyaWords", words ? (words + " રૂપિયા") : "");
+
+        // સહી: URL હોય તો ઇમેજ, નહીંતર ટેક્સ્ટ
+var signEl = document.getElementById("slipValSign");
+if (signEl) {
+  var signVal = (response.sign || "").trim();
+  if (signVal && (signVal.indexOf("http") === 0 || signVal.indexOf("drive.google") > -1)) {
+    // Drive link હોય તો direct image URL બનાવો
+    var imgUrl = signVal;
+    var m = signVal.match(/\/d\/([^\/\?]+)/) || signVal.match(/id=([^&]+)/);
+    if (m && m[1]) {
+      imgUrl = "https://lh3.googleusercontent.com/d/" + m[1];
+    }
+    signEl.innerHTML = '<img src="' + imgUrl + '" style="height:36px; max-width:140px; object-fit:contain;">';
+    signEl.style.borderBottom = "none";
+  } else {
+    signEl.innerText = signVal;
+  }
+}
+      } else {
+        alert(response.message || "ડેટા મળ્યો નથી.");
+      }
+    })
+    .catch(function (err) {
+      alert("Error: " + (err && err.message ? err.message : err));
+    });
+}
 
 		  // --- ૩. પેજ લોડ ચેક ---
 		  window.addEventListener("load", () => {
@@ -1533,6 +1671,7 @@ function generateYearDropdown() {
       { key: "business", title: "વ્યવસાય", icon: "fa-briefcase", color: "#eab308" },
       { key: "result", title: "રિઝલ્ટ", icon: "fa-chart-line", color: "#f97316" },
       { key: "achievements", title: "વિશિષ્ટ સિદ્ધિઓ", icon: "fa-award", color: "#a855f7" },
+	  { key: "sabhySlip", title: "સભ્ય સ્લિપ", icon: "fa-file-invoice", color: "#14345c" }, 
     ];
 
     let cardsHtml = homeItems.map((item) => `
@@ -1579,6 +1718,339 @@ function generateYearDropdown() {
     `;
     return;
 	
+  }
+    // ========== સભ્ય સ્લિપ (Index Slip voucher) ==========
+  if (type === "sabhySlip") {
+    const homeWrapS = document.getElementById("headerHomeWrap");
+    if (homeWrapS) homeWrapS.style.display = "block";
+    const homeBtnS = document.getElementById("headerHomeBtn");
+    if (homeBtnS) homeBtnS.style.display = "flex";
+    const headerTitleS = document.getElementById("headerTitle");
+    if (headerTitleS) {
+      headerTitleS.style.left = "50%";
+      headerTitleS.style.transform = "translateX(-50%)";
+      headerTitleS.style.textAlign = "center";
+    }
+    document.querySelectorAll(".nav-item").forEach((item) => item.classList.remove("active"));
+    const sidebarS = document.getElementById("sidebar");
+    const overlayS = document.getElementById("overlay");
+    if (sidebarS) sidebarS.classList.remove("active");
+    if (overlayS) overlayS.classList.remove("active");
+
+    const contentArea = document.getElementById("mainContent");
+    contentArea.innerHTML = `
+      <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gujarati:wght@400;600;700&display=swap" rel="stylesheet">
+      <style>
+        .slip-wrap {
+          font-family: 'Noto Sans Gujarati', 'Segoe UI', sans-serif;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding: 10px 8px 30px;
+          width: 100%;
+          box-sizing: border-box;
+        }
+        .slip-search-box {
+          margin-bottom: 15px;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 10px;
+          justify-content: center;
+          width: 100%;
+          max-width: 6in;
+        }
+        .slip-search-box input {
+          flex: 1;
+          min-width: 160px;
+          padding: 8px 12px;
+          font-size: 14px;
+          border: 2px solid #14345c;
+          border-radius: 6px;
+          outline: none;
+          font-family: 'Noto Sans Gujarati', sans-serif;
+          background: #fff;
+          color: #1e293b;
+        }
+        .slip-voucher-card {
+          width: 100%;
+          max-width: 6in;
+          min-height: 3.5in;
+          background-color: #fff;
+          border: 3px solid #14345c;
+          padding: 0;
+          box-sizing: border-box;
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          color: #14345c;
+        }
+        .slip-header-section {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 8px 15px 2px 15px;
+        }
+        .slip-logo-placeholder {
+          width: 65px;
+          height: 65px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+        .slip-logo-placeholder img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          mix-blend-mode: multiply;
+        }
+        .slip-main-title { text-align: center; flex: 1; padding: 0 6px; }
+        .slip-main-title h1 {
+          margin: 0;
+          font-size: 15px;
+          font-weight: 700;
+          letter-spacing: 0.3px;
+          color: #14345c;
+          line-height: 1.25;
+        }
+        .slip-main-title p {
+          margin: 2px 0 0 0;
+          font-size: 12px;
+          font-weight: 600;
+          color: #14345c;
+        }
+        .slip-divider-wrapper {
+          position: relative;
+          text-align: center;
+          margin-top: 1px;
+          margin-bottom: 12px;
+        }
+        .slip-divider-line {
+          position: absolute;
+          top: 50%;
+          left: 0;
+          right: 0;
+          height: 3px;
+          background-color: #14345c;
+          transform: translateY(-50%);
+          z-index: 1;
+        }
+        .slip-divider-text {
+          position: relative;
+          z-index: 2;
+          background-color: #14345c;
+          color: #fff;
+          padding: 6px 28px;
+          border-radius: 20px;
+          font-size: 14px;
+          font-weight: 700;
+          display: inline-block;
+        }
+        .slip-form-content {
+          padding: 0 16px 12px 16px;
+          flex-grow: 1;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+        }
+        .slip-form-row {
+          display: flex;
+          align-items: flex-end;
+          margin-bottom: 6px;
+          font-size: 13px;
+          font-weight: 600;
+          flex-wrap: wrap;
+          gap: 4px 0;
+        }
+        .slip-form-label { white-space: nowrap; color: #14345c; }
+        .slip-line {
+          flex-grow: 1;
+          border-bottom: 1px solid #14345c;
+          margin: 0 6px;
+          height: 16px;
+          padding-left: 4px;
+          color: #000;
+          font-weight: normal;
+          min-width: 40px;
+        }
+        .slip-row-1 { justify-content: space-between; }
+        .slip-row-1 .slip-line-1 { flex-grow: 0; width: 110px; }
+        .slip-row-2 { flex-wrap: nowrap; }
+.slip-row-2 .slip-line-1 {
+  flex-grow: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.slip-row-2 .slip-line-2 { flex-grow: 0; width: 110px; flex-shrink: 0; }
+.slip-row-3 { flex-wrap: nowrap; }
+.slip-row-3 .slip-line-1 {
+  flex-grow: 1;
+  margin-left: 0;
+  min-width: 0;
+  white-space: nowrap;
+}
+.slip-row-3 .slip-line-2 { flex-grow: 0; width: 110px; flex-shrink: 0; }
+        .slip-row-4 .slip-line-1 { flex-grow: 1; }
+        .slip-footer-section {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-end;
+          margin-top: 6px;
+          flex-wrap: wrap;
+          gap: 10px;
+        }
+        .slip-signature-box {
+  display: flex;
+  align-items: flex-end;
+  font-size: 13px;
+  font-weight: 600;
+  gap: 2px;
+}
+.slip-signature-box .slip-line {
+  width: auto;
+  min-width: 50px;
+  flex-grow: 0;
+  margin: 0;
+  padding-left: 0;
+  border-bottom: none;
+  position: relative;
+  top: -6px;
+  left: -25px;
+  font-size: 16px;      /* થોડું મોટું */
+  font-weight: 700;
+}
+        .slip-amount-box {
+          width: 140px;
+          border: 2px solid #14345c;
+          border-radius: 10px;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+          height: 52px;
+        }
+        .slip-amount-header {
+          text-align: center;
+          border-bottom: 2px solid #14345c;
+          padding: 3px 0;
+          font-size: 14px;
+          font-weight: 700;
+          color: #14345c;
+        }
+        .slip-amount-body {
+          flex-grow: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: bold;
+          font-size: 15px;
+          color: #000;
+        }
+        .slip-btn {
+          background-color: #14345c;
+          color: white;
+          border: none;
+          padding: 10px 18px;
+          font-size: 14px;
+          font-weight: 600;
+          border-radius: 6px;
+          cursor: pointer;
+          font-family: 'Noto Sans Gujarati', sans-serif;
+        }
+        .slip-btn:hover { background-color: #0b1f3a; }
+        .slip-button-container {
+          margin-top: 15px;
+          display: flex;
+          gap: 12px;
+          justify-content: center;
+          flex-wrap: wrap;
+        }
+        @media print {
+          body * { visibility: hidden; }
+          .slip-voucher-card, .slip-voucher-card * { visibility: visible; }
+          .slip-voucher-card {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 6in;
+            height: 3.5in;
+            border: 2px solid #14345c;
+          }
+          .slip-search-box, .slip-button-container, .top-header, .sidebar, #overlay { display: none !important; }
+          @page { size: 6in 3.5in; margin: 0; }
+        }
+        @media (max-width: 480px) {
+          .slip-main-title h1 { font-size: 12px; }
+          .slip-logo-placeholder { width: 48px; height: 48px; }
+          .slip-divider-text { font-size: 12px; padding: 5px 18px; }
+        }
+      </style>
+      <div class="news-header-card">
+        <div class="news-title"><i class="fas fa-file-invoice"></i> સભ્ય સ્લિપ</div>
+      </div>
+      <div class="slip-wrap">
+        <div class="slip-voucher-card" id="slipVoucherCard">
+          <div class="slip-header-section">
+            <div class="slip-logo-placeholder">
+              <img src="https://lh3.googleusercontent.com/d/1cMoQaiQNjg3bWfaDVJbG1KQ9kT4lf_fG" alt="Botad Logo">
+            </div>
+            <div class="slip-main-title">
+              <h1>શ્રી બોટાદ લેઉવા પટેલ યુવક મંડળ , સુરત</h1>
+              <p>સ્થાપના વર્ષ – 1996</p>
+            </div>
+            <div class="slip-logo-placeholder">
+              <img src="https://lh3.googleusercontent.com/d/1cMoQaiQNjg3bWfaDVJbG1KQ9kT4lf_fG" alt="Botad Logo">
+            </div>
+          </div>
+          <div class="slip-divider-wrapper">
+            <div class="slip-divider-line"></div>
+            <div class="slip-divider-text">નવા સભ્યનું વાઉચર</div>
+          </div>
+          <div class="slip-form-content">
+            <div class="slip-form-row slip-row-1">
+              <div class="slip-form-label">NO : <span id="slipLblNo"></span></div>
+              <div style="display: flex; align-items: flex-end;">
+                <div class="slip-form-label">સભ્ય નં :</div>
+                <div class="slip-line slip-line-1" id="slipValSabhyaNo"></div>
+              </div>
+            </div>
+                        <div class="slip-form-row slip-row-2">
+  <div class="slip-form-label">સભ્યનું નામ</div>
+  <div class="slip-line slip-line-1" id="slipValName"></div>
+  <div class="slip-form-label">મોં નં :</div>
+  <div class="slip-line slip-line-2" id="slipValMobile"></div>
+</div>
+<div class="slip-form-row slip-row-3">
+  <div class="slip-line slip-line-1" id="slipValName2"></div>
+  <div class="slip-form-label">તારીખ :</div>
+  <div class="slip-line slip-line-2" id="slipValDate"></div>
+</div>
+            <div class="slip-form-row slip-row-4">
+              <div class="slip-form-label">સભ્ય ફી અંકે રૂપિયા</div>
+              <div class="slip-line slip-line-1" id="slipValRupiyaWords"></div>
+              <div class="slip-form-label">પુરા</div>
+            </div>
+            <div class="slip-footer-section">
+              <div class="slip-signature-box">
+                <div class="slip-form-label">નાણાં લેનાર ની સહી :</div>
+                <div class="slip-line" id="slipValSign"></div>
+              </div>
+              <div class="slip-amount-box">
+                <div class="slip-amount-header">રૂપિયા</div>
+                <div class="slip-amount-body" id="slipValRupiyaBox"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="slip-button-container">
+          <button class="slip-btn" type="button" onclick="window.print()">Download Voucher</button>
+        </div>
+      </div>
+    `;
+    setTimeout(function () {
+      fetchSlipMemberData();
+    }, 100);
+    return;
   }
   // બીજા pages: home icon દેખાડો + title center
 const homeWrap2 = document.getElementById("headerHomeWrap");
