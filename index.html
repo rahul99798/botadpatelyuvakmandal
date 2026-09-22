@@ -1897,31 +1897,63 @@ function generateYearDropdown() {
           justify-content: space-between;
           align-items: flex-end;
           margin-top: 6px;
-          flex-wrap: wrap;
+          flex-wrap: nowrap;
           gap: 10px;
+          width: 100%;
         }
-        .slip-signature-box {
+        
+  /* નવો કસ્ટમ ફોન્ટ (AAutoSignature) ઉમેરવા માટે */
+@font-face {
+  font-family: 'AAutoSignature';
+  src: url('https://raw.githubusercontent.com/rahul99798/botadpatelyuvakmandal/main/AAutoSignature-1GD9j.ttf') format('truetype');
+}
+
+/* સહી ના લેબલ અને બોક્સ ને એક જ લાઈનમાં સીધા રાખવા */
+.slip-signature-box {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   font-size: 13px;
   font-weight: 600;
-  gap: 2px;
+  gap: 10px;
+  flex: 1;
+  overflow: hidden;
+  margin-bottom: 3px; 
 }
+
+/* સહી માટેનું બોક્સ ડિઝાઇન */
 .slip-signature-box .slip-line {
-  width: auto;
-  min-width: 50px;
-  flex-grow: 0;
+  width: 100%; 
+  min-width: 130px; 
+  max-width: none; 
+  height: 48px; 
+  flex-grow: 1;
   margin: 0;
-  padding-left: 0;
-  border-bottom: none;
-  position: relative;
-  top: -6px;
-  left: -25px;
-  font-size: 16px;      /* થોડું મોટું */
-  font-weight: 700;
+  padding: 0 0 0 10px; /* ડાબી બાજુથી થોડી જગ્યા (padding) રાખવા માટે */
+  border: none; 
+  display: flex;
+  align-items: center; /* ઊભી રીતે સેન્ટરમાં રાખશે */
+  justify-content: flex-start; /* સહીને ડાબી બાજુથી (left) શરૂ કરશે */
+  
+  font-family: 'AAutoSignature', cursive; 
+  font-size: 20px; 
+  font-weight: normal;
+  
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
+
+/* બોક્સ ની અંદર સહી નો ફોટો સેટ કરવા */
+.slip-signature-box .slip-line img {
+  max-width: 90% !important;
+  max-height: 40px !important;
+  object-fit: contain;
+}
+
         .slip-amount-box {
           width: 140px;
+          min-width: 140px;
+          flex-shrink: 0;
           border: 2px solid #14345c;
           border-radius: 10px;
           display: flex;
