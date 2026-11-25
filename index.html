@@ -1371,7 +1371,7 @@ select option {
 <div id="overlay" onclick="toggleMobileSidebar()"></div>
 		<script>
 		  const SCRIPT_URL =
-			"https://script.google.com/macros/s/AKfycbwlv8nKjbE2Y69r_BHBV0vSobE50RSRciVxLlNXEOIt22ujY1hPc_Ybup4cWDlerlBk/exec";
+			"https://script.google.com/macros/s/AKfycby38eeAPOFDOpumpYjH3uEqRyBWdZf_lUbd7l5nPltArdKZHmqrHiQpQLncLhEBtS2o/exec";
 			
 
 		  
@@ -1453,7 +1453,7 @@ function fetchSlipMemberData() {
   }
 
   var url =
-    "https://script.google.com/macros/s/AKfycbwlv8nKjbE2Y69r_BHBV0vSobE50RSRciVxLlNXEOIt22ujY1hPc_Ybup4cWDlerlBk/exec" +
+    "https://script.google.com/macros/s/AKfycby38eeAPOFDOpumpYjH3uEqRyBWdZf_lUbd7l5nPltArdKZHmqrHiQpQLncLhEBtS2o/exec" +
     "?action=getSlip&mobile=" +
     encodeURIComponent(query);
 
@@ -7785,7 +7785,7 @@ async function loadCricketPlayers() {
           </div>
           <div style="font-weight:700; font-size:14px; color:#1e293b; margin-bottom:3px;">${cricketEsc(p.playerName)}</div>
           <div style="font-size:12px; color:#64748b;">સભ્ય નં: ${cricketEsc(p.memberNo)}</div>
-          <div style="font-size:12.5px; color:#16a34a; font-weight:600; margin:4px 0;">${cricketEsc(p.role || '')} • ${cricketEsc(p.arm)} Arm</div>
+          <div style="font-size:12.5px; color:#16a34a; font-weight:600; margin:4px 0;">${cricketEsc(p.role || '')}</div>
           <div style="font-size:11.5px; color:#64748b;">${cricketEsc(p.batting || '')} • ${cricketEsc(p.bowling || '')}</div>
           <div style="font-size:11.5px; color:#64748b;">Size: ${cricketEsc(p.size || '-')} | #${cricketEsc(p.jerseyNo || '-')}</div>
           <div style="font-size:11.5px; color:#64748b;"><i class="fa-solid fa-phone"></i> ${cricketEsc(p.mobile)}</div>
@@ -7817,12 +7817,31 @@ function findCricketPlayer(memberNo, name) {
 }
 
 // ---------- નામ select થાય ત્યારે જૂની વિગત auto-fill ----------
+
+function syncCricHeroesFromMobile() {
+  const chk = document.getElementById("cSameAsWhatsApp");
+  const mobile = document.getElementById("cMobile");
+  const cric = document.getElementById("cCricHeroes");
+  if (!chk || !mobile || !cric) return;
+  if (chk.checked) {
+    cric.value = (mobile.value || "").replace(/\D/g, "").slice(0, 10);
+    cric.readOnly = true;
+    cric.style.background = "#e2e8f0";
+    cric.style.color = "#64748b";
+    cric.style.cursor = "not-allowed";
+  } else {
+    cric.readOnly = false;
+    cric.style.background = "";
+    cric.style.color = "";
+    cric.style.cursor = "";
+  }
+}
+
 function fillCricketExisting(memberNo, name) {
   const p = name ? findCricketPlayer(memberNo, name) : null;
   window._cricketExisting = p;
 
   const mobile = document.getElementById("cMobile");
-  const arm = document.getElementById("cArm");
   const note = document.getElementById("cExistingNote");
   const prevBox = document.getElementById("cPhotoPreview");
   const prevImg = document.getElementById("cPhotoPreviewImg");
@@ -7836,11 +7855,11 @@ function fillCricketExisting(memberNo, name) {
   const size = document.getElementById("cSize");
   const jerseyName = document.getElementById("cJerseyName");
   const jerseyNo = document.getElementById("cJerseyNo");
+  const sameChk = document.getElementById("cSameAsWhatsApp");
   if (fileInput) fileInput.value = "";
 
   if (p) {
     if (mobile) mobile.value = p.mobile || "";
-    if (arm) arm.value = p.arm || "";
     if (cric) cric.value = p.cricHeroes || "";
     if (age) age.value = p.age || "";
     if (role) role.value = p.role || "";
@@ -7849,12 +7868,18 @@ function fillCricketExisting(memberNo, name) {
     if (size) size.value = p.size || "";
     if (jerseyName) jerseyName.value = p.jerseyName || "";
     if (jerseyNo) jerseyNo.value = p.jerseyNo || "";
+    // same number? auto-tick
+    if (sameChk) {
+      const mob = String(p.mobile || "").replace(/\D/g, "");
+      const cr = String(p.cricHeroes || "").replace(/\D/g, "");
+      sameChk.checked = (mob && cr && mob === cr);
+      syncCricHeroesFromMobile();
+    }
     if (note) note.style.display = "block";
     if (photoLabel) photoLabel.innerText = "નવો ફોટો (ઐચ્છિક — ખાલી રાખો તો જૂનો ફોટો રહેશે)";
     if (p.photo && prevImg && prevBox) { prevImg.src = p.photo; prevBox.style.display = "block"; }
   } else {
     if (mobile) mobile.value = "";
-    if (arm) arm.value = "";
     if (cric) cric.value = "";
     if (age) age.value = "";
     if (role) role.value = "";
@@ -7863,6 +7888,7 @@ function fillCricketExisting(memberNo, name) {
     if (size) size.value = "";
     if (jerseyName) jerseyName.value = "";
     if (jerseyNo) jerseyNo.value = "";
+    if (sameChk) { sameChk.checked = false; syncCricHeroesFromMobile(); }
     if (note) note.style.display = "none";
     if (photoLabel) photoLabel.innerText = "ફોટો (ફરજિયાત)";
     if (prevBox) prevBox.style.display = "none";
@@ -7931,34 +7957,34 @@ async function openCricketPlayerForm(editIdx) {
 
     <div id="cExistingNote" style="display:none; margin:-8px 0 16px 0; padding:10px 12px; border-radius:10px;
          background:rgba(22,163,74,0.1); border:1px solid rgba(22,163,74,0.35); color:#15803d; font-size:12.5px;">
-      ✅ આ Player ની વિગત પહેલેથી ભરેલી છે. ફેરફાર કરીને સેવ કરશો તો અપડેટ થશે.
+      ✅ આ Player ની વિગત પહેલેથી ભરેલી છે. ફેરફાર કરીને સેવ કરશો તો Sheet માં અપડેટ થશે.
     </div>
 
     <div class="form-row">
       <label>મોબાઈલ નંબર (WhatsApp)</label>
       <input type="text" id="cMobile" maxlength="10" inputmode="numeric" placeholder="10 અંકનો મોબાઈલ નંબર લખો"
-             oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+             oninput="this.value=this.value.replace(/[^0-9]/g,''); syncCricHeroesFromMobile();">
+    </div>
+
+    <div class="form-row" style="margin-top:-8px; margin-bottom:12px;">
+      <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; color:#475569; font-weight:500;">
+        <input type="checkbox" id="cSameAsWhatsApp" onchange="syncCricHeroesFromMobile()"
+               style="width:18px; height:18px; accent-color:#3b82f6; cursor:pointer;">
+        CricHeroes number same as WhatsApp
+      </label>
     </div>
 
     <div class="form-row">
       <label>CricHeroes Registered Number</label>
-      <input type="text" id="cCricHeroes" maxlength="15" inputmode="numeric" placeholder="CricHeroes app નો number"
+      <input type="text" id="cCricHeroes" maxlength="10" inputmode="numeric" placeholder="10 અંકનો CricHeroes number"
              oninput="this.value=this.value.replace(/[^0-9]/g,'')">
     </div>
 
     <div class="form-row">
-      <label>Age</label>
+      <label>Age (વય)</label>
       <input type="number" id="cAge" min="10" max="60" placeholder="વય">
     </div>
 
-    <div class="form-row">
-      <label>Arm (હાથ)</label>
-      <select id="cArm" style="${selStyle}">
-        <option value="">-- પસંદ કરો --</option>
-        <option value="Left">Left</option>
-        <option value="Right">Right</option>
-      </select>
-    </div>
 
     <div class="form-row">
       <label>Playing Role</label>
@@ -8058,7 +8084,6 @@ async function saveCricketPlayer() {
   const memberNo = document.getElementById("cMemberNo").value.trim();
   const playerName = document.getElementById("cPlayerName").value.trim();
   const mobile = document.getElementById("cMobile").value.trim().replace(/\D/g, "");
-  const arm = document.getElementById("cArm").value;
   const cricHeroes = (document.getElementById("cCricHeroes") || {}).value || "";
   const age = (document.getElementById("cAge") || {}).value || "";
   const role = (document.getElementById("cRole") || {}).value || "";
@@ -8073,7 +8098,6 @@ async function saveCricketPlayer() {
   if (!memberNo) { alert("સભ્ય પસંદ કરો."); return; }
   if (!playerName) { alert("Player નું નામ પસંદ કરો."); return; }
   if (mobile.length !== 10) { alert("માન્ય 10 અંકનો મોબાઈલ નંબર લખો."); return; }
-  if (!arm) { alert("Arm (Left / Right) પસંદ કરો."); return; }
   if (!role) { alert("Playing Role પસંદ કરો."); return; }
   if (!batting) { alert("Batting Style પસંદ કરો."); return; }
   if (!size) { alert("T-Shirt Size પસંદ કરો."); return; }
@@ -8086,7 +8110,7 @@ async function saveCricketPlayer() {
   try {
     const payload = {
       action: "saveCricketPlayer",
-      memberNo, playerName, mobile, arm,
+      memberNo, playerName, mobile,
       cricHeroes: cricHeroes.trim(),
       age: age.trim(),
       role, batting, bowling, size,
