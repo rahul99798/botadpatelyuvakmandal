@@ -1371,7 +1371,7 @@ select option {
 <div id="overlay" onclick="toggleMobileSidebar()"></div>
 		<script>
 		  const SCRIPT_URL =
-			"https://script.google.com/macros/s/AKfycbxgZvivxdwrfvEvGrfhilQDWwgu3SgBPdc_QDLiMLJWVJgGL4d_8DihNC0HjyR03AJB/exec";
+			"https://script.google.com/macros/s/AKfycbwlv8nKjbE2Y69r_BHBV0vSobE50RSRciVxLlNXEOIt22ujY1hPc_Ybup4cWDlerlBk/exec";
 			
 
 		  
@@ -1453,7 +1453,7 @@ function fetchSlipMemberData() {
   }
 
   var url =
-    "https://script.google.com/macros/s/AKfycbxgZvivxdwrfvEvGrfhilQDWwgu3SgBPdc_QDLiMLJWVJgGL4d_8DihNC0HjyR03AJB/exec" +
+    "https://script.google.com/macros/s/AKfycbwlv8nKjbE2Y69r_BHBV0vSobE50RSRciVxLlNXEOIt22ujY1hPc_Ybup4cWDlerlBk/exec" +
     "?action=getSlip&mobile=" +
     encodeURIComponent(query);
 
@@ -7785,7 +7785,9 @@ async function loadCricketPlayers() {
           </div>
           <div style="font-weight:700; font-size:14px; color:#1e293b; margin-bottom:3px;">${cricketEsc(p.playerName)}</div>
           <div style="font-size:12px; color:#64748b;">સભ્ય નં: ${cricketEsc(p.memberNo)}</div>
-          <div style="font-size:12.5px; color:#16a34a; font-weight:600; margin:4px 0;">${cricketEsc(p.arm)} Arm</div>
+          <div style="font-size:12.5px; color:#16a34a; font-weight:600; margin:4px 0;">${cricketEsc(p.role || '')} • ${cricketEsc(p.arm)} Arm</div>
+          <div style="font-size:11.5px; color:#64748b;">${cricketEsc(p.batting || '')} • ${cricketEsc(p.bowling || '')}</div>
+          <div style="font-size:11.5px; color:#64748b;">Size: ${cricketEsc(p.size || '-')} | #${cricketEsc(p.jerseyNo || '-')}</div>
           <div style="font-size:11.5px; color:#64748b;"><i class="fa-solid fa-phone"></i> ${cricketEsc(p.mobile)}</div>
           ${(p.extra || []).map(x => `<div style="font-size:11.5px; color:#64748b;">${cricketEsc(x.label)}: <b>${cricketEsc(x.value)}</b></div>`).join("")}
         </div>`;
@@ -7826,17 +7828,41 @@ function fillCricketExisting(memberNo, name) {
   const prevImg = document.getElementById("cPhotoPreviewImg");
   const photoLabel = document.getElementById("cPhotoLabel");
   const fileInput = document.getElementById("cPhoto");
+  const cric = document.getElementById("cCricHeroes");
+  const age = document.getElementById("cAge");
+  const role = document.getElementById("cRole");
+  const batting = document.getElementById("cBatting");
+  const bowling = document.getElementById("cBowling");
+  const size = document.getElementById("cSize");
+  const jerseyName = document.getElementById("cJerseyName");
+  const jerseyNo = document.getElementById("cJerseyNo");
   if (fileInput) fileInput.value = "";
 
   if (p) {
     if (mobile) mobile.value = p.mobile || "";
     if (arm) arm.value = p.arm || "";
+    if (cric) cric.value = p.cricHeroes || "";
+    if (age) age.value = p.age || "";
+    if (role) role.value = p.role || "";
+    if (batting) batting.value = p.batting || "";
+    if (bowling) bowling.value = p.bowling || "";
+    if (size) size.value = p.size || "";
+    if (jerseyName) jerseyName.value = p.jerseyName || "";
+    if (jerseyNo) jerseyNo.value = p.jerseyNo || "";
     if (note) note.style.display = "block";
     if (photoLabel) photoLabel.innerText = "નવો ફોટો (ઐચ્છિક — ખાલી રાખો તો જૂનો ફોટો રહેશે)";
     if (p.photo && prevImg && prevBox) { prevImg.src = p.photo; prevBox.style.display = "block"; }
   } else {
     if (mobile) mobile.value = "";
     if (arm) arm.value = "";
+    if (cric) cric.value = "";
+    if (age) age.value = "";
+    if (role) role.value = "";
+    if (batting) batting.value = "";
+    if (bowling) bowling.value = "";
+    if (size) size.value = "";
+    if (jerseyName) jerseyName.value = "";
+    if (jerseyNo) jerseyNo.value = "";
     if (note) note.style.display = "none";
     if (photoLabel) photoLabel.innerText = "ફોટો (ફરજિયાત)";
     if (prevBox) prevBox.style.display = "none";
@@ -7905,13 +7931,24 @@ async function openCricketPlayerForm(editIdx) {
 
     <div id="cExistingNote" style="display:none; margin:-8px 0 16px 0; padding:10px 12px; border-radius:10px;
          background:rgba(22,163,74,0.1); border:1px solid rgba(22,163,74,0.35); color:#15803d; font-size:12.5px;">
-      ✅ આ Player ની વિગત પહેલેથી ભરેલી છે. ફેરફાર કરીને સેવ કરશો તો Sheet માં અપડેટ થશે.
+      ✅ આ Player ની વિગત પહેલેથી ભરેલી છે. ફેરફાર કરીને સેવ કરશો તો અપડેટ થશે.
     </div>
 
     <div class="form-row">
-      <label>મોબાઈલ નંબર</label>
+      <label>મોબાઈલ નંબર (WhatsApp)</label>
       <input type="text" id="cMobile" maxlength="10" inputmode="numeric" placeholder="10 અંકનો મોબાઈલ નંબર લખો"
              oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+    </div>
+
+    <div class="form-row">
+      <label>CricHeroes Registered Number</label>
+      <input type="text" id="cCricHeroes" maxlength="15" inputmode="numeric" placeholder="CricHeroes app નો number"
+             oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+    </div>
+
+    <div class="form-row">
+      <label>Age</label>
+      <input type="number" id="cAge" min="10" max="60" placeholder="વય">
     </div>
 
     <div class="form-row">
@@ -7921,6 +7958,61 @@ async function openCricketPlayerForm(editIdx) {
         <option value="Left">Left</option>
         <option value="Right">Right</option>
       </select>
+    </div>
+
+    <div class="form-row">
+      <label>Playing Role</label>
+      <select id="cRole" style="${selStyle}">
+        <option value="">-- પસંદ કરો --</option>
+        <option value="Batsman">Batsman</option>
+        <option value="Bowler">Bowler</option>
+        <option value="All-Rounder">All-Rounder</option>
+        <option value="Wicket-Keeper Batsman">Wicket-Keeper Batsman</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label>Batting Style</label>
+      <select id="cBatting" style="${selStyle}">
+        <option value="">-- પસંદ કરો --</option>
+        <option value="Right-Handed">Right-Handed</option>
+        <option value="Left-Handed">Left-Handed</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label>Bowling Style</label>
+      <select id="cBowling" style="${selStyle}">
+        <option value="">-- પસંદ કરો --</option>
+        <option value="Right-Arm Fast/Medium">Right-Arm Fast/Medium</option>
+        <option value="Left-Arm Fast/Medium">Left-Arm Fast/Medium</option>
+        <option value="Off-Spin">Off-Spin</option>
+        <option value="Leg-Spin">Leg-Spin</option>
+        <option value="Left-Arm Orthodox">Left-Arm Orthodox</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label>T-Shirt Size</label>
+      <select id="cSize" style="${selStyle}">
+        <option value="">-- પસંદ કરો --</option>
+        <option value="S">S</option>
+        <option value="M">M</option>
+        <option value="L">L</option>
+        <option value="XL">XL</option>
+        <option value="XXL">XXL</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label>Name on Jersey</label>
+      <input type="text" id="cJerseyName" placeholder="ટી-શર્ટ પાછળ છપાવાનું નામ" maxlength="20">
+    </div>
+
+    <div class="form-row">
+      <label>Jersey Number</label>
+      <input type="text" id="cJerseyNo" maxlength="3" inputmode="numeric" placeholder="નંબર"
+             oninput="this.value=this.value.replace(/[^0-9]/g,'')">
     </div>
 
     <div class="form-row">
@@ -7967,6 +8059,14 @@ async function saveCricketPlayer() {
   const playerName = document.getElementById("cPlayerName").value.trim();
   const mobile = document.getElementById("cMobile").value.trim().replace(/\D/g, "");
   const arm = document.getElementById("cArm").value;
+  const cricHeroes = (document.getElementById("cCricHeroes") || {}).value || "";
+  const age = (document.getElementById("cAge") || {}).value || "";
+  const role = (document.getElementById("cRole") || {}).value || "";
+  const batting = (document.getElementById("cBatting") || {}).value || "";
+  const bowling = (document.getElementById("cBowling") || {}).value || "";
+  const size = (document.getElementById("cSize") || {}).value || "";
+  const jerseyName = ((document.getElementById("cJerseyName") || {}).value || "").trim();
+  const jerseyNo = ((document.getElementById("cJerseyNo") || {}).value || "").trim();
   const file = document.getElementById("cPhoto").files[0];
   const existing = window._cricketExisting;
 
@@ -7974,12 +8074,24 @@ async function saveCricketPlayer() {
   if (!playerName) { alert("Player નું નામ પસંદ કરો."); return; }
   if (mobile.length !== 10) { alert("માન્ય 10 અંકનો મોબાઈલ નંબર લખો."); return; }
   if (!arm) { alert("Arm (Left / Right) પસંદ કરો."); return; }
+  if (!role) { alert("Playing Role પસંદ કરો."); return; }
+  if (!batting) { alert("Batting Style પસંદ કરો."); return; }
+  if (!size) { alert("T-Shirt Size પસંદ કરો."); return; }
+  if (!jerseyName) { alert("Name on Jersey લખો."); return; }
+  if (!jerseyNo) { alert("Jersey Number લખો."); return; }
   if (!file && !(existing && existing.photo)) { alert("ફોટો ફરજિયાત છે."); return; }
   if (file && file.size > 5 * 1024 * 1024) { alert("ફોટો 5 MB કરતાં નાનો હોવો જોઈએ."); return; }
 
   showLoader(true);
   try {
-    const payload = { action: "saveCricketPlayer", memberNo, playerName, mobile, arm };
+    const payload = {
+      action: "saveCricketPlayer",
+      memberNo, playerName, mobile, arm,
+      cricHeroes: cricHeroes.trim(),
+      age: age.trim(),
+      role, batting, bowling, size,
+      jerseyName, jerseyNo
+    };
 
     if (file) {
       payload.photoBase64 = await new Promise((resolve, reject) => {
