@@ -1,10 +1,6 @@
-  /**
-   * Botad Web — Google Apps Script (MERGED)
+/**
+   * Botad Web — Google Apps Script (MERGED + CRICKET TOURNAMENT)
    * Copy આખી ફાઇલ Apps Script માં પેસ્ટ કરો.
-   *
-   * 1) Drive માં ફોલ્ડર બનાવો → URL માંથી ID કૉપી → MEMBER_PHOTO_FOLDER_ID નાખો.
-   * 2) Deploy → New deployment → Web app (execute as you, anyone can access) જો જોઈએ.
-   * 3) ફોટો URL કૉલમ K (PHOTO_COL=11) પર લખાય; શીટ લખાણ નિષ્ફળ થાય તો Drive ફાઇલ ટ્રેશ થાય (અર્ધું અપલોડ ન રહે).
    */
 
 
@@ -17,6 +13,10 @@
   var RESULT_PHOTO_FOLDER_ID = '1lsc3UC_pA-h8JGjbCu8WVxGv1INktrOx';
   var ACHIEVEMENT_PHOTO_FOLDER_ID = '1yPKw27QDJ7aqqJlDTF0yo_lAXPwf202b';
   var BUSINESS_PHOTO_FOLDER_ID = '1mtxp6-JWGHwWVhIaleSIxsJJbXZ1YM2Y';
+
+  // 🏏 Cricket Tournament
+  var CRICKET_SHEET_NAME = 'Cricket Tournament';
+  var CRICKET_PHOTO_FOLDER_ID = '1kU1_mznj_gDO2FdaO2BCdVK25R02FVrl';
 
 
   function doGet(e) {  
@@ -102,6 +102,27 @@ if (e.parameter.action === "getAllAchievementsForExport") {
     return ContentService
         .createTextOutput(JSON.stringify({ status: 'success', data: data }))
         .setMimeType(ContentService.MimeType.JSON);
+}
+
+// 🏏 CRICKET: પુરુષ સભ્યોના નામ
+if (e.parameter.action === "getCricketMales") {
+  return ContentService.createTextOutput(JSON.stringify({
+    status: 'success', data: getCricketMales(e.parameter.memberNo)
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+// 🏏 CRICKET: બધા પ્લેયર્સ (card view)
+if (e.parameter.action === "getCricketPlayers") {
+  return ContentService.createTextOutput(JSON.stringify({
+    status: 'success', data: getCricketPlayers(e.parameter.memberNo)
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+// 🏏 CRICKET: કુલ ભરાયેલા ફોર્મ (admin header માટે)
+if (e.parameter.action === "getCricketCount") {
+  return ContentService.createTextOutput(JSON.stringify({
+    status: 'success', data: getCricketCount()
+  })).setMimeType(ContentService.MimeType.JSON);
 }
 
 if (e.parameter.action === "getBusinesses") {
@@ -489,7 +510,6 @@ if (data.action === 'deleteAchievement') {
 
   // toggleResultStatus માટે
 // ==================== RESULT TOGGLE (MASTER CONTROL) ====================
-// ==================== RESULT TOGGLE (MASTER CONTROL) ====================
 if (data.action === "toggleResultStatus") {
   const newStatus = data.enabled === true || data.enabled === "true";
 
@@ -504,6 +524,11 @@ if (data.action === "toggleResultStatus") {
     resultEnabled: newStatus,
     achievementEnabled: newStatus
   })).setMimeType(ContentService.MimeType.JSON);
+}
+
+// 🏏 CRICKET PLAYER SAVE
+if (data.action === 'saveCricketPlayer') {
+  return handleCricketSave_(data);
 }
 
 if (data.action === 'saveBusiness') {
@@ -593,7 +618,6 @@ if (data.action === 'updateBusinessStatus') {
         var url = (mime && mime.includes('pdf')) || extension === 'pdf'
           ? 'https://drive.google.com/file/d/' + fileId + '/view'
           : 'https://lh3.googleusercontent.com/d/' + fileId;
-
 
         photoUrls.push(url);
       }
@@ -698,7 +722,6 @@ if (data.action === 'updateBusinessStatus') {
     })).setMimeType(ContentService.MimeType.JSON);
   }
 }
-    // ================= પરિવારના સભ્ય =================
     // ================= પરિવારના સભ્ય =================
 if (data.type === 'addFamilyMember') {
   var mainMobile = data.mainMemberMobile;
@@ -854,8 +877,6 @@ if (data.type === 'addFamilyMember') {
     var file;
     try {
       file = folder.createFile(blob);
-      // Workspace એડમિન "Anyone with link" બંધ કરે તો setSharing નિષ્ફળ → પહેલાં આખું અપલોડ ફેલ લાગતું.
-      // ફાઇલ ફોલ્ડરમાં બની ગયા પછી શેરિંગ નિષ્ફળ હોય તો પણ શીટ સેવ ચાલુ રાખો (ફોલ્ડર પહેલેથી શેર હોય તો લિંક ચાલી શકે).
       try {
         file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
       } catch (shareErr) {
@@ -1525,12 +1546,11 @@ function getMembersWithResults() {
       resultList.push({ 
         memberNo: cleanNo, 
         name: cleanName,
-        display: `${cleanNo} - ${cleanName}`   // ← આ લાઇન બદલી (પહેલા નંબર)
+        display: `${cleanNo} - ${cleanName}`
       });
     });
 
-    // નામ મુજબ sort (ગુજરાતીમાં સારી રીતે sort થાય)
-      resultList.sort((a, b) => (parseInt(a.memberNo) || 0) - (parseInt(b.memberNo) || 0));
+    resultList.sort((a, b) => (parseInt(a.memberNo) || 0) - (parseInt(b.memberNo) || 0));
 
     return resultList;
 
@@ -1709,9 +1729,8 @@ function getMembersWithAchievements() {
       });
     });
 
- 
     // MemberNo મુજબ numeric sort (1, 2, 3... 10, 11)
-resultList.sort((a, b) => (parseInt(a.memberNo) || 0) - (parseInt(b.memberNo) || 0));
+    resultList.sort((a, b) => (parseInt(a.memberNo) || 0) - (parseInt(b.memberNo) || 0));
 
     return resultList;
 
@@ -1974,8 +1993,7 @@ function handleFamilyPhotoUpload_(data) {
       return memberPhotoJsonOut_({ status: 'error', message: 'મુખ્ય સભ્ય મળ્યા નથી.' });
     }
 
-    // 🎯 STEP 2: પરિવારના સભ્યનો block શોધો
-// 🎯 STEP 2: પરિવારના સભ્યનો block — index આધારે સીધી ગણતરી
+    // 🎯 STEP 2: પરિવારના સભ્યનો block — index આધારે સીધી ગણતરી
     var familyIndex = parseInt(data.familyIndex);
     if (isNaN(familyIndex) || familyIndex < 0) {
       return memberPhotoJsonOut_({ status: 'error', message: 'સભ્યનો ક્રમ મળ્યો નથી.' });
@@ -2126,7 +2144,6 @@ function handleFamilyUpdate_(data) {
 }
 
 // ==================== FAMILY MEMBER DELETE ====================
-// ==================== FAMILY MEMBER DELETE ====================
 function handleFamilyDelete_(data) {
   try {
     var mainMobile = String(data.mainMemberMobile || '').trim();
@@ -2164,7 +2181,7 @@ function handleFamilyDelete_(data) {
       return memberPhotoJsonOut_({ status: 'error', message: 'આ ક્રમ પર સભ્ય નથી.' });
     }
 
-    // 🎯 નવું: deletion પહેલાં family member નું પૂરું નામ અને MemberNo capture કરો
+    // 🎯 deletion પહેલાં family member નું પૂરું નામ અને MemberNo capture કરો
     var fRow = sheet.getRange(rowIndex, startCol, 1, 3).getValues()[0];
     var fullFamilyName = [fRow[0], fRow[1], fRow[2]]
       .map(function(v){ return String(v || '').trim(); })
@@ -2197,7 +2214,7 @@ function handleFamilyDelete_(data) {
     sheet.getRange(rowIndex, lastFamilyStart, 1, 12).clearContent();
     SpreadsheetApp.flush();
 
-    // 🎯 નવું: Result અને Achievements પણ delete કરો
+    // 🎯 Result અને Achievements પણ delete કરો
     if (fullFamilyName && memberNo) {
       deleteFamilyMemberResults_(memberNo, mainMobile, fullFamilyName);
       deleteFamilyMemberAchievements_(memberNo, fullFamilyName);
@@ -2663,5 +2680,285 @@ function deleteFamilyMemberAchievements_(memberNo, studentName) {
     }
   } catch(e) {
     Logger.log('deleteFamilyMemberAchievements_ Error: ' + e);
+  }
+}
+
+
+// =====================================================================
+// 🏏 CRICKET TOURNAMENT
+// =====================================================================
+
+function isMaleValue_(v) {
+  var g = String(v || '').trim().toLowerCase();
+  return g === 'male' || g === 'પુરુષ' || g === 'પુરૂષ' || g === 'm';
+}
+
+// આપેલા memberNo માટે ફક્ત પુરુષ નામો (મુખ્ય સભ્ય + પરિવાર)
+function getCricketMales(memberNo) {
+  try {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(MEMBER_SHEET_NAME);
+    if (!sheet) return [];
+    var data = sheet.getDataRange().getValues();
+    var names = [];
+
+    for (var i = 1; i < data.length; i++) {
+      if (String(data[i][3]).trim() !== String(memberNo).trim()) continue;
+
+      // મુખ્ય સભ્ય (P = index 15 gender; નામ = E + F + H)
+      if (isMaleValue_(data[i][15])) {
+        var main = [data[i][4], data[i][5], data[i][7]]
+          .map(function (v) { return String(v || '').trim(); })
+          .filter(function (v) { return v; }).join(' ');
+        if (main) names.push(main);
+      }
+
+      // પરિવાર (V થી, 12-12 ના block, gender = +7)
+      var st = 21;
+      while (st + 7 < data[i].length) {
+        var n1 = String(data[i][st] || '').trim();
+        var n2 = String(data[i][st + 1] || '').trim();
+        var n3 = String(data[i][st + 2] || '').trim();
+        if (!n1 && !n2 && !n3 && !String(data[i][st + 7] || '').trim()) break;
+
+        if (isMaleValue_(data[i][st + 7])) {
+          var fam = [n1, n2, n3].filter(function (v) { return v; }).join(' ');
+          if (fam) names.push(fam);
+        }
+        st += 12;
+      }
+      break;
+    }
+
+    var unique = [];
+    names.forEach(function (n) { if (unique.indexOf(n) === -1) unique.push(n); });
+    unique.sort(function (a, b) { return a.localeCompare(b, 'gu'); });
+    return unique;
+  } catch (e) {
+    Logger.log('getCricketMales Error: ' + e);
+    return [];
+  }
+}
+
+// ---------- Cricket sheet: header આધારે columns શોધે ----------
+var CRICKET_KEYS_ = {
+  timestamp:  ['timestamp','datetime','date','time','તારીખ'],
+  memberNo:   ['memberno','sabhyano','sabhyno','membernumber','સભ્યનંબર','સભ્યનં'],
+  playerName: ['playername','player','name','playernamae','નામ','ખેલાડી'],
+  mobile:     ['mobile','mobileno','mobilenumber','phone','મોબાઈલ','મોબાઇલ','મોબાઈલનંબર'],
+  arm:        ['arm','hand','હાથ'],
+  photo:      ['photourl','photo','image','imageurl','ફોટો'],
+  fileName:   ['filename','file']
+};
+var CRICKET_DEFAULT_HEADERS_ = {
+  timestamp: 'Timestamp', memberNo: 'MemberNo', playerName: 'PlayerName',
+  mobile: 'Mobile', arm: 'Arm', photo: 'PhotoURL', fileName: 'FileName'
+};
+
+function normHeader_(h) {
+  return String(h || '').toLowerCase().replace(/[\s_\-\.]/g, '');
+}
+
+function getCricketSheet_() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = ss.getSheetByName(CRICKET_SHEET_NAME);
+  if (!sh) sh = ss.insertSheet(CRICKET_SHEET_NAME);
+  return sh;
+}
+
+// Row 1 (header) વાંચી દરેક field કયા column માં છે તે નક્કી કરે.
+// કોઈ header ન મળે તો આપોઆપ છેલ્લે ઉમેરી દે.
+function cricketLayout_() {
+  var sh = getCricketSheet_();
+  var lastCol = Math.max(sh.getLastColumn(), 1);
+  var hdr = sh.getRange(1, 1, 1, lastCol).getValues()[0]
+    .map(function (h) { return String(h || '').trim(); });
+  if (hdr.length === 1 && hdr[0] === '') hdr = [];
+
+  var cols = {};
+  Object.keys(CRICKET_KEYS_).forEach(function (k) {
+    for (var c = 0; c < hdr.length; c++) {
+      var n = normHeader_(hdr[c]);
+      if (n && CRICKET_KEYS_[k].indexOf(n) > -1) { cols[k] = c; break; }
+    }
+  });
+
+  var changed = false;
+  Object.keys(CRICKET_DEFAULT_HEADERS_).forEach(function (k) {
+    if (cols[k] === undefined) {
+      hdr.push(CRICKET_DEFAULT_HEADERS_[k]);
+      cols[k] = hdr.length - 1;
+      changed = true;
+    }
+  });
+  if (changed) {
+    sh.getRange(1, 1, 1, hdr.length).setValues([hdr]);
+    sh.getRange(1, 1, 1, hdr.length).setFontWeight('bold');
+  }
+  return { sh: sh, hdr: hdr, cols: cols };
+}
+
+// Sheet ના header મુજબ બધા players. વધારાના columns (extra) પણ card માટે મોકલે.
+function getCricketPlayers(onlyMemberNo) {
+  try {
+    // 🔒 સભ્ય નંબર વગર કોઈ ડેટા નહીં — દરેકને ફક્ત પોતાના જ players
+    if (!String(onlyMemberNo || '').trim()) return [];
+    var L = cricketLayout_();
+    var data = L.sh.getDataRange().getValues();
+    var coreIdx = Object.keys(L.cols).map(function (k) { return L.cols[k]; });
+    var out = [];
+
+    for (var i = 1; i < data.length; i++) {
+      var r = data[i];
+      var name = String(r[L.cols.playerName] || '').trim();
+      if (!name) continue;
+
+      // ફક્ત આ સભ્ય નંબરના જ players (memberNo આપ્યો હોય તો)
+      if (onlyMemberNo && String(r[L.cols.memberNo] || '').trim() !== String(onlyMemberNo).trim()) continue;
+
+      var extra = [];
+      for (var c = 0; c < L.hdr.length; c++) {
+        if (coreIdx.indexOf(c) > -1 || !L.hdr[c]) continue;
+        var v = String(r[c] == null ? '' : r[c]).trim();
+        if (v) extra.push({ label: L.hdr[c], value: v });
+      }
+
+      out.push({
+        memberNo: String(r[L.cols.memberNo] || '').trim(),
+        playerName: name,
+        mobile: String(r[L.cols.mobile] || '').trim(),
+        arm: String(r[L.cols.arm] || '').trim(),
+        photo: String(r[L.cols.photo] || '').trim(),
+        extra: extra
+      });
+    }
+    return out.reverse(); // નવા પહેલા
+  } catch (e) {
+    Logger.log('getCricketPlayers Error: ' + e);
+    return [];
+  }
+}
+
+// કુલ કેટલા Player ફોર્મ ભરાયા (Sheet માં PlayerName વાળી દરેક row) + કેટલા સભ્યોએ
+function getCricketCount() {
+  try {
+    var L = cricketLayout_();
+    var data = L.sh.getDataRange().getValues();
+    var total = 0, members = {};
+    for (var i = 1; i < data.length; i++) {
+      if (!String(data[i][L.cols.playerName] || '').trim()) continue;
+      total++;
+      members[String(data[i][L.cols.memberNo] || '').trim()] = true;
+    }
+    return { total: total, members: Object.keys(members).length };
+  } catch (e) {
+    Logger.log('getCricketCount Error: ' + e);
+    return { total: 0, members: 0 };
+  }
+}
+
+// નવું સેવ + Update. એ જ MemberNo + PlayerName ની row હોય તો UPDATE.
+// Update માં ફોટો ન મોકલો તો જૂનો ફોટો રહે છે.
+function handleCricketSave_(data) {
+  try {
+    var memberNo   = String(data.memberNo || '').trim();
+    var playerName = String(data.playerName || '').trim();
+    var mobile     = String(data.mobile || '').replace(/\D/g, '');
+    var arm        = String(data.arm || '').trim();
+    var base64     = data.photoBase64 || '';
+    var mime       = data.photoMime || 'image/jpeg';
+    var origName   = data.photoName || 'player.jpg';
+
+    if (!memberNo || !playerName || !mobile || !arm) {
+      return memberPhotoJsonOut_({ status: 'error', message: 'બધી વિગતો ભરો.' });
+    }
+    if (mobile.length !== 10) {
+      return memberPhotoJsonOut_({ status: 'error', message: 'મોબાઈલ નંબર 10 અંકનો જોઈએ.' });
+    }
+    if (arm !== 'Left' && arm !== 'Right') {
+      return memberPhotoJsonOut_({ status: 'error', message: 'Arm ખોટો છે (Left / Right).' });
+    }
+
+    var L = cricketLayout_();
+    var sh = L.sh, cols = L.cols, width = L.hdr.length;
+    var rows = sh.getDataRange().getValues();
+
+    var target = -1;
+    for (var i = 1; i < rows.length; i++) {
+      if (String(rows[i][cols.memberNo]).trim() === memberNo &&
+          String(rows[i][cols.playerName]).trim() === playerName) {
+        target = i + 1;
+        break;
+      }
+    }
+
+    if (target === -1) {
+      if (getCricketMales(memberNo).indexOf(playerName) === -1) {
+        return memberPhotoJsonOut_({
+          status: 'error',
+          message: 'આ નામ પુરુષ સભ્ય તરીકે મળ્યું નથી. માત્ર પુરુષ નામ જ માન્ય છે.'
+        });
+      }
+      if (!base64) {
+        return memberPhotoJsonOut_({ status: 'error', message: 'ફોટો ફરજિયાત છે.' });
+      }
+    }
+
+    // હાલની row (extra columns સચવાય તે માટે) અથવા ખાલી row
+    var rowVals = [];
+    if (target > -1) {
+      rowVals = sh.getRange(target, 1, 1, width).getValues()[0];
+    } else {
+      for (var k = 0; k < width; k++) rowVals.push('');
+    }
+
+    var oldPhotoUrl = String(rowVals[cols.photo] || '');
+    var photoUrl = oldPhotoUrl;
+    var fileName = String(rowVals[cols.fileName] || '');
+    var newFile = null;
+
+    if (base64) {
+      var ext = (origName.indexOf('.') > -1) ? origName.split('.').pop().toLowerCase() : 'jpg';
+      var safeName = playerName.replace(/[\\/:*?"<>|]/g, '').replace(/\s+/g, ' ').trim();
+      fileName = memberNo + '_' + safeName + '.' + ext;   // SabhyaNo_PlayerName.ext
+
+      var blob = Utilities.newBlob(Utilities.base64Decode(base64), mime, fileName);
+      newFile = DriveApp.getFolderById(CRICKET_PHOTO_FOLDER_ID).createFile(blob);
+      try { newFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); } catch (e) {}
+      photoUrl = 'https://lh3.googleusercontent.com/d/' + newFile.getId();
+    }
+
+    var ts = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd-MM-yyyy HH:mm:ss');
+    rowVals[cols.timestamp]  = ts;
+    rowVals[cols.memberNo]   = memberNo;
+    rowVals[cols.playerName] = playerName;
+    rowVals[cols.mobile]     = "'" + mobile;
+    rowVals[cols.arm]        = arm;
+    rowVals[cols.photo]      = photoUrl;
+    rowVals[cols.fileName]   = fileName;
+
+    try {
+      if (target > -1) {
+        sh.getRange(target, 1, 1, width).setValues([rowVals]);
+      } else {
+        sh.appendRow(rowVals);
+      }
+      SpreadsheetApp.flush();
+    } catch (sheetErr) {
+      if (newFile) { try { newFile.setTrashed(true); } catch (e) {} }
+      return memberPhotoJsonOut_({ status: 'error', message: 'શીટમાં સેવ ન થયું: ' + sheetErr });
+    }
+
+    if (newFile && oldPhotoUrl) {
+      var m = oldPhotoUrl.match(/\/d\/([^\/\?]+)/);
+      if (m && m[1]) { try { DriveApp.getFileById(m[1]).setTrashed(true); } catch (e) {} }
+    }
+
+    return memberPhotoJsonOut_({
+      status: 'success',
+      message: target > -1 ? 'પ્લેયરની વિગત અપડેટ થઈ ✅' : 'પ્લેયર સેવ થઈ ગયો ✅'
+    });
+  } catch (err) {
+    Logger.log('handleCricketSave_ Error: ' + err);
+    return memberPhotoJsonOut_({ status: 'error', message: 'સર્વર ભૂલ: ' + err });
   }
 }
