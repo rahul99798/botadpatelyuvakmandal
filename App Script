@@ -2895,14 +2895,11 @@ function handleCricketSave_(data) {
     var mime       = data.photoMime || 'image/jpeg';
     var origName   = data.photoName || 'player.jpg';
 
-    if (!memberNo || !playerName || !mobile || !arm) {
+    if (!memberNo || !playerName || !mobile) {
       return memberPhotoJsonOut_({ status: 'error', message: 'બધી વિગતો ભરો.' });
     }
     if (mobile.length !== 10) {
       return memberPhotoJsonOut_({ status: 'error', message: 'મોબાઈલ નંબર 10 અંકનો જોઈએ.' });
-    }
-    if (arm !== 'Left' && arm !== 'Right') {
-      return memberPhotoJsonOut_({ status: 'error', message: 'Arm ખોટો છે (Left / Right).' });
     }
     if (!role) {
       return memberPhotoJsonOut_({ status: 'error', message: 'Playing Role પસંદ કરો.' });
