@@ -2704,15 +2704,20 @@ function getCricketMales(memberNo) {
     for (var i = 1; i < data.length; i++) {
       if (String(data[i][3]).trim() !== String(memberNo).trim()) continue;
 
-      // મુખ્ય સભ્ય (P = index 15 gender; નામ = E + F + H)
+      // મુખ્ય સભ્ય — Gender = P (index 15), Birthdate = O (index 14)
       if (isMaleValue_(data[i][15])) {
         var main = [data[i][4], data[i][5], data[i][7]]
           .map(function (v) { return String(v || '').trim(); })
           .filter(function (v) { return v; }).join(' ');
-        if (main) names.push(main);
+        if (main) {
+          names.push({
+            name: main,
+            birthdate: formatDate(data[i][14])
+          });
+        }
       }
 
-      // પરિવાર (V થી, 12-12 ના block, gender = +7)
+      // પરિવાર — Gender = st+7 (AC, AO…), Birthdate = st+6 (AB, AN…)
       var st = 21;
       while (st + 7 < data[i].length) {
         var n1 = String(data[i][st] || '').trim();
@@ -2722,7 +2727,12 @@ function getCricketMales(memberNo) {
 
         if (isMaleValue_(data[i][st + 7])) {
           var fam = [n1, n2, n3].filter(function (v) { return v; }).join(' ');
-          if (fam) names.push(fam);
+          if (fam) {
+            names.push({
+              name: fam,
+              birthdate: formatDate(data[i][st + 6])
+            });
+          }
         }
         st += 12;
       }
@@ -2730,8 +2740,14 @@ function getCricketMales(memberNo) {
     }
 
     var unique = [];
-    names.forEach(function (n) { if (unique.indexOf(n) === -1) unique.push(n); });
-    unique.sort(function (a, b) { return a.localeCompare(b, 'gu'); });
+    var seen = {};
+    names.forEach(function (n) {
+      if (!seen[n.name]) {
+        seen[n.name] = true;
+        unique.push(n);
+      }
+    });
+    unique.sort(function (a, b) { return a.name.localeCompare(b.name, 'gu'); });
     return unique;
   } catch (e) {
     Logger.log('getCricketMales Error: ' + e);
@@ -2930,8 +2946,13 @@ function handleCricketSave_(data) {
       }
     }
 
-    if (target === -1) {
-      if (getCricketMales(memberNo).indexOf(playerName) === -1) {
+        if (target === -1) {
+      var malesList = getCricketMales(memberNo) || [];
+      var nameOk = malesList.some(function (m) {
+        var n = (typeof m === "string") ? m : (m && m.name ? m.name : "");
+        return String(n).trim() === String(playerName).trim();
+      });
+      if (!nameOk) {
         return memberPhotoJsonOut_({
           status: 'error',
           message: 'આ નામ પુરુષ સભ્ય તરીકે મળ્યું નથી. માત્ર પુરુષ નામ જ માન્ય છે.'
