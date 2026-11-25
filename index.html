@@ -1371,7 +1371,7 @@ select option {
 <div id="overlay" onclick="toggleMobileSidebar()"></div>
 		<script>
 		  const SCRIPT_URL =
-			"https://script.google.com/macros/s/AKfycbx_zQt-fIhKcF5l0E7Y2lay2ptb27ZNQR-XVjHUb3wQ5M73BL7-XKQy6m-IbB9NknBV/exec";
+			"https://script.google.com/macros/s/AKfycbxgZvivxdwrfvEvGrfhilQDWwgu3SgBPdc_QDLiMLJWVJgGL4d_8DihNC0HjyR03AJB/exec";
 			
 
 		  
@@ -1453,7 +1453,7 @@ function fetchSlipMemberData() {
   }
 
   var url =
-    "https://script.google.com/macros/s/AKfycbx_zQt-fIhKcF5l0E7Y2lay2ptb27ZNQR-XVjHUb3wQ5M73BL7-XKQy6m-IbB9NknBV/exec" +
+    "https://script.google.com/macros/s/AKfycbxgZvivxdwrfvEvGrfhilQDWwgu3SgBPdc_QDLiMLJWVJgGL4d_8DihNC0HjyR03AJB/exec" +
     "?action=getSlip&mobile=" +
     encodeURIComponent(query);
 
@@ -1693,6 +1693,7 @@ function generateYearDropdown() {
       { key: "result", title: "રિઝલ્ટ", icon: "fa-chart-line", color: "#f97316" },
       { key: "achievements", title: "વિશિષ્ટ સિદ્ધિઓ", icon: "fa-award", color: "#a855f7" },
 	  { key: "sabhySlip", title: "સભ્ય સ્લિપ", icon: "fa-file-invoice", color: "#14345c" }, 
+	  { key: "cricket", title: "ક્રિકેટ ટુર્નામેન્ટ", icon: "fa-baseball", color: "#16a34a" },
     ];
 
     let cardsHtml = homeItems.map((item) => `
@@ -1740,6 +1741,50 @@ function generateYearDropdown() {
     return;
 	
   }
+  // ========== ક્રિકેટ ટુર્નામેન્ટ ==========
+// ========== ક્રિકેટ ટુર્નામેન્ટ ==========
+if (type === "cricket") {
+  const homeWrap = document.getElementById("headerHomeWrap");
+  if (homeWrap) homeWrap.style.display = "block";
+  const homeBtn = document.getElementById("headerHomeBtn");
+  if (homeBtn) homeBtn.style.display = "flex";
+  const headerTitle = document.getElementById("headerTitle");
+  if (headerTitle) {
+    headerTitle.style.left = "50%";
+    headerTitle.style.transform = "translateX(-50%)";
+    headerTitle.style.textAlign = "center";
+  }
+
+  document.querySelectorAll(".nav-item").forEach(item => item.classList.remove("active"));
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("overlay");
+  if (sidebar) sidebar.classList.remove("active");
+  if (overlay) overlay.classList.remove("active");
+
+  const contentArea = document.getElementById("mainContent");
+  contentArea.innerHTML = `
+    <div class="news-header-card" style="flex-wrap:wrap; gap:12px;">
+      <div class="news-title">
+        <i class="fas fa-baseball"></i> ક્રિકેટ ટુર્નામેન્ટ
+      </div>
+      <div style="margin-left:auto;">
+        <button class="add-btn" onclick="openCricketPlayerForm()">
+          <i class="fa-solid fa-user-plus"></i> Player Form
+        </button>
+      </div>
+    </div>
+
+
+    <!-- આ div માં કાર્ડ આવશે -->
+    <div id="cricketPlayersContainer" style="margin-top:10px;">
+      <div style="text-align:center; color:#94a3b8; padding:40px;">લોડ થઈ રહ્યું છે...</div>
+    </div>
+  `;
+
+  // આ લાઇન ખૂબ જરૂરી છે — Sheet માંથી ડેટા લાવીને કાર્ડ બતાવે
+  loadCricketPlayers();
+  return;
+}
     // ========== સભ્ય સ્લિપ (Index Slip voucher) ==========
   if (type === "sabhySlip") {
     const homeWrapS = document.getElementById("headerHomeWrap");
@@ -6897,6 +6942,7 @@ if (imgUrl && imgUrl.includes("drive.google.com")) {
     showLoader(false);
   }
 }
+
 // ==================== FAMILY MEMBER PHOTO UPLOAD ====================
 let _familyPhotoTarget = { mobile: '', name: '', index: -1 };
 
@@ -7647,6 +7693,323 @@ async function openEditMemberForm() {
     showLoader(false);
   }
 }
+// ==================== CRICKET TOURNAMENT (v2) ====================
+window._cricketPlayers = [];
+window._cricketExisting = null;
+
+function cricketEsc(v) {
+  return String(v == null ? "" : v).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+function cricketMemberQuery() {
+  // દરેક (admin સહિત) ને ફક્ત પોતાના સભ્ય નંબરના જ players
+  const no = String(localStorage.getItem("userMemberNo") || "").trim();
+  return "&memberNo=" + encodeURIComponent(no || "none");
+}
+// ---------- Admin માટે: કુલ ભરાયેલા ફોર્મ header માં ----------
+async function loadCricketTotal() {
+  if ((localStorage.getItem("userRole") || "") !== "admin") return;
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=getCricketCount`);
+    const j = await res.json();
+    if (j.status !== "success" || !j.data) return;
+
+    let badge = document.getElementById("cricketTotalBadge");
+    if (!badge) {
+      const title = document.querySelector("#mainContent .news-header-card .news-title");
+      if (!title) return;
+      badge = document.createElement("span");
+      badge.id = "cricketTotalBadge";
+      badge.style.cssText = "margin-left:10px; padding:4px 12px; border-radius:20px; font-size:12.5px; font-weight:700; " +
+        "background:rgba(22,163,74,0.14); border:1px solid rgba(22,163,74,0.45); color:#15803d; white-space:nowrap;";
+      title.appendChild(badge);
+    }
+    badge.innerHTML = `<i class="fa-solid fa-clipboard-check"></i> કુલ ફોર્મ: ${cricketEsc(j.data.total)} <span style="opacity:.7;font-weight:500;">(${cricketEsc(j.data.members)} સભ્ય)</span>`;
+  } catch (e) { console.error(e); }
+}
+
+// ---------- Sheet માંથી બધા players લાવી card બતાવે ----------
+async function loadCricketPlayers() {
+  const container = document.getElementById("cricketPlayersContainer");
+  if (!container) return;
+
+  const userRole = localStorage.getItem("userRole") || "public";
+  const userMemberNo = String(localStorage.getItem("userMemberNo") || "").trim();
+
+  loadCricketTotal();   // admin માટે કુલ ફોર્મ
+
+  container.style.display = "block";
+  container.innerHTML = `<div style="text-align:center; color:#94a3b8; padding:40px;">ડેટા લોડ થઈ રહ્યું છે...</div>`;
+
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=getCricketPlayers${cricketMemberQuery()}`);
+    const response = await res.json();
+    if (response.status !== "success") {
+      container.style.display = "block";
+      container.innerHTML = `<div style="color:#ef4444; text-align:center; padding:40px;">Server જવાબ ખોટો છે. Apps Script માં New version Deploy કર્યું છે?<br><small>${cricketEsc(JSON.stringify(response).slice(0,150))}</small></div>`;
+      return;
+    }
+    window._cricketPlayers = response.data || [];
+
+    if (window._cricketPlayers.length === 0) {
+      container.innerHTML = `
+        <div style="text-align:center; color:#94a3b8; padding:50px; background:rgba(255,255,255,0.45); border-radius:16px;">
+          <i class="fas fa-baseball" style="font-size:42px; opacity:0.35; margin-bottom:12px;"></i>
+          <div>હજુ સુધી કોઈ Player ની વિગત ભરાઈ નથી.</div>
+        </div>`;
+      return;
+    }
+
+    container.style.display = "grid";
+    container.style.gridTemplateColumns = "repeat(auto-fill, minmax(165px, 1fr))";
+    container.style.gap = "16px";
+
+    container.innerHTML = window._cricketPlayers.map((p, idx) => {
+      const canEdit = String(p.memberNo).trim() === userMemberNo;
+      const photo = cricketEsc(p.photo || "");
+      return `
+        <div style="position:relative; background:rgba(255,255,255,0.55); backdrop-filter:blur(12px);
+                    border:1px solid rgba(255,255,255,0.65); border-radius:16px; padding:14px 12px;
+                    text-align:center; box-shadow:0 8px 20px rgba(0,0,0,0.06);">
+          ${canEdit ? `
+            <button onclick="openCricketPlayerForm(${idx})" title="વિગત બદલો"
+              style="position:absolute; top:8px; right:8px; width:30px; height:30px; border-radius:50%;
+                     background:rgba(59,130,246,0.12); border:1px solid rgba(59,130,246,0.4);
+                     color:#2563eb; cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0;">
+              <i class="fa-solid fa-pen-to-square" style="font-size:12px;"></i>
+            </button>` : ""}
+          <div style="width:88px; height:88px; margin:0 auto 10px; border-radius:50%; overflow:hidden; border:3px solid #16a34a; cursor:zoom-in;"
+               onclick="${photo ? `openImage('${photo}')` : ''}">
+            <img src="${photo}" style="width:100%; height:100%; object-fit:cover;"
+                 onerror="this.src='https://cdn-icons-png.flaticon.com/512/149/149071.png'">
+          </div>
+          <div style="font-weight:700; font-size:14px; color:#1e293b; margin-bottom:3px;">${cricketEsc(p.playerName)}</div>
+          <div style="font-size:12px; color:#64748b;">સભ્ય નં: ${cricketEsc(p.memberNo)}</div>
+          <div style="font-size:12.5px; color:#16a34a; font-weight:600; margin:4px 0;">${cricketEsc(p.arm)} Arm</div>
+          <div style="font-size:11.5px; color:#64748b;"><i class="fa-solid fa-phone"></i> ${cricketEsc(p.mobile)}</div>
+          ${(p.extra || []).map(x => `<div style="font-size:11.5px; color:#64748b;">${cricketEsc(x.label)}: <b>${cricketEsc(x.value)}</b></div>`).join("")}
+        </div>`;
+    }).join("");
+
+  } catch (e) {
+    console.error(e);
+    container.style.display = "block";
+    container.innerHTML = `<div style="color:#ef4444; text-align:center; padding:40px;">Sheet માંથી ડેટા લોડ કરવામાં ભૂલ આવી.</div>`;
+  }
+}
+
+async function ensureCricketPlayers(force) {
+  if (!force && Array.isArray(window._cricketPlayers) && window._cricketPlayers.length) return;
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=getCricketPlayers${cricketMemberQuery()}`);
+    const j = await res.json();
+    window._cricketPlayers = j.data || [];
+  } catch (e) { console.error(e); }
+}
+
+function findCricketPlayer(memberNo, name) {
+  return (window._cricketPlayers || []).find(p =>
+    String(p.memberNo).trim() === String(memberNo).trim() &&
+    String(p.playerName).trim() === String(name).trim()
+  ) || null;
+}
+
+// ---------- નામ select થાય ત્યારે જૂની વિગત auto-fill ----------
+function fillCricketExisting(memberNo, name) {
+  const p = name ? findCricketPlayer(memberNo, name) : null;
+  window._cricketExisting = p;
+
+  const mobile = document.getElementById("cMobile");
+  const arm = document.getElementById("cArm");
+  const note = document.getElementById("cExistingNote");
+  const prevBox = document.getElementById("cPhotoPreview");
+  const prevImg = document.getElementById("cPhotoPreviewImg");
+  const photoLabel = document.getElementById("cPhotoLabel");
+  const fileInput = document.getElementById("cPhoto");
+  if (fileInput) fileInput.value = "";
+
+  if (p) {
+    if (mobile) mobile.value = p.mobile || "";
+    if (arm) arm.value = p.arm || "";
+    if (note) note.style.display = "block";
+    if (photoLabel) photoLabel.innerText = "નવો ફોટો (ઐચ્છિક — ખાલી રાખો તો જૂનો ફોટો રહેશે)";
+    if (p.photo && prevImg && prevBox) { prevImg.src = p.photo; prevBox.style.display = "block"; }
+  } else {
+    if (mobile) mobile.value = "";
+    if (arm) arm.value = "";
+    if (note) note.style.display = "none";
+    if (photoLabel) photoLabel.innerText = "ફોટો (ફરજિયાત)";
+    if (prevBox) prevBox.style.display = "none";
+  }
+}
+
+async function loadCricketMalesForForm(memberNo) {
+  const sel = document.getElementById("cPlayerName");
+  if (!sel) return;
+  if (!memberNo) { sel.innerHTML = `<option value="">પહેલાં સભ્ય પસંદ કરો</option>`; return; }
+
+  sel.innerHTML = `<option value="">⏳ લોડ થઈ રહ્યું છે...</option>`;
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=getCricketMales&memberNo=${encodeURIComponent(memberNo)}`);
+    const j = await res.json();
+    const list = j.data || [];
+    if (!list.length) { sel.innerHTML = `<option value="">કોઈ પુરુષ સભ્ય મળ્યા નથી</option>`; return; }
+    sel.innerHTML = `<option value="">-- Player નું નામ પસંદ કરો --</option>` +
+      list.map(n => `<option value="${cricketEsc(n)}">${cricketEsc(n)}</option>`).join("");
+  } catch (e) {
+    sel.innerHTML = `<option value="">લોડ કરવામાં ભૂલ</option>`;
+  }
+  sel.onchange = function () {
+    fillCricketExisting(document.getElementById("cMemberNo").value, this.value);
+  };
+}
+
+// ---------- Player Form (નવું + Edit બંને) ----------
+// openCricketPlayerForm()      → નવું ફોર્મ
+// openCricketPlayerForm(index) → card ના Edit માટે
+async function openCricketPlayerForm(editIdx) {
+  const userRole = localStorage.getItem("userRole") || "public";
+  const userMemberNo = localStorage.getItem("userMemberNo") || "";
+  const isEdit = typeof editIdx === "number";
+  window._cricketExisting = null;
+
+  let editPlayer = null;
+  if (isEdit) {
+    editPlayer = (window._cricketPlayers || [])[editIdx];
+    if (!editPlayer) { alert("Player ની વિગત મળી નથી."); return; }
+  } else if (!userMemberNo) {
+    alert("સભ્ય નંબર મળ્યો નથી. ફરી લોગિન કરો.");
+    return;
+  }
+
+  const memberNo = isEdit ? editPlayer.memberNo : userMemberNo;
+  const roStyle = "background:#e2e8f0;color:#64748b;cursor:not-allowed;";
+  const selStyle = "width:100%;padding:12px 15px;border-radius:10px;font-size:14px;";
+
+  document.getElementById("modalTitle").innerHTML =
+    `<i class="fas fa-user-${isEdit ? "pen" : "plus"}"></i> ${isEdit ? "Player ની વિગત બદલો" : "Player Form"}`;
+
+  const formBody = document.querySelector("#commonModal .form-body");
+  formBody.innerHTML = `
+    <div class="form-row">
+      <label>સભ્ય નંબર</label>
+      <input type="text" id="cMemberNo" value="${cricketEsc(memberNo)}" readonly style="${roStyle}">
+    </div>
+
+    <div class="form-row">
+      <label>Player નું નામ (ફક્ત પુરુષ)</label>
+      ${isEdit
+        ? `<input type="text" id="cPlayerName" value="${cricketEsc(editPlayer.playerName)}" readonly style="${roStyle}">`
+        : `<select id="cPlayerName" style="${selStyle}"><option value="">⏳ લોડ થઈ રહ્યું છે...</option></select>`}
+    </div>
+
+    <div id="cExistingNote" style="display:none; margin:-8px 0 16px 0; padding:10px 12px; border-radius:10px;
+         background:rgba(22,163,74,0.1); border:1px solid rgba(22,163,74,0.35); color:#15803d; font-size:12.5px;">
+      ✅ આ Player ની વિગત પહેલેથી ભરેલી છે. ફેરફાર કરીને સેવ કરશો તો Sheet માં અપડેટ થશે.
+    </div>
+
+    <div class="form-row">
+      <label>મોબાઈલ નંબર</label>
+      <input type="text" id="cMobile" maxlength="10" inputmode="numeric" placeholder="10 અંકનો મોબાઈલ નંબર લખો"
+             oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+    </div>
+
+    <div class="form-row">
+      <label>Arm (હાથ)</label>
+      <select id="cArm" style="${selStyle}">
+        <option value="">-- પસંદ કરો --</option>
+        <option value="Left">Left</option>
+        <option value="Right">Right</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label id="cPhotoLabel">ફોટો (ફરજિયાત)</label>
+      <input type="file" id="cPhoto" accept="image/jpeg,image/png,image/webp">
+      <div id="cPhotoPreview" style="margin-top:12px; width:120px; height:120px; border-radius:12px; overflow:hidden; display:none; border:1px solid rgba(0,0,0,0.1);">
+        <img id="cPhotoPreviewImg" style="width:100%; height:100%; object-fit:cover;">
+      </div>
+    </div>
+  `;
+
+  document.getElementById("cPhoto").onchange = function () {
+    const file = this.files && this.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { alert("ફોટો 5 MB કરતાં નાનો હોવો જોઈએ."); this.value = ""; return; }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      document.getElementById("cPhotoPreviewImg").src = e.target.result;
+      document.getElementById("cPhotoPreview").style.display = "block";
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const saveBtn = document.querySelector("#commonModal .btn-save");
+  if (saveBtn) {
+    saveBtn.innerText = isEdit ? "અપડેટ કરો" : "સેવ કરો";
+    saveBtn.onclick = saveCricketPlayer;
+  }
+  document.getElementById("commonModal").style.display = "flex";
+
+  // જૂનો ડેટા (auto-fetch માટે)
+  await ensureCricketPlayers();
+
+  if (isEdit) {
+    fillCricketExisting(memberNo, editPlayer.playerName);
+  } else {
+    loadCricketMalesForForm(userMemberNo);
+  }
+}
+
+// ---------- Save (નવું + Update) ----------
+async function saveCricketPlayer() {
+  const memberNo = document.getElementById("cMemberNo").value.trim();
+  const playerName = document.getElementById("cPlayerName").value.trim();
+  const mobile = document.getElementById("cMobile").value.trim().replace(/\D/g, "");
+  const arm = document.getElementById("cArm").value;
+  const file = document.getElementById("cPhoto").files[0];
+  const existing = window._cricketExisting;
+
+  if (!memberNo) { alert("સભ્ય પસંદ કરો."); return; }
+  if (!playerName) { alert("Player નું નામ પસંદ કરો."); return; }
+  if (mobile.length !== 10) { alert("માન્ય 10 અંકનો મોબાઈલ નંબર લખો."); return; }
+  if (!arm) { alert("Arm (Left / Right) પસંદ કરો."); return; }
+  if (!file && !(existing && existing.photo)) { alert("ફોટો ફરજિયાત છે."); return; }
+  if (file && file.size > 5 * 1024 * 1024) { alert("ફોટો 5 MB કરતાં નાનો હોવો જોઈએ."); return; }
+
+  showLoader(true);
+  try {
+    const payload = { action: "saveCricketPlayer", memberNo, playerName, mobile, arm };
+
+    if (file) {
+      payload.photoBase64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => { const s = reader.result; const i = s.indexOf(","); resolve(i >= 0 ? s.substring(i + 1) : s); };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      payload.photoMime = file.type || "image/jpeg";
+      payload.photoName = file.name || "player.jpg";
+    }
+
+    const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
+    const result = await res.json();
+    showLoader(false);
+
+    if (result.status === "success") {
+      alert(result.message || "✅ Player સેવ થયો!");
+      closeModal();
+      loadCricketPlayers();
+    } else {
+      alert("ભૂલ: " + (result.message || "સેવ થઈ શક્યું નથી"));
+    }
+  } catch (err) {
+    showLoader(false);
+    console.error(err);
+    alert("સર્વર સાથે સંપર્ક થઈ શક્યો નથી.");
+  }
+}
+
 
 		</script>
 	  </body>
