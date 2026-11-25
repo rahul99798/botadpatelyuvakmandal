@@ -1371,7 +1371,7 @@ select option {
 <div id="overlay" onclick="toggleMobileSidebar()"></div>
 		<script>
 		  const SCRIPT_URL =
-			"https://script.google.com/macros/s/AKfycby38eeAPOFDOpumpYjH3uEqRyBWdZf_lUbd7l5nPltArdKZHmqrHiQpQLncLhEBtS2o/exec";
+			"https://script.google.com/macros/s/AKfycbx4EQTZEFDrQ1Z6ylbgbV6FuLNC6g6OIjKzpvp7KG8giRM_F3v5MfPXCpDhA2VPZJ9-/exec";
 			
 
 		  
@@ -1453,7 +1453,7 @@ function fetchSlipMemberData() {
   }
 
   var url =
-    "https://script.google.com/macros/s/AKfycby38eeAPOFDOpumpYjH3uEqRyBWdZf_lUbd7l5nPltArdKZHmqrHiQpQLncLhEBtS2o/exec" +
+    "https://script.google.com/macros/s/AKfycbx4EQTZEFDrQ1Z6ylbgbV6FuLNC6g6OIjKzpvp7KG8giRM_F3v5MfPXCpDhA2VPZJ9-/exec" +
     "?action=getSlip&mobile=" +
     encodeURIComponent(query);
 
@@ -7019,7 +7019,27 @@ function previewFamilyPhoto(input) {
     };
     reader.readAsDataURL(file);
 }
+function setAgeFromBirth(birthStr) {
+  const ageEl = document.getElementById("cAge");
+  if (!ageEl) return;
+  if (!birthStr) { ageEl.value = ""; return; }
 
+  let d = null;
+  const m = String(birthStr).trim().match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/);
+  if (m) {
+    d = new Date(parseInt(m[3], 10), parseInt(m[2], 10) - 1, parseInt(m[1], 10));
+  } else {
+    d = new Date(birthStr);
+  }
+  if (!d || isNaN(d.getTime())) { ageEl.value = ""; return; }
+
+  const today = new Date();
+  let age = today.getFullYear() - d.getFullYear();
+  const md = today.getMonth() - d.getMonth();
+  if (md < 0 || (md === 0 && today.getDate() < d.getDate())) age--;
+  if (age < 0 || age > 100) { ageEl.value = ""; return; }
+  ageEl.value = age;
+}
 async function submitFamilyPhoto() {
     const fileInput = document.getElementById("familyPhotoFile");
     const file = fileInput?.files?.[0];
@@ -7919,21 +7939,36 @@ function fillCricketExisting(memberNo, name) {
 async function loadCricketMalesForForm(memberNo) {
   const sel = document.getElementById("cPlayerName");
   if (!sel) return;
-  if (!memberNo) { sel.innerHTML = `<option value="">પહેલાં સભ્ય પસંદ કરો</option>`; return; }
+  if (!memberNo) {
+    sel.innerHTML = `<option value="">પહેલાં સભ્ય પસંદ કરો</option>`;
+    return;
+  }
 
   sel.innerHTML = `<option value="">⏳ લોડ થઈ રહ્યું છે...</option>`;
   try {
     const res = await fetch(`${SCRIPT_URL}?action=getCricketMales&memberNo=${encodeURIComponent(memberNo)}`);
     const j = await res.json();
     const list = j.data || [];
-    if (!list.length) { sel.innerHTML = `<option value="">કોઈ પુરુષ સભ્ય મળ્યા નથી</option>`; return; }
+    if (!list.length) {
+      sel.innerHTML = `<option value="">કોઈ પુરુષ સભ્ય મળ્યા નથી</option>`;
+      return;
+    }
+
     sel.innerHTML = `<option value="">-- Player નું નામ પસંદ કરો --</option>` +
-      list.map(n => `<option value="${cricketEsc(n)}">${cricketEsc(n)}</option>`).join("");
+      list.map(item => {
+        const name = typeof item === "string" ? item : (item.name || "");
+        const birth = typeof item === "string" ? "" : (item.birthdate || "");
+        return `<option value="${cricketEsc(name)}" data-birth="${cricketEsc(birth)}">${cricketEsc(name)}</option>`;
+      }).join("");
   } catch (e) {
     sel.innerHTML = `<option value="">લોડ કરવામાં ભૂલ</option>`;
   }
+
   sel.onchange = function () {
     fillCricketExisting(document.getElementById("cMemberNo").value, this.value);
+    const opt = this.options[this.selectedIndex];
+    const birth = opt ? (opt.getAttribute("data-birth") || "") : "";
+    setAgeFromBirth(birth);
   };
 }
 
@@ -8001,10 +8036,11 @@ async function openCricketPlayerForm(editIdx) {
              oninput="this.value=this.value.replace(/[^0-9]/g,'')">
     </div>
 
-    <div class="form-row">
-      <label>Age</label>
-      <input type="number" id="cAge" min="10" max="60" placeholder="age">
-    </div>
+   <div class="form-row">
+  <label>Age (વય)</label>
+  <input type="number" id="cAge" min="10" max="60" placeholder="Birthdate થી auto" readonly
+         style="background:#e2e8f0;color:#64748b;cursor:not-allowed;">
+</div>
 
 
     <div class="form-row">
