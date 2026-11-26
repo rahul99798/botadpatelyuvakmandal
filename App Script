@@ -3019,7 +3019,7 @@ function handleCricketSave_(data) {
     if (cols.bowling !== undefined)    rowVals[cols.bowling] = bowling;
     if (cols.size !== undefined)       rowVals[cols.size] = size;
     if (cols.jerseyName !== undefined) rowVals[cols.jerseyName] = jerseyName;
-    if (cols.jerseyNo !== undefined)   rowVals[cols.jerseyNo] = jerseyNo;
+    if (cols.jerseyNo !== undefined)   rowVals[cols.jerseyNo] = "'" + jerseyNo;
     if (cols.trouserSize !== undefined) rowVals[cols.trouserSize] = trouserSize;
     if (cols.specialTags !== undefined) rowVals[cols.specialTags] = specialTags;
     if (cols.matches !== undefined)    rowVals[cols.matches] = matches;
