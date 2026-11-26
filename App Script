@@ -2761,24 +2761,31 @@ var CRICKET_KEYS_ = {
   memberNo:   ['memberno','sabhyano','sabhyno','membernumber','સભ્યનંબર','સભ્યનં'],
   playerName: ['playername','player','name','playernamae','નામ','ખેલાડી'],
   mobile:     ['mobile','mobileno','mobilenumber','phone','મોબાઈલ','મોબાઇલ','મોબાઈલનંબર'],
-  arm:        ['arm','hand','હાથ'],
   photo:      ['photourl','photo','image','imageurl','ફોટો'],
   fileName:   ['filename','file'],
   cricHeroes: ['cricheroes','cricheroesno','cricheroesnumber','cricketnumber'],
   age:        ['age','vay','વય'],
   role:       ['role','playingrole','playertype'],
   batting:    ['batting','battingstyle'],
+  battingPos: ['battingpos','battingposition','preferredbattingposition','position'],
   bowling:    ['bowling','bowlingstyle'],
   size:       ['size','tshirtsize','jerseysize','tshirt'],
   jerseyName: ['jerseyname','nameonjersey','printname'],
-  jerseyNo:   ['jerseyno','jerseynumber','number']
+  jerseyNo:   ['jerseyno','jerseynumber','number'],
+  trouserSize:['trousersize','trouser','pantsize','waist'],
+  specialTags:['specialtags','tags','strengths','special'],
+  matches:    ['matches','match','matchcount'],
+  runs:       ['runs','run','runscored'],
+  wickets:    ['wickets','wicket','wickettaken']
 };
 var CRICKET_DEFAULT_HEADERS_ = {
   timestamp: 'Timestamp', memberNo: 'MemberNo', playerName: 'PlayerName',
-  mobile: 'Mobile', arm: 'Arm', photo: 'PhotoURL', fileName: 'FileName',
+  mobile: 'Mobile', photo: 'PhotoURL', fileName: 'FileName',
   cricHeroes: 'CricHeroes', age: 'Age', role: 'PlayingRole',
-  batting: 'BattingStyle', bowling: 'BowlingStyle',
-  size: 'TShirtSize', jerseyName: 'JerseyName', jerseyNo: 'JerseyNo'
+  batting: 'BattingStyle', battingPos: 'BattingPosition', bowling: 'BowlingStyle',
+  size: 'TShirtSize', jerseyName: 'JerseyName', jerseyNo: 'JerseyNo',
+  trouserSize: 'TrouserSize', specialTags: 'SpecialTags',
+  matches: 'Matches', runs: 'Runs', wickets: 'Wickets'
 };
 
 function normHeader_(h) {
@@ -2853,16 +2860,21 @@ function getCricketPlayers(onlyMemberNo) {
         memberNo: String(r[L.cols.memberNo] || '').trim(),
         playerName: name,
         mobile: String(r[L.cols.mobile] || '').trim(),
-        arm: String(r[L.cols.arm] || '').trim(),
         photo: String(r[L.cols.photo] || '').trim(),
         cricHeroes: String(r[L.cols.cricHeroes] || '').trim(),
         age: String(r[L.cols.age] || '').trim(),
         role: String(r[L.cols.role] || '').trim(),
         batting: String(r[L.cols.batting] || '').trim(),
+        battingPos: L.cols.battingPos !== undefined ? String(r[L.cols.battingPos] || '').trim() : '',
         bowling: String(r[L.cols.bowling] || '').trim(),
         size: String(r[L.cols.size] || '').trim(),
         jerseyName: String(r[L.cols.jerseyName] || '').trim(),
         jerseyNo: String(r[L.cols.jerseyNo] || '').trim(),
+        trouserSize: L.cols.trouserSize !== undefined ? String(r[L.cols.trouserSize] || '').trim() : '',
+        specialTags: L.cols.specialTags !== undefined ? String(r[L.cols.specialTags] || '').trim() : '',
+        matches: L.cols.matches !== undefined ? String(r[L.cols.matches] || '').trim() : '',
+        runs: L.cols.runs !== undefined ? String(r[L.cols.runs] || '').trim() : '',
+        wickets: L.cols.wickets !== undefined ? String(r[L.cols.wickets] || '').trim() : '',
         extra: extra
       });
     }
@@ -2898,15 +2910,20 @@ function handleCricketSave_(data) {
     var memberNo   = String(data.memberNo || '').trim();
     var playerName = String(data.playerName || '').trim();
     var mobile     = String(data.mobile || '').replace(/\D/g, '');
-    var arm        = String(data.arm || '').trim();
     var cricHeroes = String(data.cricHeroes || '').trim();
     var age        = String(data.age || '').trim();
     var role       = String(data.role || '').trim();
     var batting    = String(data.batting || '').trim();
+    var battingPos = String(data.battingPos || '').trim();
     var bowling    = String(data.bowling || '').trim();
     var size       = String(data.size || '').trim();
     var jerseyName = String(data.jerseyName || '').trim();
     var jerseyNo   = String(data.jerseyNo || '').trim();
+    var trouserSize = String(data.trouserSize || '').trim();
+    var specialTags = String(data.specialTags || '').trim();
+    var matches    = String(data.matches || '').replace(/\D/g, '');
+    var runs       = String(data.runs || '').replace(/\D/g, '');
+    var wickets    = String(data.wickets || '').replace(/\D/g, '');
     var base64     = data.photoBase64 || '';
     var mime       = data.photoMime || 'image/jpeg';
     var origName   = data.photoName || 'player.jpg';
@@ -2992,17 +3009,22 @@ function handleCricketSave_(data) {
     rowVals[cols.memberNo]   = memberNo;
     rowVals[cols.playerName] = playerName;
     rowVals[cols.mobile]     = "'" + mobile;
-    rowVals[cols.arm]        = arm;
     rowVals[cols.photo]      = photoUrl;
     rowVals[cols.fileName]   = fileName;
     if (cols.cricHeroes !== undefined) rowVals[cols.cricHeroes] = cricHeroes;
     if (cols.age !== undefined)        rowVals[cols.age] = age;
     if (cols.role !== undefined)       rowVals[cols.role] = role;
     if (cols.batting !== undefined)    rowVals[cols.batting] = batting;
+    if (cols.battingPos !== undefined) rowVals[cols.battingPos] = battingPos;
     if (cols.bowling !== undefined)    rowVals[cols.bowling] = bowling;
     if (cols.size !== undefined)       rowVals[cols.size] = size;
     if (cols.jerseyName !== undefined) rowVals[cols.jerseyName] = jerseyName;
     if (cols.jerseyNo !== undefined)   rowVals[cols.jerseyNo] = jerseyNo;
+    if (cols.trouserSize !== undefined) rowVals[cols.trouserSize] = trouserSize;
+    if (cols.specialTags !== undefined) rowVals[cols.specialTags] = specialTags;
+    if (cols.matches !== undefined)    rowVals[cols.matches] = matches;
+    if (cols.runs !== undefined)       rowVals[cols.runs] = runs;
+    if (cols.wickets !== undefined)    rowVals[cols.wickets] = wickets;
 
     try {
       if (target > -1) {
