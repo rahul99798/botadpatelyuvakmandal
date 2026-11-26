@@ -1371,7 +1371,7 @@ select option {
 <div id="overlay" onclick="toggleMobileSidebar()"></div>
 		<script>
 		  const SCRIPT_URL =
-			"https://script.google.com/macros/s/AKfycbx4EQTZEFDrQ1Z6ylbgbV6FuLNC6g6OIjKzpvp7KG8giRM_F3v5MfPXCpDhA2VPZJ9-/exec";
+			"https://script.google.com/macros/s/AKfycbxEtJrT9rAXetH9_NGncYU1RPVc9CKdW0Ei-tq6N6syTDEdIzkp0e550hBAvLAIiroo/exec";
 			
 
 		  
@@ -1453,7 +1453,7 @@ function fetchSlipMemberData() {
   }
 
   var url =
-    "https://script.google.com/macros/s/AKfycbx4EQTZEFDrQ1Z6ylbgbV6FuLNC6g6OIjKzpvp7KG8giRM_F3v5MfPXCpDhA2VPZJ9-/exec" +
+    "https://script.google.com/macros/s/AKfycbxEtJrT9rAXetH9_NGncYU1RPVc9CKdW0Ei-tq6N6syTDEdIzkp0e550hBAvLAIiroo/exec" +
     "?action=getSlip&mobile=" +
     encodeURIComponent(query);
 
@@ -7789,12 +7789,18 @@ async function loadCricketPlayers() {
       const photo = cricketEsc(p.photo || "");
       const role = cricketEsc(p.role || "");
       const batting = cricketEsc(p.batting || "");
+      const battingPos = cricketEsc(p.battingPos || "");
       const bowling = cricketEsc(p.bowling || "");
       const size = cricketEsc(p.size || "");
+      const trouser = cricketEsc(p.trouserSize || "");
       const jName = cricketEsc(p.jerseyName || "");
       const jNo = cricketEsc(p.jerseyNo || "");
       const age = cricketEsc(p.age || "");
       const cric = cricketEsc(p.cricHeroes || "");
+      const matches = cricketEsc(p.matches || "");
+      const runs = cricketEsc(p.runs || "");
+      const wickets = cricketEsc(p.wickets || "");
+      const statsLine = [matches ? "M: " + matches : "", runs ? "R: " + runs : "", wickets ? "W: " + wickets : ""].filter(Boolean).join(" · ");
       return `
         <div style="position:relative; display:flex; align-items:center; gap:14px;
                     background:rgba(255,255,255,0.6); backdrop-filter:blur(14px);
@@ -7818,14 +7824,16 @@ async function loadCricketPlayers() {
             <div style="font-size:11px; color:#94a3b8; margin-bottom:4px;">સભ્ય નં: ${cricketEsc(p.memberNo)}${age ? ' • Age ' + age : ''}</div>
             ${role ? `<div style="display:inline-block; margin-bottom:4px; padding:2px 8px; border-radius:12px; font-size:11px; font-weight:600;
                          background:rgba(22,163,74,0.12); border:1px solid rgba(22,163,74,0.35); color:#15803d;">${role}</div>` : ""}
-                        <div style="font-size:11px; color:#475569; margin:2px 0;">
+            <div style="font-size:11px; color:#475569; margin:2px 0;">
               ${batting ? `<span style="color:#94a3b8;">Batting:</span> ${batting}` : ""}
-              ${batting && bowling ? "<br>" : ""}
+              ${batting && battingPos ? " · " : ""}${battingPos ? battingPos : ""}
+              ${(batting || battingPos) && bowling ? "<br>" : ""}
               ${bowling ? `<span style="color:#94a3b8;">Bowling:</span> ${bowling}` : ""}
             </div>
             <div style="font-size:12px; color:#1e293b; font-weight:600; margin:3px 0 1px;">
-              ${jName ? jName : ""}${jName && jNo ? " #" : (jNo ? "#" : "")}${jNo ? jNo : ""}${size ? '  ·  ' + size : ''}
+              ${jName ? jName : ""}${jName && jNo ? " #" : (jNo ? "#" : "")}${jNo ? jNo : ""}${size ? '  ·  TS ' + size : ''}${trouser ? '  ·  Tr ' + trouser : ''}
             </div>
+            ${statsLine ? `<div style="font-size:11px; color:#64748b; margin-top:2px;">${statsLine}</div>` : ""}
             <div style="font-size:11px; color:#64748b; margin-top:3px;">
               <i class="fa-solid fa-phone" style="margin-right:3px;"></i>${cricketEsc(p.mobile)}
               ${cric && cric !== String(p.mobile||"").replace(/\D/g,"") ? '  ·  CH: ' + cric : ''}
@@ -7891,24 +7899,52 @@ function fillCricketExisting(memberNo, name) {
   const cric = document.getElementById("cCricHeroes");
   const age = document.getElementById("cAge");
   const role = document.getElementById("cRole");
-  const batting = document.getElementById("cBatting");
+  const battingPos = document.getElementById("cBattingPos");
   const bowling = document.getElementById("cBowling");
   const size = document.getElementById("cSize");
   const jerseyName = document.getElementById("cJerseyName");
   const jerseyNo = document.getElementById("cJerseyNo");
+  const trouserSize = document.getElementById("cTrouserSize");
+  const matches = document.getElementById("cMatches");
+  const runs = document.getElementById("cRuns");
+  const wickets = document.getElementById("cWickets");
   const sameChk = document.getElementById("cSameAsWhatsApp");
   if (fileInput) fileInput.value = "";
+
+  // clear radio + checkboxes first
+  const batRight = document.getElementById("cBattingRight");
+  const batLeft = document.getElementById("cBattingLeft");
+  if (batRight) batRight.checked = false;
+  if (batLeft) batLeft.checked = false;
+  document.querySelectorAll("#cSpecialTags input[type=checkbox]").forEach(function (cb) { cb.checked = false; });
 
   if (p) {
     if (mobile) mobile.value = p.mobile || "";
     if (cric) cric.value = p.cricHeroes || "";
     if (age) age.value = p.age || "";
     if (role) role.value = p.role || "";
-    if (batting) batting.value = p.batting || "";
+    // batting style (radio) — support old values too
+    var batVal = String(p.batting || "").trim();
+    if (batVal === "Right-Hand Batsman" || batVal === "Right-Handed") {
+      if (batRight) batRight.checked = true;
+    } else if (batVal === "Left-Hand Batsman" || batVal === "Left-Handed") {
+      if (batLeft) batLeft.checked = true;
+    }
+    if (battingPos) battingPos.value = p.battingPos || "";
     if (bowling) bowling.value = p.bowling || "";
     if (size) size.value = p.size || "";
     if (jerseyName) jerseyName.value = p.jerseyName || "";
     if (jerseyNo) jerseyNo.value = p.jerseyNo || "";
+    if (trouserSize) trouserSize.value = p.trouserSize || "";
+    if (matches) matches.value = p.matches || "";
+    if (runs) runs.value = p.runs || "";
+    if (wickets) wickets.value = p.wickets || "";
+    // special tags (pipe or comma separated)
+    var tagsStr = String(p.specialTags || "");
+    var tags = tagsStr.split(/[|,]/).map(function (t) { return t.trim(); }).filter(Boolean);
+    document.querySelectorAll("#cSpecialTags input[type=checkbox]").forEach(function (cb) {
+      cb.checked = tags.indexOf(cb.value) > -1;
+    });
     // same number? auto-tick
     if (sameChk) {
       const mob = String(p.mobile || "").replace(/\D/g, "");
@@ -7924,11 +7960,15 @@ function fillCricketExisting(memberNo, name) {
     if (cric) cric.value = "";
     if (age) age.value = "";
     if (role) role.value = "";
-    if (batting) batting.value = "";
+    if (battingPos) battingPos.value = "";
     if (bowling) bowling.value = "";
     if (size) size.value = "";
     if (jerseyName) jerseyName.value = "";
     if (jerseyNo) jerseyNo.value = "";
+    if (trouserSize) trouserSize.value = "";
+    if (matches) matches.value = "";
+    if (runs) runs.value = "";
+    if (wickets) wickets.value = "";
     if (sameChk) { sameChk.checked = false; syncCricHeroesFromMobile(); }
     if (note) note.style.display = "none";
     if (photoLabel) photoLabel.innerText = "ફોટો (ફરજિયાત)";
@@ -8037,29 +8077,47 @@ async function openCricketPlayerForm(editIdx) {
     </div>
 
    <div class="form-row">
-  <label>Age (વય)</label>
-  <input type="number" id="cAge" min="10" max="60" placeholder="Birthdate થી auto" readonly
+  <label>Age</label>
+  <input type="number" id="cAge" min="10" max="60" placeholder="auto" readonly
          style="background:#e2e8f0;color:#64748b;cursor:not-allowed;">
 </div>
 
 
     <div class="form-row">
-      <label>Playing Role</label>
+      <label>Playing Role <span style="color:#ef4444;">*</span></label>
       <select id="cRole" style="${selStyle}">
         <option value="">-- પસંદ કરો --</option>
         <option value="Batsman">Batsman</option>
         <option value="Bowler">Bowler</option>
-        <option value="All-Rounder">All-Rounder</option>
-        <option value="Wicket-Keeper Batsman">Wicket-Keeper Batsman</option>
+        <option value="Batting All-Rounder">Wicket-Keeper</option>
+        <option value="Wicket-Keeper Batsman">All-Rounder</option>
       </select>
     </div>
 
     <div class="form-row">
-      <label>Batting Style</label>
-      <select id="cBatting" style="${selStyle}">
+      <label>Batting Style <span style="color:#ef4444;">*</span></label>
+      <div style="display:flex; flex-direction:column; gap:10px; margin-top:6px;">
+        <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:14px; color:#1e293b; font-weight:500;">
+          <input type="radio" name="cBatting" id="cBattingRight" value="Right-Hand Batsman"
+                 style="width:18px; height:18px; accent-color:#3b82f6; cursor:pointer;">
+          Right-Hand Batsman
+        </label>
+        <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:14px; color:#1e293b; font-weight:500;">
+          <input type="radio" name="cBatting" id="cBattingLeft" value="Left-Hand Batsman"
+                 style="width:18px; height:18px; accent-color:#3b82f6; cursor:pointer;">
+          Left-Hand Batsman
+        </label>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label>Preferred Batting Position</label>
+      <select id="cBattingPos" style="${selStyle}">
         <option value="">-- પસંદ કરો --</option>
-        <option value="Right-Handed">Right-Handed</option>
-        <option value="Left-Handed">Left-Handed</option>
+        <option value="Opener (No. 1 - 2)">Opener (No. 1 - 2)</option>
+        <option value="Top Order (No. 3 - 4)">Top Order (No. 3 - 4)</option>
+        <option value="Middle Order (No. 5 - 6)">Middle Order (No. 5 - 6)</option>
+        <option value="Lower Order / Finisher (No. 7+)">Lower Order / Finisher (No. 7+)</option>
       </select>
     </div>
 
@@ -8067,12 +8125,42 @@ async function openCricketPlayerForm(editIdx) {
       <label>Bowling Style</label>
       <select id="cBowling" style="${selStyle}">
         <option value="">-- પસંદ કરો --</option>
-        <option value="Right-Arm Fast/Medium">Right-Arm Fast/Medium</option>
-        <option value="Left-Arm Fast/Medium">Left-Arm Fast/Medium</option>
-        <option value="Off-Spin">Off-Spin</option>
-        <option value="Leg-Spin">Leg-Spin</option>
-        <option value="Left-Arm Orthodox">Left-Arm Orthodox</option>
+        <option value="Right-Arm Fast">Right-Arm Fast</option>
+        <option value="Right-Arm Medium Pace">Right-Arm Medium Pace</option>
+        <option value="Left-Arm Fast / Medium">Left-Arm Fast / Medium</option>
+        <option value="Right-Arm Off-Spin">Right-Arm Off-Spin</option>
+        <option value="Right-Arm Leg-Spin">Right-Arm Leg-Spin</option>
+        <option value="Left-Arm Orthodox (Finger Spin)">Left-Arm Orthodox (Finger Spin)</option>
+        <option value="Left-Arm Chinaman (Wrist Spin)">Left-Arm Chinaman (Wrist Spin)</option>
+        <option value="Does Not Bowl">Does Not Bowl</option>
       </select>
+    </div>
+
+    <div class="form-row">
+      <label>Special Tags / Strengths <span style="color:#64748b; font-size:12px; font-weight:400;">(ઐચ્છિક — બહુ પસંદ કરી શકો)</span></label>
+      <div id="cSpecialTags" style="display:flex; flex-direction:column; gap:8px; margin-top:6px;">
+        <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:13.5px; color:#1e293b;">
+          <input type="checkbox" value="Young Emerging Talent" style="width:17px; height:17px; accent-color:#3b82f6; cursor:pointer;"> Young Emerging Talent
+        </label>
+        <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:13.5px; color:#1e293b;">
+          <input type="checkbox" value="Power Hitter / Finisher" style="width:17px; height:17px; accent-color:#3b82f6; cursor:pointer;"> Power Hitter / Finisher
+        </label>
+        <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:13.5px; color:#1e293b;">
+          <input type="checkbox" value="Death Overs Specialist (Yorker)" style="width:17px; height:17px; accent-color:#3b82f6; cursor:pointer;"> Death Overs Specialist (Yorker)
+        </label>
+        <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:13.5px; color:#1e293b;">
+          <input type="checkbox" value="Powerplay Specialist" style="width:17px; height:17px; accent-color:#3b82f6; cursor:pointer;"> Powerplay Specialist
+        </label>
+        <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:13.5px; color:#1e293b;">
+          <input type="checkbox" value="Gun Fielder / Safe Hands" style="width:17px; height:17px; accent-color:#3b82f6; cursor:pointer;"> Gun Fielder / Safe Hands
+        </label>
+        <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:13.5px; color:#1e293b;">
+          <input type="checkbox" value="Backup Wicket-Keeper" style="width:17px; height:17px; accent-color:#3b82f6; cursor:pointer;"> Backup Wicket-Keeper
+        </label>
+        <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:13.5px; color:#1e293b;">
+          <input type="checkbox" value="Captaincy Experience" style="width:17px; height:17px; accent-color:#3b82f6; cursor:pointer;"> Captaincy Experience
+        </label>
+      </div>
     </div>
 
     <div class="form-row">
@@ -8096,6 +8184,44 @@ async function openCricketPlayerForm(editIdx) {
       <label>Jersey Number</label>
       <input type="text" id="cJerseyNo" maxlength="3" inputmode="numeric" placeholder="નંબર"
              oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+    </div>
+
+    <div class="form-row">
+      <label>Trouser Size</label>
+      <select id="cTrouserSize" style="${selStyle}">
+        <option value="">-- પસંદ કરો --</option>
+        <option value="28">28</option>
+        <option value="30">30</option>
+        <option value="32">32</option>
+        <option value="34">34</option>
+        <option value="36">36</option>
+        <option value="38">38</option>
+        <option value="40">40</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label>Match / Run / Wicket <span style="color:#64748b; font-size:12px; font-weight:400;"></span></label>
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
+        <div>
+          <label style="font-size:12px; color:#64748b; margin-bottom:4px; display:block;">Match</label>
+          <input type="text" id="cMatches" inputmode="numeric" placeholder="0"
+                 oninput="this.value=this.value.replace(/[^0-9]/g,'')"
+                 style="width:100%; padding:10px 12px; border-radius:10px; font-size:14px;">
+        </div>
+        <div>
+          <label style="font-size:12px; color:#64748b; margin-bottom:4px; display:block;">Run</label>
+          <input type="text" id="cRuns" inputmode="numeric" placeholder="0"
+                 oninput="this.value=this.value.replace(/[^0-9]/g,'')"
+                 style="width:100%; padding:10px 12px; border-radius:10px; font-size:14px;">
+        </div>
+        <div>
+          <label style="font-size:12px; color:#64748b; margin-bottom:4px; display:block;">Wicket</label>
+          <input type="text" id="cWickets" inputmode="numeric" placeholder="0"
+                 oninput="this.value=this.value.replace(/[^0-9]/g,'')"
+                 style="width:100%; padding:10px 12px; border-radius:10px; font-size:14px;">
+        </div>
+      </div>
     </div>
 
     <div class="form-row">
@@ -8144,11 +8270,20 @@ async function saveCricketPlayer() {
   const cricHeroes = (document.getElementById("cCricHeroes") || {}).value || "";
   const age = (document.getElementById("cAge") || {}).value || "";
   const role = (document.getElementById("cRole") || {}).value || "";
-  const batting = (document.getElementById("cBatting") || {}).value || "";
+  const battingRadio = document.querySelector('input[name="cBatting"]:checked');
+  const batting = battingRadio ? battingRadio.value : "";
+  const battingPos = (document.getElementById("cBattingPos") || {}).value || "";
   const bowling = (document.getElementById("cBowling") || {}).value || "";
   const size = (document.getElementById("cSize") || {}).value || "";
   const jerseyName = ((document.getElementById("cJerseyName") || {}).value || "").trim();
   const jerseyNo = ((document.getElementById("cJerseyNo") || {}).value || "").trim();
+  const trouserSize = (document.getElementById("cTrouserSize") || {}).value || "";
+  const matches = ((document.getElementById("cMatches") || {}).value || "").trim();
+  const runs = ((document.getElementById("cRuns") || {}).value || "").trim();
+  const wickets = ((document.getElementById("cWickets") || {}).value || "").trim();
+  // special tags — checked values joined by |
+  const specialTags = Array.from(document.querySelectorAll("#cSpecialTags input[type=checkbox]:checked"))
+    .map(function (cb) { return cb.value; }).join("|");
   const file = document.getElementById("cPhoto").files[0];
   const existing = window._cricketExisting;
 
@@ -8170,8 +8305,9 @@ async function saveCricketPlayer() {
       memberNo, playerName, mobile,
       cricHeroes: cricHeroes.trim(),
       age: age.trim(),
-      role, batting, bowling, size,
-      jerseyName, jerseyNo
+      role, batting, battingPos, bowling, size,
+      jerseyName, jerseyNo, trouserSize,
+      specialTags, matches, runs, wickets
     };
 
     if (file) {
